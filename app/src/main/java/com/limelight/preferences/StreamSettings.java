@@ -1,5 +1,6 @@
 package com.limelight.preferences;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,6 +32,8 @@ import com.limelight.PcView;
 import com.limelight.R;
 import com.limelight.binding.video.MediaCodecHelper;
 import com.limelight.utils.Dialog;
+import com.limelight.utils.LayoutList;
+import com.limelight.utils.SelectLayoutHelp;
 import com.limelight.utils.UiHelper;
 
 import java.lang.reflect.Method;
@@ -204,13 +207,14 @@ public class StreamSettings extends Activity {
             return view;
         }
 
+        @TargetApi(Build.VERSION_CODES.M)
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
             addPreferencesFromResource(R.xml.preferences);
             PreferenceScreen screen = getPreferenceScreen();
-
+            SelectLayoutHelp.initSharedPreferences(getContext());
             // hide on-screen controls category on non touch screen devices
             if (!getActivity().getPackageManager().
                     hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)) {
@@ -608,6 +612,27 @@ public class StreamSettings extends Activity {
                     return true;
                 }
             });
+
+            DynamicListPreference selectControllerPreference = (DynamicListPreference) findPreference(PreferenceConfiguration.SELECT_CONTROLLER_LAYOUT);
+
+            selectControllerPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+                @TargetApi(Build.VERSION_CODES.M)
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+
+                    return true;
+                }
+            });
+
+            selectControllerPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    SelectLayoutHelp.setCurrentNum(getContext(),SelectLayoutHelp.loadAllLayoutName(getContext()).indexOf((String) o));
+                    return true;
+                }
+            });
+
         }
     }
 }

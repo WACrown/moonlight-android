@@ -113,6 +113,56 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/category_on_screen_controls_settings"
         android:key="category_onscreen_controls">
+
+        <!--选择布局-->
+        <com.limelight.preferences.DynamicListPreference
+            android:key="list_select_controls_layout"
+            android:title="@string/title_select_controller_layout"
+            android:summary="@string/summary_select_controller_layout"
+            android:entries="@array/default_layout_list"
+            android:entryValues="@array/default_layout_list" />
+
+        <!--新建布局-->
+        <com.limelight.preferences.AddControllerLayoutPreference
+            android:title="@string/title_add_controller_layout"
+            android:summary="@string/summary_add_controller_layout"
+            />
+
+        <!--重命名布局-->
+        <com.limelight.preferences.RenameControllerLayoutPreference
+            android:title="@string/title_rename_controller_layout"
+            android:summary="@string/summary_rename_controller_layout"/>
+
+        <!--重置布局-->
+        <com.limelight.preferences.ConfirmResetControllerLayoutPreference
+            android:title="@string/title_reset_controller_layout"
+            android:summary="@string/summary_reset_controller_layout"
+            android:positiveButtonText="@string/yes"
+            android:negativeButtonText="@string/no"
+            />
+
+        <!--删除布局-->
+        <com.limelight.preferences.ConfirmDeleteControllerLayoutPreference
+            android:title="@string/title_delete_controller_layout"
+            android:summary="@string/summary_delete_controller_layout"
+            android:positiveButtonText="@string/yes"
+            android:negativeButtonText="@string/no"
+            />
+
+        <!--调整布局透明度-->
+        <com.limelight.preferences.SeekBarPreference
+            android:key="seekbar_layout_opacity"
+            android:title="@string/title_layout_opacity"
+            android:summary="@string/summary_layout_opacity"
+            android:dialogTitle="dialog_title_layout_opacity"
+            android:dialogMessage="@string/summary_layout_opacity"
+            seekbar:min="0"
+            seekbar:step="1"
+            android:max="100"
+            android:defaultValue="90"
+            android:text="@string/suffix_layout_opacity"
+             />
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="checkbox_show_onscreen_controls"
@@ -130,25 +180,6 @@
             android:key="checkbox_only_show_L3R3"
             android:summary="@string/summary_only_l3r3"
             android:title="@string/title_only_l3r3" />
-        <com.limelight.preferences.SeekBarPreference
-            android:key="seekbar_osc_opacity"
-            android:dependency="checkbox_show_onscreen_controls"
-            android:dialogMessage="@string/summary_osc_opacity"
-            seekbar:min="0"
-            seekbar:step="1"
-            android:max="100"
-            android:defaultValue="90"
-            android:summary="@string/summary_osc_opacity"
-            android:text="@string/suffix_osc_opacity"
-            android:title="@string/dialog_title_osc_opacity" />
-        <com.limelight.preferences.ConfirmDeleteOscPreference
-            android:title="@string/title_reset_osc"
-            android:summary="@string/summary_reset_osc"
-            android:dialogTitle="@string/dialog_title_reset_osc"
-            android:dialogMessage="@string/dialog_text_reset_osc"
-            android:positiveButtonText="@string/yes"
-            android:negativeButtonText="@string/no"
-            />
 
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/category_host_settings">

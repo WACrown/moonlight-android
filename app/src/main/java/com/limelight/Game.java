@@ -12,6 +12,7 @@ import com.limelight.binding.input.touch.RelativeTouchContext;
 import com.limelight.binding.input.driver.UsbDriverService;
 import com.limelight.binding.input.evdev.EvdevListener;
 import com.limelight.binding.input.touch.TouchContext;
+import com.limelight.binding.input.virtual_controller.StreamGyroscopeSensorListener;
 import com.limelight.binding.input.virtual_controller.VirtualController;
 import com.limelight.binding.video.CrashListener;
 import com.limelight.binding.video.MediaCodecDecoderRenderer;
@@ -112,6 +113,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private ControllerHandler controllerHandler;
     private KeyboardTranslator keyboardTranslator;
     private VirtualController virtualController;
+    private StreamGyroscopeSensorListener streamGyroscopeSensorListener;
 
     private PreferenceConfiguration prefConfig;
     private SharedPreferences tombstonePrefs;
@@ -505,6 +507,11 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             Dialog.displayDialog(this, getResources().getString(R.string.conn_error_title),
                     "This device or ROM doesn't support hardware accelerated H.264 playback.", true);
             return;
+        }
+
+        if (true) {
+            streamGyroscopeSensorListener = new StreamGyroscopeSensorListener(this,controllerHandler);
+            streamGyroscopeSensorListener.enableSensor();
         }
 
         // The connection will be started when the surface gets created
@@ -974,6 +981,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
         // Destroy the capture provider
         inputCaptureProvider.destroy();
+        streamGyroscopeSensorListener.disableSensor();
     }
 
     @Override
@@ -1472,7 +1480,8 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             {
                 if (virtualController != null &&
                         (virtualController.getControllerMode() == VirtualController.ControllerMode.MoveButtons ||
-                         virtualController.getControllerMode() == VirtualController.ControllerMode.ResizeButtons)) {
+                         virtualController.getControllerMode() == VirtualController.ControllerMode.ResizeButtons ||
+                         virtualController.getControllerMode() == VirtualController.ControllerMode.SelectLayout)) {
                     // Ignore presses when the virtual controller is being configured
                     return true;
                 }

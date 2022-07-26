@@ -45,6 +45,7 @@ public abstract class VirtualControllerElement extends View {
     protected int pressedColor = 0xF00000FF;
     private int configMoveColor = 0xF0FF0000;
     private int configResizeColor = 0xF0FF00FF;
+    private int configSelectColor = 0xFF03A9F4;
     private int configSelectedColor = 0xF000FF00;
 
     protected int startSize_x;
@@ -56,7 +57,8 @@ public abstract class VirtualControllerElement extends View {
     private enum Mode {
         Normal,
         Resize,
-        Move
+        Move,
+        Select
     }
 
     private Mode currentMode = Mode.Normal;
@@ -90,14 +92,16 @@ public abstract class VirtualControllerElement extends View {
 
         layoutParams.height = newHeight > 20 ? newHeight : 20;
         layoutParams.width = newWidth > 20 ? newWidth : 20;
-
         requestLayout();
+    }
+
+    protected void selectLayout(int pressed_x, int pressed_y, int width, int height) {
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         onElementDraw(canvas);
-
         if (currentMode != Mode.Normal) {
             paint.setColor(configSelectedColor);
             paint.setStrokeWidth(getDefaultStrokeWidth());
@@ -151,6 +155,10 @@ public abstract class VirtualControllerElement extends View {
         currentMode = Mode.Resize;
     }
 
+    protected void actionEnableSelect() {
+        currentMode = Mode.Select;
+    }
+
     protected void actionCancel() {
         currentMode = Mode.Normal;
         invalidate();
@@ -161,6 +169,8 @@ public abstract class VirtualControllerElement extends View {
             return configMoveColor;
         else if (virtualController.getControllerMode() == VirtualController.ControllerMode.ResizeButtons)
             return configResizeColor;
+        else if (virtualController.getControllerMode() == VirtualController.ControllerMode.SelectLayout)
+            return configSelectColor;
         else
             return normalColor;
     }
@@ -178,6 +188,7 @@ public abstract class VirtualControllerElement extends View {
         CharSequence functions[] = new CharSequence[]{
                 "Move",
                 "Resize",
+                "Select",
             /*election
             "Set n
             Disable color sormal color",
@@ -197,6 +208,10 @@ public abstract class VirtualControllerElement extends View {
                     }
                     case 1: { // resize
                         actionEnableResize();
+                        break;
+                    }
+                    case 2: { // select
+                        actionEnableSelect();
                         break;
                     }
                 /*
@@ -239,7 +254,8 @@ public abstract class VirtualControllerElement extends View {
                     actionEnableMove();
                 else if (virtualController.getControllerMode() == VirtualController.ControllerMode.ResizeButtons)
                     actionEnableResize();
-
+                else if (virtualController.getControllerMode() == VirtualController.ControllerMode.SelectLayout)
+                    actionEnableSelect();
                 return true;
             }
             case MotionEvent.ACTION_MOVE: {
@@ -254,6 +270,14 @@ public abstract class VirtualControllerElement extends View {
                     }
                     case Resize: {
                         resizeElement(
+                                (int) position_pressed_x,
+                                (int) position_pressed_y,
+                                (int) event.getX(),
+                                (int) event.getY());
+                        break;
+                    }
+                    case Select: {
+                        selectLayout(
                                 (int) position_pressed_x,
                                 (int) position_pressed_y,
                                 (int) event.getX(),

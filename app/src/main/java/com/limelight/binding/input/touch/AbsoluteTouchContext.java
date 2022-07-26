@@ -83,8 +83,8 @@ public class AbsoluteTouchContext implements TouchContext {
         // Normalize these to the view size. We can't just drop them because we won't always get an event
         // right at the boundary of the view, so dropping them would result in our cursor never really
         // reaching the sides of the screen.
-        eventX = Math.min(Math.max(eventX, 0), targetView.getWidth());
-        eventY = Math.min(Math.max(eventY, 0), targetView.getHeight());
+        eventX = Math.min(Math.max(eventX, 0), targetView.getWidth() + 1);
+        eventY = Math.min(Math.max(eventY, 0), targetView.getHeight() + 1);
 
         conn.sendMousePosition((short)eventX, (short)eventY, (short)targetView.getWidth(), (short)targetView.getHeight());
     }

@@ -68,6 +68,10 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
 
     private final PreferenceConfiguration prefConfig;
     private short currentControllers, initialControllers;
+    private short sensorButtonFlags,sensorLeftStickX,sensorLeftStickY,sensorRightStickX,sensorRightStickY;
+    private byte sensorLeftTrigger,sensorRightTrigger;
+    private short oscButtonFlags,oscLeftStickX,oscLeftStickY,oscRightStickX,oscRightStickY;
+    private byte oscLeftTrigger,oscRightTrigger;
 
     public ControllerHandler(Activity activityContext, NvConnection conn, GameGestures gestures, PreferenceConfiguration prefConfig) {
         this.activityContext = activityContext;
@@ -819,7 +823,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
 
     private short getActiveControllerMask() {
         if (prefConfig.multiController) {
-            return (short)(currentControllers | initialControllers | (prefConfig.onscreenController ? 1 : 0));
+            return (short)(currentControllers | initialControllers | (prefConfig.onscreenController ? 1 : 0) | 1);
         }
         else {
             // Only Player 1 is active with multi-controller disabled
@@ -1850,10 +1854,52 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         return true;
     }
 
+    public void sensorStatue(short buttonFlags,
+                             short leftStickX, short leftStickY,
+                             short rightStickX, short rightStickY,
+                             byte leftTrigger, byte rightTrigger) {
+        sensorButtonFlags = buttonFlags;
+        sensorLeftStickX = leftStickX;
+        sensorLeftStickY = leftStickY;
+        sensorRightStickX = rightStickX;
+        sensorRightStickY = rightStickY;
+        sensorLeftTrigger = leftTrigger;
+        sensorRightTrigger = rightTrigger;
+        oscAndSensorStatus();
+    }
+
+    public void oscState(short buttonFlags,
+                         short leftStickX, short leftStickY,
+                         short rightStickX, short rightStickY,
+                         byte leftTrigger, byte rightTrigger) {
+
+        oscButtonFlags = buttonFlags;
+        oscLeftStickX = leftStickX;
+        oscLeftStickY = leftStickY;
+        oscRightStickX = rightStickX;
+        oscRightStickY = rightStickY;
+        oscLeftTrigger = leftTrigger;
+        oscRightTrigger = rightTrigger;
+        oscAndSensorStatus();
+    }
+
+    private void oscAndSensorStatus(){
+        short buttonFlags = maxByMagnitude(oscButtonFlags,sensorButtonFlags);
+        short leftStickX = maxByMagnitude(oscLeftStickX,sensorLeftStickX);
+        short leftStickY = maxByMagnitude(oscLeftStickY,sensorLeftStickY);
+        short rightStickX = maxByMagnitude(oscRightStickX,sensorRightStickX);
+        short rightStickY = maxByMagnitude(oscRightStickY,sensorRightStickY);
+        byte leftTrigger = maxByMagnitude(oscLeftTrigger,sensorLeftTrigger);
+        byte rightTrigger = maxByMagnitude(oscRightTrigger,sensorRightTrigger);
+        reportOscState(buttonFlags,leftStickX,leftStickY,rightStickX,rightStickY,leftTrigger,rightTrigger);
+
+    }
+
     public void reportOscState(short buttonFlags,
                                short leftStickX, short leftStickY,
                                short rightStickX, short rightStickY,
                                byte leftTrigger, byte rightTrigger) {
+
         defaultContext.leftStickX = leftStickX;
         defaultContext.leftStickY = leftStickY;
 

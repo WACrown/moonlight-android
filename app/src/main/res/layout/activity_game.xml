@@ -14,28 +14,28 @@
         android:id="@+id/performanceOverlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
         android:layout_gravity="left"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:gravity="left"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
         android:background="#80000000"
+        android:gravity="left"
         android:preferKeepClear="true"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         android:visibility="gone" />
 
     <TextView
         android:id="@+id/notificationOverlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginTop="10dp"
         android:layout_gravity="right"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:gravity="right"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
         android:background="#80000000"
+        android:gravity="right"
         android:preferKeepClear="true"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:visibility="gone" />
 
 </merge>
