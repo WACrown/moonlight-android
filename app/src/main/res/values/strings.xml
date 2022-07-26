@@ -182,6 +182,44 @@
     <string name="title_checkbox_absolute_mouse_mode">Remote desktop mouse mode</string>
     <string name="summary_checkbox_absolute_mouse_mode">This can make mouse acceleration behave more naturally for remote desktop usage, but it is incompatible with many games.</string>
 
+    <!--选择布局-->
+    <string name="title_select_controller_layout">Select controller layout</string>
+    <string name="summary_select_controller_layout">Select your current controller layout</string>
+
+    <!--新建布局-->
+    <string name="title_add_controller_layout">Add controller layout</string>
+    <string name="summary_add_controller_layout">Add a new controller layout</string>
+    <string name="toast_add_controller_layout_success">Add controller success</string>
+    <string name="toast_add_controller_layout_failed_3">Add controller failed, because must contain at least one number or letter</string>
+    <string name="toast_add_controller_layout_failed_2">Add controller failed, because there is already a layout with that name</string>
+    <!--重命名布局-->
+    <string name="title_rename_controller_layout">Rename controller layout</string>
+    <string name="summary_rename_controller_layout">Rename your current controller layout</string>
+    <string name="toast_rename_controller_layout_success">Rename current controller success</string>
+    <string name="toast_rename_controller_layout_failed_3">Rename controller failed, because must contain at least one number or letter</string>
+    <string name="toast_rename_controller_layout_failed_2">Rename controller failed, because there is already a layout with that name</string>
+
+    <!--重置布局-->
+    <string name="title_reset_controller_layout">Reset controller layout</string>
+    <string name="summary_reset_controller_layout">Reset your current controller layout</string>
+    <string name="dialog_title_reset_controller_layout">Reset controller layout</string>
+    <string name="dialog_text_reset_controller_layout">Are you sure you want to reset your controller layout : </string>
+    <string name="toast_reset_controller_layout_success">Reset controller layout success </string>
+
+    <!--删除布局-->
+    <string name="title_delete_controller_layout">Delete controller layout</string>
+    <string name="summary_delete_controller_layout">Delete your current controller layout</string>
+    <string name="dialog_title_delete_controller_layout">Delete controller layout</string>
+    <string name="dialog_text_delete_controller_layout">Are you sure you want to delete your current controller layout : </string>
+    <string name="toast_delete_controller_layout_success">Deleted controller current layout </string>
+    <string name="dialog_text_delete_controller_layout_failed">Deleted controller layout failed, because you must have at least one layout</string>
+
+    <!--调整布局透明度-->
+    <string name="title_layout_opacity">Change opacity of on-screen controls</string>
+    <string name="summary_layout_opacity">Make the on-screen controls more/less transparent</string>
+    <string name="dialog_title_layout_opacity">Change opacity</string>
+    <string name="suffix_layout_opacity">%</string>
+
     <string name="category_on_screen_controls_settings">On-screen Controls Settings</string>
     <string name="title_checkbox_show_onscreen_controls">Show on-screen controls</string>
     <string name="summary_checkbox_show_onscreen_controls">Show virtual controller overlay on touchscreen</string>
@@ -189,15 +227,6 @@
     <string name="summary_checkbox_vibrate_osc">Vibrates your device to emulate rumble for the on-screen controls</string>
     <string name="title_only_l3r3">Only show L3 and R3</string>
     <string name="summary_only_l3r3">Hide all virtual buttons except L3 and R3</string>
-    <string name="title_reset_osc">Clear saved on-screen controls layout</string>
-    <string name="summary_reset_osc">Resets all on-screen controls to their default size and position</string>
-    <string name="dialog_title_reset_osc">Reset Layout</string>
-    <string name="dialog_text_reset_osc">Are you sure you want to delete your saved on-screen controls layout?</string>
-    <string name="toast_reset_osc_success">On-screen controls reset to default</string>
-    <string name="title_osc_opacity">Change opacity of on-screen controls</string>
-    <string name="summary_osc_opacity">Make the on-screen controls more/less transparent</string>
-    <string name="dialog_title_osc_opacity">Change opacity</string>
-    <string name="suffix_osc_opacity">%</string>
 
     <string name="category_ui_settings">UI Settings</string>
     <string name="title_checkbox_enable_pip">Enable Picture-in-Picture observer mode</string>

@@ -140,6 +140,45 @@
     <string name="summary_checkbox_mouse_nav_buttons"> 在一些支持不佳的设备上启用此项可能会使其右键失效 </string>
     <string name="title_checkbox_flip_face_buttons"> 反转技能键 </string>
     <string name="summary_checkbox_flip_face_buttons"> 为手柄和虚拟手柄调转A/B和X/Y技能键 </string>
+
+    <!--选择布局-->
+    <string name="title_select_controller_layout"> 选择手柄布局 </string>
+    <string name="summary_select_controller_layout"> 选择当前的手柄布局 </string>
+
+    <!--新建布局-->
+    <string name="title_add_controller_layout"> 新建手柄布局 </string>
+    <string name="summary_add_controller_layout"> 新建一个新的手柄布局 </string>
+    <string name="toast_add_controller_layout_success"> 新建布局成功 </string>
+    <string name="toast_add_controller_layout_failed_3"> 新建布局失败，名字只能包含字母和数字 </string>
+    <string name="toast_add_controller_layout_failed_2"> 新建布局失败，该名字已存在 </string>
+    <!--重命名布局-->
+    <string name="title_rename_controller_layout"> 重命名手柄布局 </string>
+    <string name="summary_rename_controller_layout"> 重命名你当前的虚拟手柄布局 </string>
+    <string name="toast_rename_controller_layout_success"> 重命名成果 </string>
+    <string name="toast_rename_controller_layout_failed_3"> 重命名失败，名字只能包含字母和数字 </string>
+    <string name="toast_rename_controller_layout_failed_2"> 重命名失败，该名字已存在 </string>
+
+    <!--重置布局-->
+    <string name="title_reset_controller_layout"> 重置手柄布局 </string>
+    <string name="summary_reset_controller_layout"> 重置当前选择的虚拟手柄布局 </string>
+    <string name="dialog_title_reset_controller_layout"> 重置手柄布局 </string>
+    <string name="dialog_text_reset_controller_layout"> 确定要重置布局 : </string>
+    <string name="toast_reset_controller_layout_success"> 重置成功 </string>
+
+    <!--删除布局-->
+    <string name="title_delete_controller_layout"> 删除手柄布局 </string>
+    <string name="summary_delete_controller_layout"> 删除当前选择的虚拟手柄布局 </string>
+    <string name="dialog_title_delete_controller_layout"> 删除手柄布局 </string>
+    <string name="dialog_text_delete_controller_layout"> 确定要删除布局 : </string>
+    <string name="toast_delete_controller_layout_success"> 删除成功 </string>
+    <string name="dialog_text_delete_controller_layout_failed"> 删除失败，你需要至少一个布局 </string>
+
+    <!--调整布局透明度-->
+    <string name="title_layout_opacity"> 按键透明度 </string>
+    <string name="summary_layout_opacity"> 改变虚拟手柄的透明度 </string>
+    <string name="dialog_title_layout_opacity"> 透明度 </string>
+    <string name="suffix_layout_opacity">%</string>
+
     <string name="category_on_screen_controls_settings"> 屏幕控制按钮设置 </string>
     <string name="title_checkbox_show_onscreen_controls"> 显示屏幕控制按钮 </string>
     <string name="summary_checkbox_show_onscreen_controls"> 在触摸屏上显示一层虚拟手柄 </string>
@@ -147,11 +186,7 @@
     <string name="summary_checkbox_vibrate_osc"> 使用屏幕控制按钮时震动设备以模拟游戏震动效果 </string>
     <string name="title_only_l3r3"> 只显示L3和R3 </string>
     <string name="summary_only_l3r3"> 隐藏除L3和R3外的所有虚拟按钮 </string>
-    <string name="title_reset_osc"> 重置已保存的屏幕控制按钮布局 </string>
-    <string name="summary_reset_osc"> 重置所有屏幕控制按钮为默认大小和位置 </string>
-    <string name="dialog_title_reset_osc"> 重置按钮布局 </string>
-    <string name="dialog_text_reset_osc"> 你确定要删除所保存的屏幕按钮布局吗？ </string>
-    <string name="toast_reset_osc_success"> 屏幕按钮布局已经重置 </string>
+
     <string name="category_ui_settings"> 界面设置 </string>
     <string name="title_language_list"> 语言 </string>
     <string name="summary_language_list"> 选择Moonlight显示的语言 </string>
@@ -173,10 +208,6 @@
     <string name="summary_enable_perf_overlay"> 在串流中显示实时性能信息 </string>
     <string name="title_enable_post_stream_toast">串流完毕显示延迟信息</string>
     <string name="summary_enable_post_stream_toast">串流结束后显示延迟信息</string>
-    <string name="title_osc_opacity">更改屏幕按钮透明度</string>
-    <string name="dialog_title_osc_opacity">透明度</string>
-    <string name="suffix_osc_opacity">%</string>
-    <string name="summary_osc_opacity">令屏幕按钮变得更透明/更不透明</string>
     <string name="nettest_text_failure">您设备的当前网络似乎正在阻止Moonlight。连接到该网络时，可能无法通过互联网串流。
 \n
 \n以下网络端口被阻止：

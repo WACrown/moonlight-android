@@ -4,9 +4,12 @@
 
 package com.limelight.binding.input.virtual_controller;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -14,9 +17,11 @@ import android.widget.Toast;
 import com.limelight.LimeLog;
 import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
+import com.limelight.utils.SelectLayoutHelp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -34,7 +39,8 @@ public class VirtualController {
     public enum ControllerMode {
         Active,
         MoveButtons,
-        ResizeButtons
+        ResizeButtons,
+        SelectLayout
     }
 
     private static final boolean _PRINT_DEBUG_INFORMATION = false;
@@ -50,13 +56,38 @@ public class VirtualController {
     ControllerInputContext inputContext = new ControllerInputContext();
 
     private Button buttonConfigure = null;
+    private VirtualControllerLayoutSelector VCLSelector = null;
 
     private List<VirtualControllerElement> elements = new ArrayList<>();
+    private VirtualController virtualController;
+
 
     public VirtualController(final ControllerHandler controllerHandler, FrameLayout layout, final Context context) {
         this.controllerHandler = controllerHandler;
         this.frame_layout = layout;
         this.context = context;
+        this.virtualController = this;
+
+        SelectLayoutHelp.initSharedPreferences(context);
+
+        VCLSelector = new VirtualControllerLayoutSelector(context,frame_layout);
+        VCLSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                SelectLayoutHelp.setCurrentNum(context,i);
+                VCLSelector.setSelection(i);
+                //VirtualControllerConfigurationLoader.createDefaultLayout(virtualController, context);
+                VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context,SelectLayoutHelp.loadSingleLayoutName(context,i));
+                for (VirtualControllerElement element : elements) {
+                    element.invalidate();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
         buttonConfigure = new Button(context);
         buttonConfigure.setAlpha(0.25f);
@@ -68,14 +99,17 @@ public class VirtualController {
                 String message;
 
                 if (currentMode == ControllerMode.Active){
-                    currentMode = ControllerMode.MoveButtons;
+                    currentMode = ControllerMode.SelectLayout;
                     message = "Entering configuration mode (Move buttons)";
+                } else if (currentMode == ControllerMode.SelectLayout) {
+                    currentMode = ControllerMode.MoveButtons;
+                    message = "Entering configuration mode (Resize buttons)";
                 } else if (currentMode == ControllerMode.MoveButtons) {
                     currentMode = ControllerMode.ResizeButtons;
-                    message = "Entering configuration mode (Resize buttons)";
+                    message = "Entering configuration mode (Select layout)";
                 } else {
                     currentMode = ControllerMode.Active;
-                    VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context);
+                    VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context,SelectLayoutHelp.loadSingleLayoutName(context,SelectLayoutHelp.getCurrentNum(context)));
                     message = "Exiting configuration mode";
                 }
 
@@ -86,9 +120,19 @@ public class VirtualController {
                 for (VirtualControllerElement element : elements) {
                     element.invalidate();
                 }
+                if (currentMode == ControllerMode.SelectLayout){
+                    VCLSelector.setVisibility(View.VISIBLE);
+                } else {
+                    VCLSelector.setVisibility(View.INVISIBLE);
+                }
             }
         });
 
+    }
+
+
+    public VirtualController getVirtualController(){
+        return this;
     }
 
     public void hide() {
@@ -169,8 +213,14 @@ public class VirtualController {
         // Start with the default layout
         VirtualControllerConfigurationLoader.createDefaultLayout(this, context);
 
+        VirtualControllerConfigurationLoader.saveProfile(this,context,"default_layout");
+        SharedPreferences pref = context.getSharedPreferences("default_layout", Activity.MODE_PRIVATE);
         // Apply user preferences onto the default layout
-        VirtualControllerConfigurationLoader.loadFromPreferences(this, context);
+        VirtualControllerConfigurationLoader.loadFromPreferences(this, context,SelectLayoutHelp.loadSingleLayoutName(context,SelectLayoutHelp.getCurrentNum(context)));
+
+        VCLSelector.refreshLayout();
+
+
     }
 
     public ControllerMode getControllerMode() {
