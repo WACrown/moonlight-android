@@ -17,11 +17,12 @@ import android.widget.Toast;
 import com.limelight.LimeLog;
 import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
-import com.limelight.utils.SelectLayoutHelp;
+import com.limelight.preferences.PreferenceConfiguration;
+import com.limelight.utils.SelectControllerLayoutHelp;
+import com.limelight.utils.SelectKeyboardLayoutHelp;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -60,6 +61,7 @@ public class VirtualController {
 
     private List<VirtualControllerElement> elements = new ArrayList<>();
     private VirtualController virtualController;
+    private PreferenceConfiguration config;
 
 
     public VirtualController(final ControllerHandler controllerHandler, FrameLayout layout, final Context context) {
@@ -68,16 +70,21 @@ public class VirtualController {
         this.context = context;
         this.virtualController = this;
 
-        SelectLayoutHelp.initSharedPreferences(context);
+        config = PreferenceConfiguration.readPreferences(context);
+        SelectControllerLayoutHelp.initSharedPreferences(context);
+        SelectKeyboardLayoutHelp.initSharedPreferences(context);
 
         VCLSelector = new VirtualControllerLayoutSelector(context,frame_layout);
         VCLSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                SelectLayoutHelp.setCurrentNum(context,i);
+                SelectControllerLayoutHelp.setCurrentNum(context,i);
                 VCLSelector.setSelection(i);
-                //VirtualControllerConfigurationLoader.createDefaultLayout(virtualController, context);
-                VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context,SelectLayoutHelp.loadSingleLayoutName(context,i));
+                if (config.onscreenController){
+                    VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentNum(context)));
+                } else if (true) {
+                    VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentNum(context)));
+                }
                 for (VirtualControllerElement element : elements) {
                     element.invalidate();
                 }
@@ -109,7 +116,12 @@ public class VirtualController {
                     message = "Entering configuration mode (Select layout)";
                 } else {
                     currentMode = ControllerMode.Active;
-                    VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context,SelectLayoutHelp.loadSingleLayoutName(context,SelectLayoutHelp.getCurrentNum(context)));
+                    if (config.onscreenController){
+                        VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentNum(context)));
+                    } else if (true) {
+                        VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentNum(context)));
+                        System.out.println("wangguan save");
+                    }
                     message = "Exiting configuration mode";
                 }
 
@@ -211,13 +223,19 @@ public class VirtualController {
         frame_layout.addView(buttonConfigure, params);
 
         // Start with the default layout
-        VirtualControllerConfigurationLoader.createDefaultLayout(this, context);
+        if (config.onscreenController){
+            VirtualControllerConfigurationLoader.createDefaultLayout(this, context);
+        } else if (true) {
+            VirtualControllerConfigurationLoader.createDefaultKeyboardButton(this,context);
+        }
 
-        VirtualControllerConfigurationLoader.saveProfile(this,context,"default_layout");
-        SharedPreferences pref = context.getSharedPreferences("default_layout", Activity.MODE_PRIVATE);
+
         // Apply user preferences onto the default layout
-        VirtualControllerConfigurationLoader.loadFromPreferences(this, context,SelectLayoutHelp.loadSingleLayoutName(context,SelectLayoutHelp.getCurrentNum(context)));
-
+        if (config.onscreenController){
+            VirtualControllerConfigurationLoader.loadFromPreferences(this, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentNum(context)));
+        } else if (true) {
+            VirtualControllerConfigurationLoader.loadFromPreferences(this, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentNum(context)));
+        }
         VCLSelector.refreshLayout();
 
 

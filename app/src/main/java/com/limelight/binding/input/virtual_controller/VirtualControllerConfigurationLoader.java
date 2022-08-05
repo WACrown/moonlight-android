@@ -15,9 +15,12 @@ import android.view.KeyEvent;
 import com.limelight.Game;
 import com.limelight.nvstream.input.ControllerPacket;
 import com.limelight.preferences.PreferenceConfiguration;
+import com.limelight.utils.SelectKeyboardLayoutHelp;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Map;
 
 public class VirtualControllerConfigurationLoader {
     public static final String OSC_PREFERENCE = "OSC";
@@ -154,6 +157,40 @@ public class VirtualControllerConfigurationLoader {
             final VirtualController controller,
             final Context context) {
         return new RightAnalogStick(controller, context);
+    }
+
+    private static DigitalButton createKeyboardButton(
+            final String elementId,
+            final int keyShort,
+            final int keyLong,
+            final int layer,
+            final String text,
+            final int icon,
+            final VirtualController controller,
+            final Context context) {
+        DigitalButton button = new DigitalButton(controller, elementId, layer, context);
+        button.setText(text);
+        button.setIcon(icon);
+
+        button.addDigitalButtonListener(new DigitalButton.DigitalButtonListener() {
+            @Override
+            public void onClick() {
+                sendKeyCode(getKeycode(elementId),KeyEvent.ACTION_DOWN);
+                sendKeyCode(getKeycode(elementId),KeyEvent.ACTION_UP);
+            }
+
+            @Override
+            public void onLongClick() {
+                sendKeyCode(getKeycode(elementId),KeyEvent.ACTION_DOWN);
+            }
+
+            @Override
+            public void onRelease() {
+                sendKeyCode(getKeycode(elementId),KeyEvent.ACTION_UP);
+            }
+        });
+
+        return button;
     }
 
 
@@ -338,6 +375,26 @@ public class VirtualControllerConfigurationLoader {
         controller.setOpacity(config.layoutOpacity);
     }
 
+    public static void createDefaultKeyboardButton(final VirtualController controller, final Context context){
+        DisplayMetrics screen = context.getResources().getDisplayMetrics();
+
+        // Displace controls on the right by this amount of pixels to account for different aspect ratios
+        int rightDisplacement = screen.widthPixels - screen.heightPixels * 16 / 9;
+
+        int height = screen.heightPixels;
+        SharedPreferences preferences = context.getSharedPreferences(SelectKeyboardLayoutHelp.loadSingleLayoutName(context,SelectKeyboardLayoutHelp.getCurrentNum(context)),Activity.MODE_PRIVATE);
+        Map<String,?> allButton =  preferences.getAll();
+        for (String key : allButton.keySet()){
+            controller.addElement(
+                    createKeyboardButton(key,getKeycode(key),getKeycode(key),1,key,-1,controller,context),
+                    screenScale(BUTTON_BASE_X,height),
+                    screenScale(BUTTON_BASE_Y,height),
+                    screenScale(BUTTON_SIZE,height),
+                    screenScale(BUTTON_SIZE,height)
+            );
+        }
+    }
+
     public static void saveProfile(final VirtualController controller,
                                    final Context context,
                                    final String layout ) {
@@ -345,8 +402,10 @@ public class VirtualControllerConfigurationLoader {
 
         for (VirtualControllerElement element : controller.getElements()) {
             String prefKey = ""+element.elementId;
+
             try {
                 prefEditor.putString(prefKey, element.getConfiguration().toString());
+
             } catch (JSONException e) {
                 e.printStackTrace();
 
@@ -386,5 +445,16 @@ public class VirtualControllerConfigurationLoader {
                 }
             }
         }.start();
+    }
+
+    public static int getKeycode(String key){
+        switch (key){
+            case "A" :
+                return KeyEvent.KEYCODE_A;
+            case "B" :
+                return KeyEvent.KEYCODE_B;
+
+        }
+        return -1;
     }
 }

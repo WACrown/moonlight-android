@@ -33,7 +33,7 @@ import com.limelight.R;
 import com.limelight.binding.video.MediaCodecHelper;
 import com.limelight.preferences.Controller.DynamicListPreference;
 import com.limelight.utils.Dialog;
-import com.limelight.utils.SelectLayoutHelp;
+import com.limelight.utils.SelectControllerLayoutHelp;
 import com.limelight.utils.UiHelper;
 
 import java.lang.reflect.Method;
@@ -214,7 +214,7 @@ public class StreamSettings extends Activity {
 
             addPreferencesFromResource(R.xml.preferences);
             PreferenceScreen screen = getPreferenceScreen();
-            SelectLayoutHelp.initSharedPreferences(getContext());
+            SelectControllerLayoutHelp.initSharedPreferences(getContext());
             // hide on-screen controls category on non touch screen devices
             if (!getActivity().getPackageManager().
                     hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)) {
@@ -628,7 +628,7 @@ public class StreamSettings extends Activity {
             selectControllerPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    SelectLayoutHelp.setCurrentNum(getContext(),SelectLayoutHelp.loadAllLayoutName(getContext()).indexOf((String) o));
+                    SelectControllerLayoutHelp.setCurrentNum(getContext(), SelectControllerLayoutHelp.loadAllLayoutName(getContext()).indexOf((String) o));
                     return true;
                 }
             });

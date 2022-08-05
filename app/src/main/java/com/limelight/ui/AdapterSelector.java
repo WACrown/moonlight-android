@@ -11,10 +11,7 @@ import android.widget.TextView;
 
 import com.limelight.R;
 import com.limelight.utils.LayoutList;
-import com.limelight.utils.SelectLayoutHelp;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.limelight.utils.SelectControllerLayoutHelp;
 
 public class AdapterSelector implements SpinnerAdapter {
 
@@ -23,7 +20,7 @@ public class AdapterSelector implements SpinnerAdapter {
 
     public AdapterSelector(Context context) {
         this.context = context;
-        list = SelectLayoutHelp.loadAllLayoutName(context);
+        list = SelectControllerLayoutHelp.loadAllLayoutName(context);
 
     }
 

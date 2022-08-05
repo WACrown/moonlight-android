@@ -7,7 +7,7 @@ import android.widget.FrameLayout;
 import android.widget.Spinner;
 
 import com.limelight.ui.AdapterSelector;
-import com.limelight.utils.SelectLayoutHelp;
+import com.limelight.utils.SelectControllerLayoutHelp;
 
 public class VirtualControllerLayoutSelector extends Spinner{
 
@@ -19,7 +19,7 @@ public class VirtualControllerLayoutSelector extends Spinner{
         this.frame_layout = layout;
         this.context = context;
         this.setAdapter(new AdapterSelector(context));
-        this.setSelection(SelectLayoutHelp.getCurrentNum(context));
+        this.setSelection(SelectControllerLayoutHelp.getCurrentNum(context));
         this.setVisibility(View.INVISIBLE);
     }
 

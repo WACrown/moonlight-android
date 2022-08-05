@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.limelight.R;
-import com.limelight.utils.SelectLayoutHelp;
+import com.limelight.utils.SelectControllerLayoutHelp;
 
 public class ConfirmResetControllerLayoutPreference extends DialogPreference {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -34,7 +34,7 @@ public class ConfirmResetControllerLayoutPreference extends DialogPreference {
 
     @Override
     protected View onCreateDialogView() {
-        String currentLayoutName = SelectLayoutHelp.loadSingleLayoutName(getContext(),SelectLayoutHelp.getCurrentNum(getContext()));
+        String currentLayoutName = SelectControllerLayoutHelp.loadSingleLayoutName(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext()));
         this.setDialogTitle(getContext().getResources().getString(R.string.dialog_title_reset_controller_layout));
         this.setDialogMessage(getContext().getResources().getString(R.string.dialog_text_reset_controller_layout) + currentLayoutName);
         return super.onCreateDialogView();
@@ -42,7 +42,7 @@ public class ConfirmResetControllerLayoutPreference extends DialogPreference {
 
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            SelectLayoutHelp.resetLayout(getContext(),SelectLayoutHelp.getCurrentNum(getContext()));
+            SelectControllerLayoutHelp.resetLayout(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext()));
             Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_reset_controller_layout_success), Toast.LENGTH_SHORT).show();
         }
     }

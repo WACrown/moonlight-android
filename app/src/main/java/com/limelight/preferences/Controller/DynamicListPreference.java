@@ -9,7 +9,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.limelight.utils.LayoutList;
-import com.limelight.utils.SelectLayoutHelp;
+import com.limelight.utils.SelectControllerLayoutHelp;
 
 public class DynamicListPreference extends ListPreference {
     public DynamicListPreference(Context context, AttributeSet attrs) {
@@ -24,11 +24,11 @@ public class DynamicListPreference extends ListPreference {
     protected View onCreateDialogView() {
         ListView view = new ListView(getContext());
         view.setAdapter(adapter());
-        LayoutList layoutList = SelectLayoutHelp.loadAllLayoutName(getContext());
+        LayoutList layoutList = SelectControllerLayoutHelp.loadAllLayoutName(getContext());
         CharSequence[] layoutCharSequences = layoutList.toArray(new CharSequence[layoutList.size()]);
         setEntries(layoutCharSequences);
         setEntryValues(layoutCharSequences);
-        setValue(SelectLayoutHelp.loadSingleLayoutName(getContext(),SelectLayoutHelp.getCurrentNum(getContext())));
+        setValue(SelectControllerLayoutHelp.loadSingleLayoutName(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext())));
         return view;
     }
 

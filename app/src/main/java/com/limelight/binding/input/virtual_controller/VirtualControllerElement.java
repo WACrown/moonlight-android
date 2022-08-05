@@ -36,6 +36,7 @@ public abstract class VirtualControllerElement extends View {
     public static final String EID_LSB = "EID_LSB";
     public static final String EID_RSB = "EID_RSB";
 
+
     protected VirtualController virtualController;
     protected final String elementId;
 

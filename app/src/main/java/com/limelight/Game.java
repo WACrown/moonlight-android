@@ -479,7 +479,8 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             getWindow().setSustainedPerformanceMode(true);
         }
 
-        if (prefConfig.onscreenController) {
+ //       if (prefConfig.onscreenController) {
+        if (true){
             // create virtual onscreen controller
             virtualController = new VirtualController(controllerHandler,
                     (FrameLayout)streamView.getParent(),
@@ -1177,7 +1178,6 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
 //        if (!handled) {
         if (true) {
-            System.out.println("wangguan event down " + event.getKeyCode());
             // Try the keyboard handler
             short translated = keyboardTranslator.translate(event.getKeyCode(), event.getDeviceId());
             if (translated == 0) {
@@ -1250,7 +1250,6 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         //if (!handled) {
         if (true) {
             // Try the keyboard handler
-            System.out.println("wangguan event up " + event.getKeyCode());
             short translated = keyboardTranslator.translate(event.getKeyCode(), event.getDeviceId());
             if (translated == 0) {
                 return false;

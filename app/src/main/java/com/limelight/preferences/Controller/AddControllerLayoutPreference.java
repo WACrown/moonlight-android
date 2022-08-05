@@ -6,11 +6,10 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.preference.EditTextPreference;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.Toast;
 
 import com.limelight.R;
-import com.limelight.utils.SelectLayoutHelp;
+import com.limelight.utils.SelectControllerLayoutHelp;
 
 public class AddControllerLayoutPreference extends EditTextPreference {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -37,7 +36,7 @@ public class AddControllerLayoutPreference extends EditTextPreference {
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
 
-            int flag = SelectLayoutHelp.addLayout(getContext(),getEditText().getText().toString());
+            int flag = SelectControllerLayoutHelp.addLayout(getContext(),getEditText().getText().toString());
 
             if (flag == 0){
                 Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_add_controller_layout_success), Toast.LENGTH_SHORT).show();

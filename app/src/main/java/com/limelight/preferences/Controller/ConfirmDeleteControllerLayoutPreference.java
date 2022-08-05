@@ -1,7 +1,5 @@
 package com.limelight.preferences.Controller;
 
-import static com.limelight.binding.input.virtual_controller.VirtualControllerConfigurationLoader.OSC_PREFERENCE;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,7 +10,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.limelight.R;
-import com.limelight.utils.SelectLayoutHelp;
+import com.limelight.utils.SelectControllerLayoutHelp;
 
 public class ConfirmDeleteControllerLayoutPreference extends DialogPreference {
 
@@ -37,7 +35,7 @@ public class ConfirmDeleteControllerLayoutPreference extends DialogPreference {
 
     @Override
     protected View onCreateDialogView() {
-        String currentLayoutName = SelectLayoutHelp.loadSingleLayoutName(getContext(),SelectLayoutHelp.getCurrentNum(getContext()));
+        String currentLayoutName = SelectControllerLayoutHelp.loadSingleLayoutName(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext()));
         this.setDialogTitle(getContext().getResources().getString(R.string.dialog_title_delete_controller_layout));
         this.setDialogMessage(getContext().getResources().getString(R.string.dialog_text_delete_controller_layout) + currentLayoutName);
         return super.onCreateDialogView();
@@ -45,7 +43,7 @@ public class ConfirmDeleteControllerLayoutPreference extends DialogPreference {
 
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            int flag = SelectLayoutHelp.deleteLayout(getContext(),SelectLayoutHelp.getCurrentNum(getContext()));
+            int flag = SelectControllerLayoutHelp.deleteLayout(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext()));
             if ( flag == 0 ){
                 Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_delete_controller_layout_success), Toast.LENGTH_SHORT).show();
             } else if ( flag == 2 ){

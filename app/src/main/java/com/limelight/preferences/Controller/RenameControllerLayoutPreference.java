@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.limelight.R;
-import com.limelight.utils.SelectLayoutHelp;
+import com.limelight.utils.SelectControllerLayoutHelp;
 
 public class RenameControllerLayoutPreference extends EditTextPreference {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -35,14 +35,14 @@ public class RenameControllerLayoutPreference extends EditTextPreference {
     @Override
     protected View onCreateDialogView() {
         setDialogTitle(getContext().getResources().getString(R.string.title_rename_controller_layout));
-        setText(SelectLayoutHelp.loadSingleLayoutName(getContext(),SelectLayoutHelp.getCurrentNum(getContext())));
+        setText(SelectControllerLayoutHelp.loadSingleLayoutName(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext())));
         return super.onCreateDialogView();
     }
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            int flag = SelectLayoutHelp.renameLayout(getContext(),SelectLayoutHelp.getCurrentNum(getContext()),getEditText().getText().toString());
+            int flag = SelectControllerLayoutHelp.renameLayout(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext()),getEditText().getText().toString());
 
             if (flag == 0){
                 Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_rename_controller_layout_success), Toast.LENGTH_SHORT).show();
