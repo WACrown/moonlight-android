@@ -1,4 +1,5 @@
-# Moonlight Android
+# Moonlight Android（dev-sensor was abandoned）
+Dev-sensor was abandoned,because there is a better plan.Please see the https://tieba.baidu.com/p/5268340269 for the detailed information.
 
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/232a8tadrrn8jv0k/branch/master?svg=true)](https://ci.appveyor.com/project/cgutman/moonlight-android/branch/master)
 [![Translation Status](https://hosted.weblate.org/widgets/moonlight/-/moonlight-android/svg-badge.svg)](https://hosted.weblate.org/projects/moonlight/moonlight-android/)
