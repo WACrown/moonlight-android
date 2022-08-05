@@ -5,10 +5,14 @@
 package com.limelight.binding.input.virtual_controller;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 
+import com.limelight.Game;
 import com.limelight.nvstream.input.ControllerPacket;
 import com.limelight.preferences.PreferenceConfiguration;
 
@@ -68,8 +72,10 @@ public class VirtualControllerConfigurationLoader {
         return digitalPad;
     }
 
+
+
     private static DigitalButton createDigitalButton(
-            final int elementId,
+            final String elementId,
             final int keyShort,
             final int keyLong,
             final int layer,
@@ -343,6 +349,7 @@ public class VirtualControllerConfigurationLoader {
                 prefEditor.putString(prefKey, element.getConfiguration().toString());
             } catch (JSONException e) {
                 e.printStackTrace();
+
             }
         }
 
@@ -367,5 +374,17 @@ public class VirtualControllerConfigurationLoader {
                 }
             }
         }
+    }
+    private static void sendKeyCode(final int keyCode,final int keyStatus){
+        new Thread() {
+            public void run() {
+                try {
+                    Instrumentation inst = new Instrumentation();
+                    inst.sendKeySync(new KeyEvent(keyStatus,keyCode));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 }
