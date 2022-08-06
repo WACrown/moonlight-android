@@ -114,8 +114,22 @@
     <PreferenceCategory android:title="@string/category_on_screen_controls_settings"
         android:key="category_onscreen_controls">
 
+        <!--显示手柄按键-->
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="checkbox_show_onscreen_controls"
+            android:summary="@string/summary_checkbox_show_onscreen_controls"
+            android:title="@string/title_checkbox_show_onscreen_controls" />
+
+        <!--显示键盘按键-->
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="checkbox_show_onscreen_keyboard"
+            android:summary="myString 显示虚拟键盘按键"
+            android:title="myString 显示键盘按键" />
+
         <!--选择布局-->
-        <com.limelight.preferences.Controller.DynamicListPreference
+        <com.limelight.preferences.DynamicListPreference
             android:key="list_select_controls_layout"
             android:title="@string/title_select_controller_layout"
             android:summary="@string/summary_select_controller_layout"
@@ -123,18 +137,21 @@
             android:entryValues="@array/default_layout_list" />
 
         <!--新建布局-->
-        <com.limelight.preferences.Controller.AddControllerLayoutPreference
+        <com.limelight.preferences.AddControllerLayoutPreference
+            android:key="edit_add_controls_layout"
             android:title="@string/title_add_controller_layout"
             android:summary="@string/summary_add_controller_layout"
             />
 
         <!--重命名布局-->
-        <com.limelight.preferences.Controller.RenameControllerLayoutPreference
+        <com.limelight.preferences.RenameControllerLayoutPreference
+            android:key="edit_rename_controls_layout"
             android:title="@string/title_rename_controller_layout"
             android:summary="@string/summary_rename_controller_layout"/>
 
         <!--重置布局-->
-        <com.limelight.preferences.Controller.ConfirmResetControllerLayoutPreference
+        <com.limelight.preferences.ConfirmResetControllerLayoutPreference
+            android:key="dialog_reset_controls_layout"
             android:title="@string/title_reset_controller_layout"
             android:summary="@string/summary_reset_controller_layout"
             android:positiveButtonText="@string/yes"
@@ -142,9 +159,27 @@
             />
 
         <!--删除布局-->
-        <com.limelight.preferences.Controller.ConfirmDeleteControllerLayoutPreference
+        <com.limelight.preferences.ConfirmDeleteControllerLayoutPreference
+            android:key="dialog_delete_controls_layout"
             android:title="@string/title_delete_controller_layout"
             android:summary="@string/summary_delete_controller_layout"
+            android:positiveButtonText="@string/yes"
+            android:negativeButtonText="@string/no"
+            />
+
+        <!--新建按钮-->
+        <com.limelight.preferences.AddKeyboardButtonPreference
+            android:key="edit_add_keyboard_button"
+            android:title="myString 新建按钮"
+            android:summary="myString 新建一个按钮 格式：A-name1"
+            android:positiveButtonText="@string/yes"
+            android:negativeButtonText="@string/no"
+            />
+
+        <com.limelight.preferences.DeleteKeyboardButtonPreference
+            android:key="edit_delete_keyboard_button"
+            android:title="myString 删除按钮"
+            android:summary="myString 删除一个按钮 格式：A-name1"
             android:positiveButtonText="@string/yes"
             android:negativeButtonText="@string/no"
             />
@@ -163,11 +198,6 @@
             android:text="@string/suffix_layout_opacity"
              />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="checkbox_show_onscreen_controls"
-            android:summary="@string/summary_checkbox_show_onscreen_controls"
-            android:title="@string/title_checkbox_show_onscreen_controls" />
         <CheckBoxPreference
             android:key="checkbox_vibrate_osc"
             android:dependency="checkbox_show_onscreen_controls"

@@ -78,11 +78,14 @@ public class VirtualController {
         VCLSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                SelectControllerLayoutHelp.setCurrentNum(context,i);
-                VCLSelector.setSelection(i);
+
                 if (config.onscreenController){
+                    SelectControllerLayoutHelp.setCurrentNum(context,i);
+                    VCLSelector.setSelection(i);
                     VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentNum(context)));
                 } else if (true) {
+                    SelectKeyboardLayoutHelp.setCurrentNum(context,i);
+                    VCLSelector.setSelection(i);
                     VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentNum(context)));
                 }
                 for (VirtualControllerElement element : elements) {
@@ -118,9 +121,8 @@ public class VirtualController {
                     currentMode = ControllerMode.Active;
                     if (config.onscreenController){
                         VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentNum(context)));
-                    } else if (true) {
+                    } else if (config.onscreenKeyboard) {
                         VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentNum(context)));
-                        System.out.println("wangguan save");
                     }
                     message = "Exiting configuration mode";
                 }

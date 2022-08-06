@@ -6,8 +6,10 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
 
+import com.limelight.preferences.PreferenceConfiguration;
 import com.limelight.ui.AdapterSelector;
 import com.limelight.utils.SelectControllerLayoutHelp;
+import com.limelight.utils.SelectKeyboardLayoutHelp;
 
 public class VirtualControllerLayoutSelector extends Spinner{
 
@@ -19,7 +21,12 @@ public class VirtualControllerLayoutSelector extends Spinner{
         this.frame_layout = layout;
         this.context = context;
         this.setAdapter(new AdapterSelector(context));
-        this.setSelection(SelectControllerLayoutHelp.getCurrentNum(context));
+        if (PreferenceConfiguration.readPreferences(context).onscreenController){
+            this.setSelection(SelectControllerLayoutHelp.getCurrentNum(context));
+        } else if (PreferenceConfiguration.readPreferences(context).onscreenKeyboard) {
+            this.setSelection(SelectKeyboardLayoutHelp.getCurrentNum(context));
+        }
+
         this.setVisibility(View.INVISIBLE);
     }
 

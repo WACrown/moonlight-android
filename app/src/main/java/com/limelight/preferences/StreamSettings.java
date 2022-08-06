@@ -31,9 +31,9 @@ import com.limelight.LimeLog;
 import com.limelight.PcView;
 import com.limelight.R;
 import com.limelight.binding.video.MediaCodecHelper;
-import com.limelight.preferences.Controller.DynamicListPreference;
 import com.limelight.utils.Dialog;
 import com.limelight.utils.SelectControllerLayoutHelp;
+import com.limelight.utils.SelectKeyboardLayoutHelp;
 import com.limelight.utils.UiHelper;
 
 import java.lang.reflect.Method;
@@ -50,6 +50,9 @@ public class StreamSettings extends Activity {
                 R.id.stream_settings, new SettingsFragment()
         ).commitAllowingStateLoss();
     }
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -215,6 +218,7 @@ public class StreamSettings extends Activity {
             addPreferencesFromResource(R.xml.preferences);
             PreferenceScreen screen = getPreferenceScreen();
             SelectControllerLayoutHelp.initSharedPreferences(getContext());
+            SelectKeyboardLayoutHelp.initSharedPreferences(getContext());
             // hide on-screen controls category on non touch screen devices
             if (!getActivity().getPackageManager().
                     hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)) {
@@ -613,9 +617,9 @@ public class StreamSettings extends Activity {
                 }
             });
 
-            DynamicListPreference selectControllerPreference = (DynamicListPreference) findPreference(PreferenceConfiguration.SELECT_CONTROLLER_LAYOUT);
+            DynamicListPreference selectLayoutPreference = (DynamicListPreference) findPreference(PreferenceConfiguration.SELECT_CONTROLLER_LAYOUT);
 
-            selectControllerPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            selectLayoutPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
                 @TargetApi(Build.VERSION_CODES.M)
                 @Override
@@ -625,13 +629,127 @@ public class StreamSettings extends Activity {
                 }
             });
 
-            selectControllerPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            selectLayoutPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    SelectControllerLayoutHelp.setCurrentNum(getContext(), SelectControllerLayoutHelp.loadAllLayoutName(getContext()).indexOf((String) o));
+                    if (PreferenceConfiguration.readPreferences(getContext()).onscreenController){
+                        SelectControllerLayoutHelp.setCurrentNum(getContext(), SelectControllerLayoutHelp.loadAllLayoutName(getContext()).indexOf((String) o));
+                    } else if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard) {
+                        SelectKeyboardLayoutHelp.setCurrentNum(getContext(), SelectKeyboardLayoutHelp.loadAllLayoutName(getContext()).indexOf((String) o));
+                    }
+
                     return true;
                 }
             });
+
+            CheckBoxPreference onscreenControllerPreference = (CheckBoxPreference) findPreference(PreferenceConfiguration.ONSCREEN_CONTROLLER_PREF_STRING);
+            CheckBoxPreference onscreenKeyboardPreference = (CheckBoxPreference) findPreference(PreferenceConfiguration.ONSCREEN_KEYBOARD_PREF_STRING);
+            DynamicListPreference selectLayout = (DynamicListPreference) findPreference("list_select_controls_layout");
+            AddControllerLayoutPreference addLayout = (AddControllerLayoutPreference) findPreference("edit_add_controls_layout");
+            RenameControllerLayoutPreference renameLayout = (RenameControllerLayoutPreference) findPreference("edit_rename_controls_layout");
+            ConfirmResetControllerLayoutPreference resetLayout = (ConfirmResetControllerLayoutPreference) findPreference("dialog_reset_controls_layout");
+            ConfirmDeleteControllerLayoutPreference deleteLayout = (ConfirmDeleteControllerLayoutPreference) findPreference("dialog_delete_controls_layout");
+            SeekBarPreference opacityPreference =  (SeekBarPreference) findPreference("seekbar_layout_opacity");
+            AddKeyboardButtonPreference addKeyboardButtonPreference = (AddKeyboardButtonPreference) findPreference("edit_add_keyboard_button");
+            DeleteKeyboardButtonPreference deleteKeyboardButtonPreference = (DeleteKeyboardButtonPreference) findPreference("edit_delete_keyboard_button");
+
+            onscreenControllerPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    if ((boolean)o){
+                        onscreenKeyboardPreference.setChecked(false);
+                        onscreenControllerPreference.setChecked(true);
+                    } else {
+                        onscreenControllerPreference.setChecked(false);
+                    }
+                    if (PreferenceConfiguration.readPreferences(getContext()).onscreenController || PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard){
+                        selectLayout.setEnabled(true);
+                        addLayout.setEnabled(true);
+                        renameLayout.setEnabled(true);
+                        resetLayout.setEnabled(true);
+                        deleteLayout.setEnabled(true);
+                        opacityPreference.setEnabled(true);
+                    } else {
+                        selectLayout.setEnabled(false);
+                        addLayout.setEnabled(false);
+                        renameLayout.setEnabled(false);
+                        resetLayout.setEnabled(false);
+                        deleteLayout.setEnabled(false);
+                        opacityPreference.setEnabled(false);
+                    }
+
+                    if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard){
+                        addKeyboardButtonPreference.setEnabled(true);
+                        deleteKeyboardButtonPreference.setEnabled(true);
+                    } else {
+                        addKeyboardButtonPreference.setEnabled(false);
+                        deleteKeyboardButtonPreference.setEnabled(false);
+                    }
+
+
+                    return true;
+                }
+            });
+
+            onscreenKeyboardPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    if ((boolean)o){
+                        onscreenControllerPreference.setChecked(false);
+                        onscreenKeyboardPreference.setChecked(true);
+                    } else {
+                        onscreenKeyboardPreference.setChecked(false);
+                    }
+                    if (PreferenceConfiguration.readPreferences(getContext()).onscreenController || PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard){
+                        selectLayout.setEnabled(true);
+                        addLayout.setEnabled(true);
+                        renameLayout.setEnabled(true);
+                        resetLayout.setEnabled(true);
+                        deleteLayout.setEnabled(true);
+                        opacityPreference.setEnabled(true);
+                    } else {
+                        selectLayout.setEnabled(false);
+                        addLayout.setEnabled(false);
+                        renameLayout.setEnabled(false);
+                        resetLayout.setEnabled(false);
+                        deleteLayout.setEnabled(false);
+                        opacityPreference.setEnabled(false);
+                    }
+
+                    if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard){
+                        addKeyboardButtonPreference.setEnabled(true);
+                        deleteKeyboardButtonPreference.setEnabled(true);
+                    } else {
+                        addKeyboardButtonPreference.setEnabled(false);
+                        deleteKeyboardButtonPreference.setEnabled(false);
+                    }
+
+                    return true;
+                }
+            });
+            if (PreferenceConfiguration.readPreferences(getContext()).onscreenController || PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard){
+                selectLayout.setEnabled(true);
+                addLayout.setEnabled(true);
+                renameLayout.setEnabled(true);
+                resetLayout.setEnabled(true);
+                deleteLayout.setEnabled(true);
+                opacityPreference.setEnabled(true);
+            } else {
+                selectLayout.setEnabled(false);
+                addLayout.setEnabled(false);
+                renameLayout.setEnabled(false);
+                resetLayout.setEnabled(false);
+                deleteLayout.setEnabled(false);
+                opacityPreference.setEnabled(false);
+            }
+
+            if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard){
+                addKeyboardButtonPreference.setEnabled(true);
+                deleteKeyboardButtonPreference.setEnabled(true);
+            } else {
+                addKeyboardButtonPreference.setEnabled(false);
+                deleteKeyboardButtonPreference.setEnabled(false);
+            }
 
         }
     }

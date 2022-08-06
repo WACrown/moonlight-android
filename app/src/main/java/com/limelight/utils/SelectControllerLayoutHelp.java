@@ -3,6 +3,7 @@ package com.limelight.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Patterns;
 import android.util.Size;
 
@@ -49,12 +50,25 @@ public class SelectControllerLayoutHelp {
         return 0;
     }
 
+    public static LayoutList loadAllLayoutNameShow(final Context context){
+        LayoutList layoutListValue = loadAllLayoutName(context);
+        LayoutList layoutListKey = new LayoutList();
+        for (String layoutValue : layoutListValue){
+            layoutListKey.add(layoutValue.substring("controller_".length()));
+        }
+        return layoutListKey;
+    }
+
     public static LayoutList loadAllLayoutName(final Context context) {
         LayoutList layoutNames = new LayoutList();
         SharedPreferences pref = context.getSharedPreferences("controller_admin", Activity.MODE_PRIVATE);
-        String listString = pref.getString("all_controller_layout", "default");
+        String listString = pref.getString("all_controller_layout", "controller_default");
         layoutNames.addStringToList(listString);
         return layoutNames;
+    }
+
+    public static String loadSingleLayoutNameShow(final Context context, final int index) {
+        return loadAllLayoutName(context).get(index).substring("controller_".length());
     }
 
     public static String loadSingleLayoutName(final Context context, final int index) {
@@ -89,13 +103,14 @@ public class SelectControllerLayoutHelp {
         } else {
             String newLayoutNameFix = "controller_" + layoutName;
             LayoutList layoutList = loadAllLayoutName(context);
-            if (layoutList.contains(layoutName)){
+            if (layoutList.contains(newLayoutNameFix)){
                 //已有名字
                 return 2;
             } else {
-                layoutList.add(layoutName);
+                layoutList.add(newLayoutNameFix);
+                System.out.println("addLayout: " + newLayoutNameFix);
                 storeAllLayoutName(context,layoutList);
-                initLayout(context,layoutName);
+                initLayout(context,newLayoutNameFix);
                 return 0;
             }
         }
@@ -115,12 +130,12 @@ public class SelectControllerLayoutHelp {
             } else {
                 SharedPreferences preferencesOld = context.getSharedPreferences(loadSingleLayoutName(context, oldLayoutIndex), Activity.MODE_PRIVATE);
                 Map<String, ?> oldController = preferencesOld.getAll();
-                SharedPreferences.Editor preferencesNew = context.getSharedPreferences(newLayoutName, Activity.MODE_PRIVATE).edit();
+                SharedPreferences.Editor preferencesNew = context.getSharedPreferences(newLayoutNameFix, Activity.MODE_PRIVATE).edit();
                 for (String key : oldController.keySet()) {
                     preferencesNew.putString(key, (String) oldController.get(key));
                 }
                 preferencesNew.apply();
-                layoutList.set(oldLayoutIndex, newLayoutName);
+                layoutList.set(oldLayoutIndex, newLayoutNameFix);
                 storeAllLayoutName(context, layoutList);
                 return 0;
             }
@@ -171,6 +186,7 @@ public class SelectControllerLayoutHelp {
         prefEditor.apply();
         return 0;
     }
+
 
 
 }

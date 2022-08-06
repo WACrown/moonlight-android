@@ -28,17 +28,25 @@ public class SelectKeyboardLayoutHelp {
                 LayoutList layoutList = new LayoutList();
                 layoutList.add("keyboard_default");
                 storeAllLayoutName(context,layoutList);
-                addKeyboardButton(context,"A");
-                addKeyboardButton(context,"B");
+
             }
         } else {
             LayoutList layoutList = new LayoutList();
             layoutList.add("keyboard_default");
             storeAllLayoutName(context,layoutList);
         }
-
         return 0;
     }
+
+    public static LayoutList loadAllLayoutNameShow(final Context context){
+        LayoutList layoutListValue = loadAllLayoutName(context);
+        LayoutList layoutListKey = new LayoutList();
+        for (String layoutValue : layoutListValue){
+            layoutListKey.add(layoutValue.substring("keyboard_".length()));
+        }
+        return layoutListKey;
+    }
+
 
     public static LayoutList loadAllLayoutName(final Context context) {
         LayoutList layoutNames = new LayoutList();
@@ -46,6 +54,10 @@ public class SelectKeyboardLayoutHelp {
         String listString = pref.getString("all_keyboard_layout", "default");
         layoutNames.addStringToList(listString);
         return layoutNames;
+    }
+
+    public static String loadSingleLayoutNameShow(final Context context, final int index) {
+        return loadAllLayoutName(context).get(index).substring("keyboard_".length());
     }
 
     public static String loadSingleLayoutName(final Context context, final int index) {
@@ -71,20 +83,11 @@ public class SelectKeyboardLayoutHelp {
         return 0;
     }
 
-    public static int addKeyboardButton(final Context context,String key){
 
-        if (VirtualControllerConfigurationLoader.getKeycode(key) != -1){
-            SharedPreferences.Editor prefEditor = context.getSharedPreferences(loadSingleLayoutName(context,getCurrentNum(context)), Activity.MODE_PRIVATE).edit();
-            prefEditor.putString(key,"{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
-            prefEditor.apply();
-        } else {
-            System.out.println("wangguan tianjiashibai ");
-        }
-
+    public static int resetLayout(final Context context,final int layoutIndex){
 
         return 0;
     }
-
 
 
     public static int addLayout(final Context context,final String layoutName){
@@ -94,11 +97,12 @@ public class SelectKeyboardLayoutHelp {
         } else {
             String newLayoutNameFix = "keyboard_" + layoutName;
             LayoutList layoutList = loadAllLayoutName(context);
-            if (layoutList.contains(layoutName)){
+            if (layoutList.contains(newLayoutNameFix)){
                 //已有名字
                 return 2;
             } else {
-                layoutList.add(layoutName);
+                layoutList.add(newLayoutNameFix);
+                System.out.println("addLayout: " + newLayoutNameFix);
                 storeAllLayoutName(context,layoutList);
                 return 0;
             }
@@ -119,12 +123,12 @@ public class SelectKeyboardLayoutHelp {
             } else {
                 SharedPreferences preferencesOld = context.getSharedPreferences(loadSingleLayoutName(context, oldLayoutIndex), Activity.MODE_PRIVATE);
                 Map<String, ?> oldKeyboard = preferencesOld.getAll();
-                SharedPreferences.Editor preferencesNew = context.getSharedPreferences(newLayoutName, Activity.MODE_PRIVATE).edit();
+                SharedPreferences.Editor preferencesNew = context.getSharedPreferences(newLayoutNameFix, Activity.MODE_PRIVATE).edit();
                 for (String key : oldKeyboard.keySet()) {
                     preferencesNew.putString(key, (String) oldKeyboard.get(key));
                 }
                 preferencesNew.apply();
-                layoutList.set(oldLayoutIndex, newLayoutName);
+                layoutList.set(oldLayoutIndex, newLayoutNameFix);
                 storeAllLayoutName(context, layoutList);
                 return 0;
             }
@@ -150,6 +154,20 @@ public class SelectKeyboardLayoutHelp {
         SharedPreferences.Editor prefEditor = context.getSharedPreferences("keyboard_admin", Activity.MODE_PRIVATE).edit();
         prefEditor.putString("all_keyboard_layout", layoutList.toString());
         prefEditor.apply();
+        return 0;
+    }
+
+
+    public static int addKeyboardButton(final Context context,String key){
+
+        SharedPreferences.Editor prefEditor = context.getSharedPreferences(loadSingleLayoutName(context,getCurrentNum(context)), Activity.MODE_PRIVATE).edit();
+        prefEditor.putString(key,"{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
+        prefEditor.apply();
+        return 0;
+    }
+
+    public static int deleteKeyboardButton(final Context context,int deleteIndex){
+
         return 0;
     }
 

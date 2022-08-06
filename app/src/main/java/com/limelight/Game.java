@@ -479,8 +479,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             getWindow().setSustainedPerformanceMode(true);
         }
 
- //       if (prefConfig.onscreenController) {
-        if (true){
+        if (prefConfig.onscreenController || prefConfig.onscreenKeyboard) {
             // create virtual onscreen controller
             virtualController = new VirtualController(controllerHandler,
                     (FrameLayout)streamView.getParent(),

@@ -175,23 +175,63 @@ public class VirtualControllerConfigurationLoader {
         button.addDigitalButtonListener(new DigitalButton.DigitalButtonListener() {
             @Override
             public void onClick() {
-                sendKeyCode(getKeycode(elementId),KeyEvent.ACTION_DOWN);
-                sendKeyCode(getKeycode(elementId),KeyEvent.ACTION_UP);
+                sendKeyCode(keyShort,KeyEvent.ACTION_DOWN);
             }
 
             @Override
             public void onLongClick() {
-                sendKeyCode(getKeycode(elementId),KeyEvent.ACTION_DOWN);
+
             }
 
             @Override
             public void onRelease() {
-                sendKeyCode(getKeycode(elementId),KeyEvent.ACTION_UP);
+                sendKeyCode(keyShort,KeyEvent.ACTION_UP);
             }
         });
 
         return button;
     }
+
+
+    private static DigitalPad createDirectionPad(
+            final VirtualController controller,
+            final Context context ,
+            final int keyUp, final int keyDown, final int keyLeft, final int keyRight) {
+
+        DigitalPad digitalPad = new DigitalPad(controller, context);
+        digitalPad.addDigitalPadListener(new DigitalPad.DigitalPadListener() {
+            @Override
+            public void onDirectionChange(int direction) {
+                sendKeyCode(keyLeft,KeyEvent.ACTION_UP);
+                sendKeyCode(keyRight,KeyEvent.ACTION_UP);
+                sendKeyCode(keyUp,KeyEvent.ACTION_UP);
+                sendKeyCode(keyDown,KeyEvent.ACTION_UP);
+
+                VirtualController.ControllerInputContext inputContext =
+                        controller.getControllerInputContext();
+
+                if (direction == DigitalPad.DIGITAL_PAD_DIRECTION_NO_DIRECTION) {
+
+                    return;
+                }
+                if ((direction & DigitalPad.DIGITAL_PAD_DIRECTION_LEFT) > 0) {
+                    sendKeyCode(keyLeft,KeyEvent.ACTION_DOWN);
+                }
+                if ((direction & DigitalPad.DIGITAL_PAD_DIRECTION_RIGHT) > 0) {
+                    sendKeyCode(keyRight,KeyEvent.ACTION_DOWN);
+                }
+                if ((direction & DigitalPad.DIGITAL_PAD_DIRECTION_UP) > 0) {
+                    sendKeyCode(keyUp,KeyEvent.ACTION_DOWN);
+                }
+                if ((direction & DigitalPad.DIGITAL_PAD_DIRECTION_DOWN) > 0) {
+                    sendKeyCode(keyDown,KeyEvent.ACTION_DOWN);
+                }
+            }
+        });
+
+        return digitalPad;
+    }
+
 
 
     private static final int TRIGGER_L_BASE_X = 1;
@@ -385,15 +425,31 @@ public class VirtualControllerConfigurationLoader {
         SharedPreferences preferences = context.getSharedPreferences(SelectKeyboardLayoutHelp.loadSingleLayoutName(context,SelectKeyboardLayoutHelp.getCurrentNum(context)),Activity.MODE_PRIVATE);
         Map<String,?> allButton =  preferences.getAll();
         for (String key : allButton.keySet()){
-            controller.addElement(
-                    createKeyboardButton(key,getKeycode(key),getKeycode(key),1,key,-1,controller,context),
-                    screenScale(BUTTON_BASE_X,height),
-                    screenScale(BUTTON_BASE_Y,height),
-                    screenScale(BUTTON_SIZE,height),
-                    screenScale(BUTTON_SIZE,height)
-            );
+            String[] keycodeAndName = key.split("-");
+            if (keycodeAndName.length == 2){
+                controller.addElement(
+                        createKeyboardButton(key,getKeycode(keycodeAndName[0]),getKeycode(keycodeAndName[0]),1,key,-1,controller,context),
+                        screenScale(BUTTON_BASE_X,height),
+                        screenScale(BUTTON_BASE_Y,height),
+                        screenScale(BUTTON_SIZE,height),
+                        screenScale(BUTTON_SIZE,height)
+                );
+                //字符数组有 PAD UP DOWN LEFT RIGHT NAME
+            } else if (keycodeAndName.length == 6){
+                controller.addElement(
+                        createDirectionPad(controller,context,getKeycode(keycodeAndName[1]),getKeycode(keycodeAndName[2]),getKeycode(keycodeAndName[3]),getKeycode(keycodeAndName[4])),
+                        screenScale(DPAD_BASE_X, height),
+                        screenScale(DPAD_BASE_Y, height),
+                        screenScale(DPAD_SIZE, height),
+                        screenScale(DPAD_SIZE, height)
+                );
+            } else {
+                System.out.println("WG error");
+            }
+
         }
     }
+
 
     public static void saveProfile(final VirtualController controller,
                                    final Context context,
@@ -449,11 +505,34 @@ public class VirtualControllerConfigurationLoader {
 
     public static int getKeycode(String key){
         switch (key){
-            case "A" :
-                return KeyEvent.KEYCODE_A;
-            case "B" :
-                return KeyEvent.KEYCODE_B;
-
+            case "A" :return KeyEvent.KEYCODE_A;
+            case "B" :return KeyEvent.KEYCODE_B;
+            case "C" :return KeyEvent.KEYCODE_C;
+            case "D" :return KeyEvent.KEYCODE_D;
+            case "E" :return KeyEvent.KEYCODE_E;
+            case "F" :return KeyEvent.KEYCODE_F;
+            case "G" :return KeyEvent.KEYCODE_G;
+            case "H" :return KeyEvent.KEYCODE_H;
+            case "L" :return KeyEvent.KEYCODE_L;
+            case "M" :return KeyEvent.KEYCODE_M;
+            case "N" :return KeyEvent.KEYCODE_N;
+            case "O" :return KeyEvent.KEYCODE_O;
+            case "P" :return KeyEvent.KEYCODE_P;
+            case "Q" :return KeyEvent.KEYCODE_Q;
+            case "R" :return KeyEvent.KEYCODE_R;
+            case "S" :return KeyEvent.KEYCODE_S;
+            case "T" :return KeyEvent.KEYCODE_T;
+            case "U" :return KeyEvent.KEYCODE_U;
+            case "V" :return KeyEvent.KEYCODE_V;
+            case "W" :return KeyEvent.KEYCODE_W;
+            case "X" :return KeyEvent.KEYCODE_X;
+            case "Y" :return KeyEvent.KEYCODE_Y;
+            case "Z" :return KeyEvent.KEYCODE_Z;
+            case "CTRLL" :return KeyEvent.KEYCODE_CTRL_LEFT;
+            case "SHIFTL" :return KeyEvent.KEYCODE_SHIFT_LEFT;
+            case "SPACE" :return KeyEvent.KEYCODE_SPACE;
+            case "TAB" :return KeyEvent.KEYCODE_TAB;
+            case "CAPSLOCK" :return KeyEvent.KEYCODE_CAPS_LOCK;
         }
         return -1;
     }

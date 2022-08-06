@@ -227,7 +227,6 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
             LimeLog.info("Cached GL Renderer: " + glPrefs.glRenderer);
             completeOnCreate();
         }
-        SelectControllerLayoutHelp.initSharedPreferences(this);
     }
 
     private void completeOnCreate() {
