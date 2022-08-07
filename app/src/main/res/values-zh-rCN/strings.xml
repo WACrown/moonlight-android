@@ -142,40 +142,40 @@
     <string name="summary_checkbox_flip_face_buttons"> 为手柄和虚拟手柄调转A/B和X/Y技能键 </string>
 
     <!--选择布局-->
-    <string name="title_select_controller_layout"> 选择手柄布局 </string>
-    <string name="summary_select_controller_layout"> 选择当前的手柄布局 </string>
+    <string name="title_select_controller_layout"> 选择手柄/键盘布局 </string>
+    <string name="summary_select_controller_layout"> 选择当前的手柄/键盘布局 </string>
 
     <!--新建布局-->
-    <string name="title_add_controller_layout"> 新建手柄布局 </string>
-    <string name="summary_add_controller_layout"> 新建一个新的手柄布局 </string>
+    <string name="title_add_controller_layout"> 新建手柄/键盘布局 </string>
+    <string name="summary_add_controller_layout"> 新建一个新的手柄/键盘布局 </string>
     <string name="toast_add_controller_layout_success"> 新建布局成功 </string>
     <string name="toast_add_controller_layout_failed_3"> 新建布局失败，名字只能包含字母和数字 </string>
     <string name="toast_add_controller_layout_failed_2"> 新建布局失败，该名字已存在 </string>
     <!--重命名布局-->
-    <string name="title_rename_controller_layout"> 重命名手柄布局 </string>
-    <string name="summary_rename_controller_layout"> 重命名你当前的虚拟手柄布局 </string>
+    <string name="title_rename_controller_layout"> 重命名手柄/键盘布局 </string>
+    <string name="summary_rename_controller_layout"> 重命名你当前的虚拟手柄/键盘布局 </string>
     <string name="toast_rename_controller_layout_success"> 重命名成果 </string>
     <string name="toast_rename_controller_layout_failed_3"> 重命名失败，名字只能包含字母和数字 </string>
     <string name="toast_rename_controller_layout_failed_2"> 重命名失败，该名字已存在 </string>
 
     <!--重置布局-->
-    <string name="title_reset_controller_layout"> 重置手柄布局 </string>
-    <string name="summary_reset_controller_layout"> 重置当前选择的虚拟手柄布局 </string>
-    <string name="dialog_title_reset_controller_layout"> 重置手柄布局 </string>
+    <string name="title_reset_controller_layout"> 重置手柄/键盘布局 </string>
+    <string name="summary_reset_controller_layout"> 重置当前选择的虚拟手柄/键盘布局 </string>
+    <string name="dialog_title_reset_controller_layout"> 重置手柄/键盘布局 </string>
     <string name="dialog_text_reset_controller_layout"> 确定要重置布局 : </string>
     <string name="toast_reset_controller_layout_success"> 重置成功 </string>
 
     <!--删除布局-->
-    <string name="title_delete_controller_layout"> 删除手柄布局 </string>
-    <string name="summary_delete_controller_layout"> 删除当前选择的虚拟手柄布局 </string>
-    <string name="dialog_title_delete_controller_layout"> 删除手柄布局 </string>
+    <string name="title_delete_controller_layout"> 删除手柄/键盘布局 </string>
+    <string name="summary_delete_controller_layout"> 删除当前选择的虚拟手柄/键盘布局 </string>
+    <string name="dialog_title_delete_controller_layout"> 删除手柄/键盘布局 </string>
     <string name="dialog_text_delete_controller_layout"> 确定要删除布局 : </string>
     <string name="toast_delete_controller_layout_success"> 删除成功 </string>
     <string name="dialog_text_delete_controller_layout_failed"> 删除失败，你需要至少一个布局 </string>
 
     <!--调整布局透明度-->
     <string name="title_layout_opacity"> 按键透明度 </string>
-    <string name="summary_layout_opacity"> 改变虚拟手柄的透明度 </string>
+    <string name="summary_layout_opacity"> 改变虚拟手柄/键盘的透明度 </string>
     <string name="dialog_title_layout_opacity"> 透明度 </string>
     <string name="suffix_layout_opacity">%</string>
 

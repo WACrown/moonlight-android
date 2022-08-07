@@ -16,7 +16,12 @@ public class EditKeyboardLayoutHelp {
     public static int addKeyboardButton(final Context context, String key, String layoutName){
 
         SharedPreferences.Editor prefEditor = context.getSharedPreferences(layoutName, Activity.MODE_PRIVATE).edit();
-        prefEditor.putString(key,"{\"LEFT\":2004,\"TOP\":302,\"WIDTH\":143,\"HEIGHT\":143}");
+        if (key.split("-").length == 2) {
+            prefEditor.putString(key,"{\"LEFT\":2004,\"TOP\":302,\"WIDTH\":143,\"HEIGHT\":143}");
+        } else if (key.split("-").length == 6) {
+            prefEditor.putString(key,"{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
+        }
+
         prefEditor.apply();
         return 0;
     }

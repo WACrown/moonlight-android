@@ -20,7 +20,9 @@ import com.limelight.utils.SelectKeyboardLayoutHelp;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 public class VirtualControllerConfigurationLoader {
     public static final String OSC_PREFERENCE = "OSC";
@@ -38,9 +40,10 @@ public class VirtualControllerConfigurationLoader {
 
     private static DigitalPad createDigitalPad(
             final VirtualController controller,
+            final String elementId,
             final Context context) {
 
-        DigitalPad digitalPad = new DigitalPad(controller, context);
+        DigitalPad digitalPad = new DigitalPad(controller, elementId, context);
         digitalPad.addDigitalPadListener(new DigitalPad.DigitalPadListener() {
             @Override
             public void onDirectionChange(int direction) {
@@ -169,13 +172,15 @@ public class VirtualControllerConfigurationLoader {
             final VirtualController controller,
             final Context context) {
         DigitalButton button = new DigitalButton(controller, elementId, layer, context);
-        button.setText(text);
+        button.setText(text.split("-")[0]);
         button.setIcon(icon);
+        Map<String,KeyEvent> keyEventMap = controller.getKeyboardInputContext();
 
         button.addDigitalButtonListener(new DigitalButton.DigitalButtonListener() {
             @Override
             public void onClick() {
-                sendKeyCode(keyShort,KeyEvent.ACTION_DOWN);
+                keyEventMap.put(""+keyShort,new KeyEvent(KeyEvent.ACTION_DOWN,keyShort));
+                controller.sendKeyboardInputPadKey();
             }
 
             @Override
@@ -185,7 +190,8 @@ public class VirtualControllerConfigurationLoader {
 
             @Override
             public void onRelease() {
-                sendKeyCode(keyShort,KeyEvent.ACTION_UP);
+                keyEventMap.put(""+keyShort,new KeyEvent(KeyEvent.ACTION_UP,keyShort));
+                controller.sendKeyboardInputPadKey();
             }
         });
 
@@ -195,37 +201,39 @@ public class VirtualControllerConfigurationLoader {
 
     private static DigitalPad createDirectionPad(
             final VirtualController controller,
+            final String elementId,
             final Context context ,
             final int keyUp, final int keyDown, final int keyLeft, final int keyRight) {
 
-        DigitalPad digitalPad = new DigitalPad(controller, context);
+        DigitalPad digitalPad = new DigitalPad(controller, elementId, context);
         digitalPad.addDigitalPadListener(new DigitalPad.DigitalPadListener() {
             @Override
             public void onDirectionChange(int direction) {
-                sendKeyCode(keyLeft,KeyEvent.ACTION_UP);
-                sendKeyCode(keyRight,KeyEvent.ACTION_UP);
-                sendKeyCode(keyUp,KeyEvent.ACTION_UP);
-                sendKeyCode(keyDown,KeyEvent.ACTION_UP);
 
-                VirtualController.ControllerInputContext inputContext =
-                        controller.getControllerInputContext();
 
-                if (direction == DigitalPad.DIGITAL_PAD_DIRECTION_NO_DIRECTION) {
+                Map<String,KeyEvent> keyEventMap = controller.getKeyboardInputContext();
 
-                    return;
-                }
+                keyEventMap.put(""+keyLeft,new KeyEvent(KeyEvent.ACTION_UP,keyLeft));
+                keyEventMap.put(""+keyRight,new KeyEvent(KeyEvent.ACTION_UP,keyRight));
+                keyEventMap.put(""+keyUp,new KeyEvent(KeyEvent.ACTION_UP,keyUp));
+                keyEventMap.put(""+keyDown,new KeyEvent(KeyEvent.ACTION_UP,keyDown));
+
+
+
                 if ((direction & DigitalPad.DIGITAL_PAD_DIRECTION_LEFT) > 0) {
-                    sendKeyCode(keyLeft,KeyEvent.ACTION_DOWN);
+                    keyEventMap.put(""+keyLeft,new KeyEvent(KeyEvent.ACTION_DOWN,keyLeft));
                 }
                 if ((direction & DigitalPad.DIGITAL_PAD_DIRECTION_RIGHT) > 0) {
-                    sendKeyCode(keyRight,KeyEvent.ACTION_DOWN);
+                    keyEventMap.put(""+keyRight,new KeyEvent(KeyEvent.ACTION_DOWN,keyRight));
                 }
                 if ((direction & DigitalPad.DIGITAL_PAD_DIRECTION_UP) > 0) {
-                    sendKeyCode(keyUp,KeyEvent.ACTION_DOWN);
+                    keyEventMap.put(""+keyUp,new KeyEvent(KeyEvent.ACTION_DOWN,keyUp));
                 }
                 if ((direction & DigitalPad.DIGITAL_PAD_DIRECTION_DOWN) > 0) {
-                    sendKeyCode(keyDown,KeyEvent.ACTION_DOWN);
+                    keyEventMap.put(""+keyDown,new KeyEvent(KeyEvent.ACTION_DOWN,keyDown));
                 }
+
+                controller.sendKeyboardInputPadKey();
             }
         });
 
@@ -279,7 +287,7 @@ public class VirtualControllerConfigurationLoader {
 
         if (!config.onlyL3R3)
         {
-            controller.addElement(createDigitalPad(controller, context),
+            controller.addElement(createDigitalPad(controller, VirtualControllerElement.EID_DPAD, context),
                     screenScale(DPAD_BASE_X, height),
                     screenScale(DPAD_BASE_Y, height),
                     screenScale(DPAD_SIZE, height),
@@ -418,14 +426,12 @@ public class VirtualControllerConfigurationLoader {
     public static void createDefaultKeyboardButton(final VirtualController controller, final Context context){
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
 
-        // Displace controls on the right by this amount of pixels to account for different aspect ratios
-        int rightDisplacement = screen.widthPixels - screen.heightPixels * 16 / 9;
-
         int height = screen.heightPixels;
         SharedPreferences preferences = context.getSharedPreferences(SelectKeyboardLayoutHelp.loadSingleLayoutName(context,SelectKeyboardLayoutHelp.getCurrentNum(context)),Activity.MODE_PRIVATE);
         Map<String,?> allButton =  preferences.getAll();
         for (String key : allButton.keySet()){
             String[] keycodeAndName = key.split("-");
+
             if (keycodeAndName.length == 2){
                 controller.addElement(
                         createKeyboardButton(key,getKeycode(keycodeAndName[0]),getKeycode(keycodeAndName[0]),1,key,-1,controller,context),
@@ -437,17 +443,19 @@ public class VirtualControllerConfigurationLoader {
                 //字符数组有 PAD UP DOWN LEFT RIGHT NAME
             } else if (keycodeAndName.length == 6){
                 controller.addElement(
-                        createDirectionPad(controller,context,getKeycode(keycodeAndName[1]),getKeycode(keycodeAndName[2]),getKeycode(keycodeAndName[3]),getKeycode(keycodeAndName[4])),
+                        createDirectionPad(controller, key, context,getKeycode(keycodeAndName[1]),getKeycode(keycodeAndName[2]),getKeycode(keycodeAndName[3]),getKeycode(keycodeAndName[4])),
                         screenScale(DPAD_BASE_X, height),
                         screenScale(DPAD_BASE_Y, height),
                         screenScale(DPAD_SIZE, height),
                         screenScale(DPAD_SIZE, height)
                 );
             } else {
-                System.out.println("WG error");
+                for (String name : keycodeAndName){
+                    System.out.println("WG error:" + name);
+                }
             }
-
         }
+        controller.setOpacity(PreferenceConfiguration.readPreferences(context).layoutOpacity);
     }
 
 
@@ -490,18 +498,6 @@ public class VirtualControllerConfigurationLoader {
             }
         }
     }
-    private static void sendKeyCode(final int keyCode,final int keyStatus){
-        new Thread() {
-            public void run() {
-                try {
-                    Instrumentation inst = new Instrumentation();
-                    inst.sendKeySync(new KeyEvent(keyStatus,keyCode));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
-    }
 
     public static int getKeycode(String key){
         switch (key){
@@ -528,11 +524,87 @@ public class VirtualControllerConfigurationLoader {
             case "X" :return KeyEvent.KEYCODE_X;
             case "Y" :return KeyEvent.KEYCODE_Y;
             case "Z" :return KeyEvent.KEYCODE_Z;
+            //
             case "CTRLL" :return KeyEvent.KEYCODE_CTRL_LEFT;
             case "SHIFTL" :return KeyEvent.KEYCODE_SHIFT_LEFT;
+            case "CTRLR" :return KeyEvent.KEYCODE_CTRL_RIGHT;
+            case "SHIFTR" :return KeyEvent.KEYCODE_SHIFT_RIGHT;
+            case "ALTL" :return KeyEvent.KEYCODE_ALT_LEFT;
+            case "ALTR" :return KeyEvent.KEYCODE_ALT_RIGHT;
+            case "ENTER" :return KeyEvent.KEYCODE_ENTER;
+            case "BACK" :return KeyEvent.KEYCODE_DEL;
             case "SPACE" :return KeyEvent.KEYCODE_SPACE;
             case "TAB" :return KeyEvent.KEYCODE_TAB;
-            case "CAPSLOCK" :return KeyEvent.KEYCODE_CAPS_LOCK;
+            case "CAPS" :return KeyEvent.KEYCODE_CAPS_LOCK;
+            //功能键
+            case "DEL" :return KeyEvent.KEYCODE_FORWARD_DEL;
+            case "INS" :return KeyEvent.KEYCODE_INSERT;
+            case "HOME" :return KeyEvent.KEYCODE_MOVE_HOME;
+            case "END" :return KeyEvent.KEYCODE_MOVE_END;
+            case "PGUP" :return KeyEvent.KEYCODE_PAGE_UP;
+            case "PGDN" :return KeyEvent.KEYCODE_PAGE_DOWN;
+            case "BREAK" :return KeyEvent.KEYCODE_BREAK;
+            case "SLCK" :return KeyEvent.KEYCODE_SCROLL_LOCK;
+            case "PRINT" :return KeyEvent.KEYCODE_SYSRQ;
+            case "UP" :return KeyEvent.KEYCODE_DPAD_UP;
+            case "DOWN" :return KeyEvent.KEYCODE_DPAD_DOWN;
+            case "LEFT" :return KeyEvent.KEYCODE_DPAD_LEFT;
+            case "RIGHT" :return KeyEvent.KEYCODE_DPAD_RIGHT;
+            //
+            case "1" :return KeyEvent.KEYCODE_1;
+            case "2" :return KeyEvent.KEYCODE_2;
+            case "3" :return KeyEvent.KEYCODE_3;
+            case "4" :return KeyEvent.KEYCODE_4;
+            case "5" :return KeyEvent.KEYCODE_5;
+            case "6" :return KeyEvent.KEYCODE_6;
+            case "7" :return KeyEvent.KEYCODE_7;
+            case "8" :return KeyEvent.KEYCODE_8;
+            case "9" :return KeyEvent.KEYCODE_9;
+            case "0" :return KeyEvent.KEYCODE_0;
+            //
+            case "F1" :return KeyEvent.KEYCODE_F1;
+            case "F2" :return KeyEvent.KEYCODE_F2;
+            case "F3" :return KeyEvent.KEYCODE_F3;
+            case "F4" :return KeyEvent.KEYCODE_F4;
+            case "F5" :return KeyEvent.KEYCODE_F5;
+            case "F6" :return KeyEvent.KEYCODE_F6;
+            case "F7" :return KeyEvent.KEYCODE_F7;
+            case "F8" :return KeyEvent.KEYCODE_F8;
+            case "F9" :return KeyEvent.KEYCODE_F9;
+            case "F10" :return KeyEvent.KEYCODE_F10;
+            case "F11" :return KeyEvent.KEYCODE_F11;
+            case "F12" :return KeyEvent.KEYCODE_F12;
+            //
+            case "~" :return KeyEvent.KEYCODE_GRAVE;
+            case "_" :return KeyEvent.KEYCODE_MINUS;
+            case "=" :return KeyEvent.KEYCODE_EQUALS;
+            case "[" :return KeyEvent.KEYCODE_LEFT_BRACKET;
+            case "]" :return KeyEvent.KEYCODE_RIGHT_BRACKET;
+            case "\\" :return KeyEvent.KEYCODE_BACKSLASH;
+            case ";" :return KeyEvent.KEYCODE_SEMICOLON;
+            case "\"" :return KeyEvent.KEYCODE_APOSTROPHE;
+            case "<" :return KeyEvent.KEYCODE_COMMA;
+            case ">" :return KeyEvent.KEYCODE_PERIOD;
+            case "/" :return KeyEvent.KEYCODE_SLASH;
+            //
+            case "NUM1" :return KeyEvent.KEYCODE_NUMPAD_1;
+            case "NUM2" :return KeyEvent.KEYCODE_NUMPAD_2;
+            case "NUM3" :return KeyEvent.KEYCODE_NUMPAD_3;
+            case "NUM4" :return KeyEvent.KEYCODE_NUMPAD_4;
+            case "NUM5" :return KeyEvent.KEYCODE_NUMPAD_5;
+            case "NUM6" :return KeyEvent.KEYCODE_NUMPAD_6;
+            case "NUM7" :return KeyEvent.KEYCODE_NUMPAD_7;
+            case "NUM8" :return KeyEvent.KEYCODE_NUMPAD_8;
+            case "NUM9" :return KeyEvent.KEYCODE_NUMPAD_9;
+            case "NUM0" :return KeyEvent.KEYCODE_NUMPAD_0;
+            case "NUM." :return KeyEvent.KEYCODE_NUMPAD_DOT;
+            case "NUM+" :return KeyEvent.KEYCODE_NUMPAD_ADD;
+            case "NUM-" :return KeyEvent.KEYCODE_NUMPAD_SUBTRACT;
+            case "NUM*" :return KeyEvent.KEYCODE_NUMPAD_MULTIPLY;
+            case "NUM/" :return KeyEvent.KEYCODE_NUMPAD_DIVIDE;
+            case "NUMENT" :return KeyEvent.KEYCODE_NUMPAD_ENTER;
+            case "NUMLCK" :return KeyEvent.KEYCODE_NUM_LOCK;
+
         }
         return -1;
     }

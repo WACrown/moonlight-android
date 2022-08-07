@@ -26,8 +26,8 @@ public class DigitalPad extends VirtualControllerElement {
 
     private final Paint paint = new Paint();
 
-    public DigitalPad(VirtualController controller, Context context) {
-        super(controller, context, EID_DPAD);
+    public DigitalPad(VirtualController controller, String elementId, Context context) {
+        super(controller, context, elementId);
     }
 
     public void addDigitalPadListener(DigitalPadListener listener) {

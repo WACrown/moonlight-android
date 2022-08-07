@@ -8,21 +8,28 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.limelight.Game;
 import com.limelight.LimeLog;
 import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
+import com.limelight.binding.input.KeyboardTranslator;
 import com.limelight.preferences.PreferenceConfiguration;
 import com.limelight.utils.SelectControllerLayoutHelp;
 import com.limelight.utils.SelectKeyboardLayoutHelp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -37,6 +44,8 @@ public class VirtualController {
         public short leftStickY = 0x0000;
     }
 
+
+
     public enum ControllerMode {
         Active,
         MoveButtons,
@@ -47,6 +56,7 @@ public class VirtualController {
     private static final boolean _PRINT_DEBUG_INFORMATION = false;
 
     private final ControllerHandler controllerHandler;
+    private final Game game;
     private final Context context;
 
     private FrameLayout frame_layout = null;
@@ -56,16 +66,19 @@ public class VirtualController {
     ControllerMode currentMode = ControllerMode.Active;
     ControllerInputContext inputContext = new ControllerInputContext();
 
+    private static Map<String,KeyEvent> keyEventMap = new HashMap<>();
     private Button buttonConfigure = null;
     private VirtualControllerLayoutSelector VCLSelector = null;
+
 
     private List<VirtualControllerElement> elements = new ArrayList<>();
     private VirtualController virtualController;
     private PreferenceConfiguration config;
 
 
-    public VirtualController(final ControllerHandler controllerHandler, FrameLayout layout, final Context context) {
+    public VirtualController(final ControllerHandler controllerHandler, FrameLayout layout, final Context context, final Game game) {
         this.controllerHandler = controllerHandler;
+        this.game = game;
         this.frame_layout = layout;
         this.context = context;
         this.virtualController = this;
@@ -110,13 +123,13 @@ public class VirtualController {
 
                 if (currentMode == ControllerMode.Active){
                     currentMode = ControllerMode.SelectLayout;
-                    message = "Entering configuration mode (Move buttons)";
+                    message = "Entering configuration mode (Select layout)";
                 } else if (currentMode == ControllerMode.SelectLayout) {
                     currentMode = ControllerMode.MoveButtons;
-                    message = "Entering configuration mode (Resize buttons)";
+                    message = "Entering configuration mode (Move buttons)";
                 } else if (currentMode == ControllerMode.MoveButtons) {
                     currentMode = ControllerMode.ResizeButtons;
-                    message = "Entering configuration mode (Select layout)";
+                    message = "Entering configuration mode (Resize buttons)";
                 } else {
                     currentMode = ControllerMode.Active;
                     if (config.onscreenController){
@@ -227,7 +240,7 @@ public class VirtualController {
         // Start with the default layout
         if (config.onscreenController){
             VirtualControllerConfigurationLoader.createDefaultLayout(this, context);
-        } else if (true) {
+        } else if (config.onscreenKeyboard) {
             VirtualControllerConfigurationLoader.createDefaultKeyboardButton(this,context);
         }
 
@@ -235,7 +248,7 @@ public class VirtualController {
         // Apply user preferences onto the default layout
         if (config.onscreenController){
             VirtualControllerConfigurationLoader.loadFromPreferences(this, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentNum(context)));
-        } else if (true) {
+        } else if (config.onscreenKeyboard) {
             VirtualControllerConfigurationLoader.loadFromPreferences(this, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentNum(context)));
         }
         VCLSelector.refreshLayout();
@@ -249,6 +262,10 @@ public class VirtualController {
 
     public ControllerInputContext getControllerInputContext() {
         return inputContext;
+    }
+
+    public Map<String,KeyEvent> getKeyboardInputContext() {
+        return keyEventMap;
     }
 
     void sendControllerInputContext() {
@@ -270,4 +287,22 @@ public class VirtualController {
             );
         }
     }
+
+    void sendKeyboardInputPadKey() {
+
+        _DBG("KEY_EVENT_MAP + " + keyEventMap);
+        if (game != null) {
+            for (String key : keyEventMap.keySet()){
+                KeyEvent keyEvent = keyEventMap.get(key);
+                if (keyEvent != null){
+                    if (keyEvent.getAction() == KeyEvent.ACTION_DOWN){
+                        game.handleKeyDown(keyEvent);
+                    } else if (keyEvent.getAction() == KeyEvent.ACTION_UP){
+                        game.handleKeyUp(keyEvent);
+                    }
+                }
+            }
+        }
+    }
+
 }

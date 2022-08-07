@@ -157,18 +157,4 @@ public class SelectKeyboardLayoutHelp {
         return 0;
     }
 
-
-    public static int addKeyboardButton(final Context context,String key){
-
-        SharedPreferences.Editor prefEditor = context.getSharedPreferences(loadSingleLayoutName(context,getCurrentNum(context)), Activity.MODE_PRIVATE).edit();
-        prefEditor.putString(key,"{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
-        prefEditor.apply();
-        return 0;
-    }
-
-    public static int deleteKeyboardButton(final Context context,int deleteIndex){
-
-        return 0;
-    }
-
 }
