@@ -34,9 +34,9 @@ public class DeleteKeyboardButtonPreference extends EditTextPreference {
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
             String keyName = getEditText().getText().toString();
-            boolean isExist = EditKeyboardLayoutHelp.getAllButtonSet(getContext(), SelectKeyboardLayoutHelp.loadSingleLayoutName(getContext(),SelectKeyboardLayoutHelp.getCurrentNum(getContext()))).contains(keyName);
+            boolean isExist = EditKeyboardLayoutHelp.getAllButtonSet(getContext(), SelectKeyboardLayoutHelp.loadSingleLayoutName(getContext(),SelectKeyboardLayoutHelp.getCurrentController(getContext()))).contains(keyName);
             if (isExist) {
-                EditKeyboardLayoutHelp.deleteKeyboardButton(getContext(),keyName,SelectKeyboardLayoutHelp.loadSingleLayoutName(getContext(),SelectKeyboardLayoutHelp.getCurrentNum(getContext())));
+                EditKeyboardLayoutHelp.deleteKeyboardButton(getContext(),keyName,SelectKeyboardLayoutHelp.loadSingleLayoutName(getContext(),SelectKeyboardLayoutHelp.getCurrentController(getContext())));
                 Toast.makeText(getContext(), "myString  删除成功", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getContext(), "myString 3 删除失败，没有该按钮", Toast.LENGTH_SHORT).show();

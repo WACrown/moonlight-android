@@ -33,7 +33,7 @@ public class DynamicListPreference extends ListPreference {
             CharSequence[] layoutCharSequencesValue = layoutListValue.toArray(new CharSequence[layoutListValue.size()]);
             setEntries(layoutCharSequencesKey);
             setEntryValues(layoutCharSequencesValue);
-            setValue(SelectControllerLayoutHelp.loadSingleLayoutName(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext())));
+            setValue(SelectControllerLayoutHelp.loadSingleLayoutName(getContext(), SelectControllerLayoutHelp.getCurrentController(getContext())));
             return view;
         } else if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard) {
             ListView view = new ListView(getContext());
@@ -44,7 +44,7 @@ public class DynamicListPreference extends ListPreference {
             CharSequence[] layoutCharSequencesValue = layoutListValue.toArray(new CharSequence[layoutListValue.size()]);
             setEntries(layoutCharSequencesKey);
             setEntryValues(layoutCharSequencesValue);
-            setValue(SelectKeyboardLayoutHelp.loadSingleLayoutName(getContext(), SelectKeyboardLayoutHelp.getCurrentNum(getContext())));
+            setValue(SelectKeyboardLayoutHelp.loadSingleLayoutName(getContext(), SelectKeyboardLayoutHelp.getCurrentController(getContext())));
             return view;
         }
         return null;

@@ -39,10 +39,10 @@ public class AddKeyboardButtonPreference extends EditTextPreference {
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
             String keyName = getEditText().getText().toString();
-            boolean isExist = EditKeyboardLayoutHelp.getAllButtonSet(getContext(),SelectKeyboardLayoutHelp.loadSingleLayoutName(getContext(),SelectKeyboardLayoutHelp.getCurrentNum(getContext()))).contains(keyName);
+            boolean isExist = EditKeyboardLayoutHelp.getAllButtonSet(getContext(),SelectKeyboardLayoutHelp.loadSingleLayoutName(getContext(),SelectKeyboardLayoutHelp.getCurrentController(getContext()))).contains(keyName);
             if (!isExist) {
                 if (EditKeyboardLayoutHelp.isInvalid(keyName) == 0){
-                    EditKeyboardLayoutHelp.addKeyboardButton(getContext(),keyName,SelectKeyboardLayoutHelp.loadSingleLayoutName(getContext(),SelectKeyboardLayoutHelp.getCurrentNum(getContext())));
+                    EditKeyboardLayoutHelp.addKeyboardButton(getContext(),keyName,SelectKeyboardLayoutHelp.loadSingleLayoutName(getContext(),SelectKeyboardLayoutHelp.getCurrentController(getContext())));
                     Toast.makeText(getContext(), "myString 1 创建成功", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getContext(), "myString 2 创建失败，名字非法", Toast.LENGTH_SHORT).show();

@@ -38,12 +38,12 @@ public class ConfirmDeleteControllerLayoutPreference extends DialogPreference {
     @Override
     protected View onCreateDialogView() {
         if (PreferenceConfiguration.readPreferences(getContext()).onscreenController){
-            String currentLayoutName = SelectControllerLayoutHelp.loadSingleLayoutNameShow(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext()));
+            String currentLayoutName = SelectControllerLayoutHelp.loadSingleLayoutNameShow(getContext(), SelectControllerLayoutHelp.getCurrentController(getContext()));
             this.setDialogTitle(getContext().getResources().getString(R.string.dialog_title_delete_controller_layout));
             this.setDialogMessage(getContext().getResources().getString(R.string.dialog_text_delete_controller_layout) + currentLayoutName);
             return super.onCreateDialogView();
         } else if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard) {
-            String currentLayoutName = SelectKeyboardLayoutHelp.loadSingleLayoutNameShow(getContext(), SelectKeyboardLayoutHelp.getCurrentNum(getContext()));
+            String currentLayoutName = SelectKeyboardLayoutHelp.loadSingleLayoutNameShow(getContext(), SelectKeyboardLayoutHelp.getCurrentController(getContext()));
             this.setDialogTitle(getContext().getResources().getString(R.string.dialog_title_delete_controller_layout));
             this.setDialogMessage(getContext().getResources().getString(R.string.dialog_text_delete_controller_layout) + currentLayoutName);
             return super.onCreateDialogView();
@@ -55,7 +55,7 @@ public class ConfirmDeleteControllerLayoutPreference extends DialogPreference {
 
         if (PreferenceConfiguration.readPreferences(getContext()).onscreenController){
             if (which == DialogInterface.BUTTON_POSITIVE) {
-                int flag = SelectControllerLayoutHelp.deleteLayout(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext()));
+                int flag = SelectControllerLayoutHelp.deleteLayout(getContext(), SelectControllerLayoutHelp.getCurrentController(getContext()));
                 if ( flag == 0 ){
                     Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_delete_controller_layout_success), Toast.LENGTH_SHORT).show();
                 } else if ( flag == 2 ){
@@ -69,7 +69,7 @@ public class ConfirmDeleteControllerLayoutPreference extends DialogPreference {
         } else if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard) {
 
             if (which == DialogInterface.BUTTON_POSITIVE) {
-                int flag = SelectKeyboardLayoutHelp.deleteLayout(getContext(), SelectKeyboardLayoutHelp.getCurrentNum(getContext()));
+                int flag = SelectKeyboardLayoutHelp.deleteLayout(getContext(), SelectKeyboardLayoutHelp.getCurrentController(getContext()));
                 if ( flag == 0 ){
                     Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_delete_controller_layout_success), Toast.LENGTH_SHORT).show();
                 } else if ( flag == 2 ){

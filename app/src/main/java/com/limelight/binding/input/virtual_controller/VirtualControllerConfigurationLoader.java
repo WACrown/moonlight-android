@@ -429,7 +429,7 @@ public class VirtualControllerConfigurationLoader {
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
 
         int height = screen.heightPixels;
-        SharedPreferences preferences = context.getSharedPreferences(SelectKeyboardLayoutHelp.loadSingleLayoutName(context,SelectKeyboardLayoutHelp.getCurrentNum(context)),Activity.MODE_PRIVATE);
+        SharedPreferences preferences = context.getSharedPreferences(SelectKeyboardLayoutHelp.loadSingleLayoutName(context,SelectKeyboardLayoutHelp.getCurrentController(context)),Activity.MODE_PRIVATE);
         Map<String,?> allButton =  preferences.getAll();
         for (String key : allButton.keySet()){
             String[] keycodeAndName = key.split("-");

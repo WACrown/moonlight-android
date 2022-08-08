@@ -22,9 +22,9 @@ public class VirtualControllerLayoutSelector extends Spinner{
         this.context = context;
         this.setAdapter(new AdapterSelector(context));
         if (PreferenceConfiguration.readPreferences(context).onscreenController){
-            this.setSelection(SelectControllerLayoutHelp.getCurrentNum(context));
+            this.setSelection(SelectControllerLayoutHelp.getCurrentController(context));
         } else if (PreferenceConfiguration.readPreferences(context).onscreenKeyboard) {
-            this.setSelection(SelectKeyboardLayoutHelp.getCurrentNum(context));
+            this.setSelection(SelectKeyboardLayoutHelp.getCurrentController(context));
         }
 
         this.setVisibility(View.INVISIBLE);

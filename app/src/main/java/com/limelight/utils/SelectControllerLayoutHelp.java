@@ -15,11 +15,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 public class SelectControllerLayoutHelp {
+
+    private static final String CONTROLLER_ADMIN = "controller_admin";
+    private static final String CURRENT_CONTROLLER = "current_controller";
+    private static final String ALL_CONTROLLER_LAYOUT = "all_controller_layout";
+    private static LayoutList layoutList;
 
 
     public static int initSharedPreferences(Context context){
@@ -50,6 +56,42 @@ public class SelectControllerLayoutHelp {
         return 0;
     }
 
+    public static LayoutList getAllControllerLayout(final Context context) {
+        LayoutList layoutNames = new LayoutList();
+        String listString = SharedPreferencesHelp.load(context, CONTROLLER_ADMIN, ALL_CONTROLLER_LAYOUT);
+
+        if (listString == null) {
+            return null;
+        }
+
+        layoutNames.addStringToList(listString);
+        return layoutNames;
+    }
+
+    public static int getCurrentController(final Context context){
+
+        String currentController = SharedPreferencesHelp.load(context, CONTROLLER_ADMIN, CURRENT_CONTROLLER);
+
+        if (currentController == null) {
+            //如果CURRENT_CONTROLLER的值为空
+            setCurrentNum(context, 0);
+            return 0;
+        }
+
+        int currentNum = Integer.parseInt(currentController) ;
+
+        if (currentNum > getLayoutCount(context) - 1) {
+            //如果current_controller值不对
+            setCurrentNum(context, 0);
+            return 0;
+        }
+
+
+        //正确返回
+        return currentNum;
+
+    }
+
     public static LayoutList loadAllLayoutNameShow(final Context context){
         LayoutList layoutListValue = loadAllLayoutName(context);
         LayoutList layoutListKey = new LayoutList();
@@ -60,11 +102,7 @@ public class SelectControllerLayoutHelp {
     }
 
     public static LayoutList loadAllLayoutName(final Context context) {
-        LayoutList layoutNames = new LayoutList();
-        SharedPreferences pref = context.getSharedPreferences("controller_admin", Activity.MODE_PRIVATE);
-        String listString = pref.getString("all_controller_layout", "controller_default");
-        layoutNames.addStringToList(listString);
-        return layoutNames;
+        return getAllControllerLayout(context);
     }
 
     public static String loadSingleLayoutNameShow(final Context context, final int index) {
@@ -79,15 +117,17 @@ public class SelectControllerLayoutHelp {
         return loadAllLayoutName(context).size();
     }
 
-    public static int getCurrentNum(final Context context){
-        SharedPreferences pref = context.getSharedPreferences("controller_admin", Activity.MODE_PRIVATE);
-        int currentNum = pref.getInt("current_controller", 0);
-        return currentNum;
 
-
-    }
 
     public static int setCurrentNum(final Context context,int num){
+
+        if (num > getLayoutCount(context) - 1){
+            return -1;
+        }
+
+        Map<String, String> map = new HashMap<>();
+        map.put(CURRENT_CONTROLLER, String.valueOf(num));
+        SharedPreferencesHelp.store(context,CONTROLLER_ADMIN, map);
         SharedPreferences.Editor prefEditor = context.getSharedPreferences("controller_admin", Activity.MODE_PRIVATE).edit();
         prefEditor.putInt("current_controller", num);
         prefEditor.apply();
@@ -100,20 +140,22 @@ public class SelectControllerLayoutHelp {
         if (!Pattern.matches("^[A-Za-z0-9]{1,25}$",layoutName)){
             //名字非法
             return 3;
-        } else {
-            String newLayoutNameFix = "controller_" + layoutName;
-            LayoutList layoutList = loadAllLayoutName(context);
-            if (layoutList.contains(newLayoutNameFix)){
-                //已有名字
-                return 2;
-            } else {
-                layoutList.add(newLayoutNameFix);
-                System.out.println("addLayout: " + newLayoutNameFix);
-                storeAllLayoutName(context,layoutList);
-                initLayout(context,newLayoutNameFix);
-                return 0;
-            }
         }
+
+        String newLayoutNameFix = "controller_" + layoutName;
+        LayoutList layoutList = loadAllLayoutName(context);
+
+
+        if (layoutList.contains(newLayoutNameFix)) {
+            //已有名字
+            return 2;
+        }
+
+        layoutList.add(newLayoutNameFix);
+        storeAllLayoutName(context,layoutList);
+        initLayout(context,newLayoutNameFix);
+        return 0;
+
     }
 
     public static int renameLayout(final Context context,final int oldLayoutIndex, final String newLayoutName){

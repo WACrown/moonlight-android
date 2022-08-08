@@ -38,11 +38,11 @@ public class RenameControllerLayoutPreference extends EditTextPreference {
     protected View onCreateDialogView() {
         if (PreferenceConfiguration.readPreferences(getContext()).onscreenController){
             setDialogTitle(getContext().getResources().getString(R.string.title_rename_controller_layout));
-            setText(SelectControllerLayoutHelp.loadSingleLayoutNameShow(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext())));
+            setText(SelectControllerLayoutHelp.loadSingleLayoutNameShow(getContext(), SelectControllerLayoutHelp.getCurrentController(getContext())));
             return super.onCreateDialogView();
         } else if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard) {
             setDialogTitle(getContext().getResources().getString(R.string.title_rename_controller_layout));
-            setText(SelectKeyboardLayoutHelp.loadSingleLayoutNameShow(getContext(), SelectKeyboardLayoutHelp.getCurrentNum(getContext())));
+            setText(SelectKeyboardLayoutHelp.loadSingleLayoutNameShow(getContext(), SelectKeyboardLayoutHelp.getCurrentController(getContext())));
             return super.onCreateDialogView();
         }
         return null;
@@ -52,7 +52,7 @@ public class RenameControllerLayoutPreference extends EditTextPreference {
     public void onClick(DialogInterface dialog, int which) {
         if (PreferenceConfiguration.readPreferences(getContext()).onscreenController){
             if (which == DialogInterface.BUTTON_POSITIVE) {
-                int flag = SelectControllerLayoutHelp.renameLayout(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext()),getEditText().getText().toString());
+                int flag = SelectControllerLayoutHelp.renameLayout(getContext(), SelectControllerLayoutHelp.getCurrentController(getContext()),getEditText().getText().toString());
 
                 if (flag == 0){
                     Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_rename_controller_layout_success), Toast.LENGTH_SHORT).show();
@@ -67,7 +67,7 @@ public class RenameControllerLayoutPreference extends EditTextPreference {
             }
         } else if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard) {
             if (which == DialogInterface.BUTTON_POSITIVE) {
-                int flag = SelectKeyboardLayoutHelp.renameLayout(getContext(), SelectKeyboardLayoutHelp.getCurrentNum(getContext()),getEditText().getText().toString());
+                int flag = SelectKeyboardLayoutHelp.renameLayout(getContext(), SelectKeyboardLayoutHelp.getCurrentController(getContext()),getEditText().getText().toString());
 
                 if (flag == 0){
                     Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_rename_controller_layout_success), Toast.LENGTH_SHORT).show();

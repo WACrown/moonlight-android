@@ -95,11 +95,11 @@ public class VirtualController {
                 if (config.onscreenController){
                     SelectControllerLayoutHelp.setCurrentNum(context,i);
                     VCLSelector.setSelection(i);
-                    VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentNum(context)));
+                    VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentController(context)));
                 } else if (true) {
                     SelectKeyboardLayoutHelp.setCurrentNum(context,i);
                     VCLSelector.setSelection(i);
-                    VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentNum(context)));
+                    VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentController(context)));
                 }
                 for (VirtualControllerElement element : elements) {
                     element.invalidate();
@@ -133,9 +133,9 @@ public class VirtualController {
                 } else {
                     currentMode = ControllerMode.Active;
                     if (config.onscreenController){
-                        VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentNum(context)));
+                        VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentController(context)));
                     } else if (config.onscreenKeyboard) {
-                        VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentNum(context)));
+                        VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentController(context)));
                     }
                     message = "Exiting configuration mode";
                 }
@@ -247,9 +247,9 @@ public class VirtualController {
 
         // Apply user preferences onto the default layout
         if (config.onscreenController){
-            VirtualControllerConfigurationLoader.loadFromPreferences(this, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentNum(context)));
+            VirtualControllerConfigurationLoader.loadFromPreferences(this, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentController(context)));
         } else if (config.onscreenKeyboard) {
-            VirtualControllerConfigurationLoader.loadFromPreferences(this, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentNum(context)));
+            VirtualControllerConfigurationLoader.loadFromPreferences(this, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentController(context)));
         }
         VCLSelector.refreshLayout();
 

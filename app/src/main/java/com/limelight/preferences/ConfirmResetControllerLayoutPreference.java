@@ -38,12 +38,12 @@ public class ConfirmResetControllerLayoutPreference extends DialogPreference {
     protected View onCreateDialogView() {
 
         if (PreferenceConfiguration.readPreferences(getContext()).onscreenController){
-            String currentLayoutName = SelectControllerLayoutHelp.loadSingleLayoutNameShow(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext()));
+            String currentLayoutName = SelectControllerLayoutHelp.loadSingleLayoutNameShow(getContext(), SelectControllerLayoutHelp.getCurrentController(getContext()));
             this.setDialogTitle(getContext().getResources().getString(R.string.dialog_title_reset_controller_layout));
             this.setDialogMessage(getContext().getResources().getString(R.string.dialog_text_reset_controller_layout) + currentLayoutName);
             return super.onCreateDialogView();
         } else if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard) {
-            String currentLayoutName = SelectKeyboardLayoutHelp.loadSingleLayoutNameShow(getContext(), SelectKeyboardLayoutHelp.getCurrentNum(getContext()));
+            String currentLayoutName = SelectKeyboardLayoutHelp.loadSingleLayoutNameShow(getContext(), SelectKeyboardLayoutHelp.getCurrentController(getContext()));
             this.setDialogTitle(getContext().getResources().getString(R.string.dialog_title_reset_controller_layout));
             this.setDialogMessage(getContext().getResources().getString(R.string.dialog_text_reset_controller_layout) + currentLayoutName);
             return super.onCreateDialogView();
@@ -55,12 +55,12 @@ public class ConfirmResetControllerLayoutPreference extends DialogPreference {
     public void onClick(DialogInterface dialog, int which) {
         if (PreferenceConfiguration.readPreferences(getContext()).onscreenController){
             if (which == DialogInterface.BUTTON_POSITIVE) {
-                SelectControllerLayoutHelp.resetLayout(getContext(), SelectControllerLayoutHelp.getCurrentNum(getContext()));
+                SelectControllerLayoutHelp.resetLayout(getContext(), SelectControllerLayoutHelp.getCurrentController(getContext()));
                 Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_reset_controller_layout_success), Toast.LENGTH_SHORT).show();
             }
         } else if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard) {
             if (which == DialogInterface.BUTTON_POSITIVE) {
-                SelectKeyboardLayoutHelp.resetLayout(getContext(), SelectKeyboardLayoutHelp.getCurrentNum(getContext()));
+                SelectKeyboardLayoutHelp.resetLayout(getContext(), SelectKeyboardLayoutHelp.getCurrentController(getContext()));
                 Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_reset_controller_layout_success), Toast.LENGTH_SHORT).show();
             }
         }

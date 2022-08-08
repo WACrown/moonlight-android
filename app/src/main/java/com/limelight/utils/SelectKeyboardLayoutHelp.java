@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
 
 public class SelectKeyboardLayoutHelp {
 
+    public static SelectControllerLayoutHelp selectControllerLayoutHelp;
+
     public static int initSharedPreferences(Context context){
 
         SharedPreferences pref = context.getSharedPreferences("keyboard_admin", Activity.MODE_PRIVATE);
@@ -68,7 +70,7 @@ public class SelectKeyboardLayoutHelp {
         return loadAllLayoutName(context).size();
     }
 
-    public static int getCurrentNum(final Context context){
+    public static int getCurrentController(final Context context){
         SharedPreferences pref = context.getSharedPreferences("keyboard_admin", Activity.MODE_PRIVATE);
         int currentNum = pref.getInt("current_keyboard", 0);
         return currentNum;
