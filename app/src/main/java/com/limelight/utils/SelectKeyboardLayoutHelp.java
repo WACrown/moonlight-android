@@ -142,6 +142,8 @@ public class SelectKeyboardLayoutHelp {
             return 2;
         } else {
             LayoutList layoutList = loadAllLayoutName(context);
+            SharedPreferences.Editor prefEditor = context.getSharedPreferences(layoutList.get(layoutIndex),Activity.MODE_PRIVATE).edit();
+            prefEditor.clear().apply();
             layoutList.remove(layoutIndex);
             storeAllLayoutName(context,layoutList);
             setCurrentNum(context,0);

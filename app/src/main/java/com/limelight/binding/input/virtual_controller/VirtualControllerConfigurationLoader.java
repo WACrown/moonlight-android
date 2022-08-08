@@ -152,14 +152,16 @@ public class VirtualControllerConfigurationLoader {
 
     private static AnalogStick createLeftStick(
             final VirtualController controller,
+            final String elementId,
             final Context context) {
-        return new LeftAnalogStick(controller, context);
+        return new LeftAnalogStick(controller, elementId, context);
     }
 
     private static AnalogStick createRightStick(
             final VirtualController controller,
+            final String elementId,
             final Context context) {
-        return new RightAnalogStick(controller, context);
+        return new RightAnalogStick(controller, elementId, context);
     }
 
     private static DigitalButton createKeyboardButton(
@@ -335,7 +337,7 @@ public class VirtualControllerConfigurationLoader {
             );
 
             controller.addElement(createLeftTrigger(
-                    1, "LT", -1, controller, context),
+                    1,"LT", -1, controller, context),
                     screenScale(TRIGGER_L_BASE_X, height),
                     screenScale(TRIGGER_BASE_Y, height),
                     screenScale(TRIGGER_WIDTH, height),
@@ -368,14 +370,14 @@ public class VirtualControllerConfigurationLoader {
                     screenScale(TRIGGER_HEIGHT, height)
             );
 
-            controller.addElement(createLeftStick(controller, context),
+            controller.addElement(createLeftStick(controller, VirtualControllerElement.EID_LS, context),
                     screenScale(ANALOG_L_BASE_X, height),
                     screenScale(ANALOG_L_BASE_Y, height),
                     screenScale(ANALOG_SIZE, height),
                     screenScale(ANALOG_SIZE, height)
             );
 
-            controller.addElement(createRightStick(controller, context),
+            controller.addElement(createRightStick(controller, VirtualControllerElement.EID_RS,context),
                     screenScale(ANALOG_R_BASE_X, height) + rightDisplacement,
                     screenScale(ANALOG_R_BASE_Y, height),
                     screenScale(ANALOG_SIZE, height),

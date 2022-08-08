@@ -153,6 +153,8 @@ public class SelectControllerLayoutHelp {
             return 2;
         } else {
             LayoutList layoutList = loadAllLayoutName(context);
+            SharedPreferences.Editor prefEditor = context.getSharedPreferences(layoutList.get(layoutIndex),Activity.MODE_PRIVATE).edit();
+            prefEditor.clear().apply();
             layoutList.remove(layoutIndex);
             storeAllLayoutName(context,layoutList);
             setCurrentNum(context,0);
@@ -179,10 +181,10 @@ public class SelectControllerLayoutHelp {
         prefEditor.putString("EID_B","{\"LEFT\":2148,\"TOP\":158,\"WIDTH\":143,\"HEIGHT\":143}");
         prefEditor.putString("EID_X","{\"LEFT\":1860,\"TOP\":158,\"WIDTH\":143,\"HEIGHT\":143}");
         prefEditor.putString("EID_Y","{\"LEFT\":2004,\"TOP\":14,\"WIDTH\":143,\"HEIGHT\":143}");
-        prefEditor.putString("EID_BACK0","{\"LEFT\":489,\"TOP\":920,\"WIDTH\":172,\"HEIGHT\":100}");
-        prefEditor.putString("EID_START1","{\"LEFT\":1673,\"TOP\":920,\"WIDTH\":172,\"HEIGHT\":100}");
-        prefEditor.putString("EID_LS2","{\"LEFT\":86,\"TOP\":57,\"WIDTH\":374,\"HEIGHT\":374}");
-        prefEditor.putString("EID_RS3","{\"LEFT\":1889,\"TOP\":604,\"WIDTH\":374,\"HEIGHT\":374}");
+        prefEditor.putString("EID_BACK","{\"LEFT\":489,\"TOP\":920,\"WIDTH\":172,\"HEIGHT\":100}");
+        prefEditor.putString("EID_START","{\"LEFT\":1673,\"TOP\":920,\"WIDTH\":172,\"HEIGHT\":100}");
+        prefEditor.putString("EID_LS","{\"LEFT\":86,\"TOP\":57,\"WIDTH\":374,\"HEIGHT\":374}");
+        prefEditor.putString("EID_RS","{\"LEFT\":1889,\"TOP\":604,\"WIDTH\":374,\"HEIGHT\":374}");
         prefEditor.apply();
         return 0;
     }

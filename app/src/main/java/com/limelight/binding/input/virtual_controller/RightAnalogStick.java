@@ -9,8 +9,8 @@ import android.content.Context;
 import com.limelight.nvstream.input.ControllerPacket;
 
 public class RightAnalogStick extends AnalogStick {
-    public RightAnalogStick(final VirtualController controller, final Context context) {
-        super(controller, context, EID_RS);
+    public RightAnalogStick(final VirtualController controller, String elementId, final Context context) {
+        super(controller, context, elementId);
 
         addAnalogStickListener(new AnalogStick.AnalogStickListener() {
             @Override
