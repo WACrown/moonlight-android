@@ -617,7 +617,7 @@ public class StreamSettings extends Activity {
                 }
             });
 
-            DynamicListPreference selectLayoutPreference = (DynamicListPreference) findPreference(PreferenceConfiguration.SELECT_CONTROLLER_LAYOUT);
+            SelectLayoutPreference selectLayoutPreference = (SelectLayoutPreference) findPreference(PreferenceConfiguration.SELECT_CONTROLLER_LAYOUT);
 
             selectLayoutPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
@@ -644,11 +644,11 @@ public class StreamSettings extends Activity {
 
             CheckBoxPreference onscreenControllerPreference = (CheckBoxPreference) findPreference(PreferenceConfiguration.ONSCREEN_CONTROLLER_PREF_STRING);
             CheckBoxPreference onscreenKeyboardPreference = (CheckBoxPreference) findPreference(PreferenceConfiguration.ONSCREEN_KEYBOARD_PREF_STRING);
-            DynamicListPreference selectLayout = (DynamicListPreference) findPreference("list_select_controls_layout");
-            AddControllerLayoutPreference addLayout = (AddControllerLayoutPreference) findPreference("edit_add_controls_layout");
-            RenameControllerLayoutPreference renameLayout = (RenameControllerLayoutPreference) findPreference("edit_rename_controls_layout");
-            ConfirmResetControllerLayoutPreference resetLayout = (ConfirmResetControllerLayoutPreference) findPreference("dialog_reset_controls_layout");
-            ConfirmDeleteControllerLayoutPreference deleteLayout = (ConfirmDeleteControllerLayoutPreference) findPreference("dialog_delete_controls_layout");
+            SelectLayoutPreference selectLayout = (SelectLayoutPreference) findPreference("list_select_controls_layout");
+            AddLayoutPreference addLayout = (AddLayoutPreference) findPreference("edit_add_controls_layout");
+            RenameLayoutPreference renameLayout = (RenameLayoutPreference) findPreference("edit_rename_controls_layout");
+            ConfirmResetLayoutPreference resetLayout = (ConfirmResetLayoutPreference) findPreference("dialog_reset_controls_layout");
+            ConfirmDeleteLayoutPreference deleteLayout = (ConfirmDeleteLayoutPreference) findPreference("dialog_delete_controls_layout");
             SeekBarPreference opacityPreference =  (SeekBarPreference) findPreference("seekbar_layout_opacity");
             AddKeyboardButtonPreference addKeyboardButtonPreference = (AddKeyboardButtonPreference) findPreference("edit_add_keyboard_button");
             DeleteKeyboardButtonPreference deleteKeyboardButtonPreference = (DeleteKeyboardButtonPreference) findPreference("edit_delete_keyboard_button");

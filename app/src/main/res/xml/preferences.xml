@@ -129,7 +129,7 @@
             android:title="myString 显示键盘按键" />
 
         <!--选择布局-->
-        <com.limelight.preferences.DynamicListPreference
+        <com.limelight.preferences.SelectLayoutPreference
             android:key="list_select_controls_layout"
             android:title="@string/title_select_controller_layout"
             android:summary="@string/summary_select_controller_layout"
@@ -137,20 +137,20 @@
             android:entryValues="@array/default_layout_list" />
 
         <!--新建布局-->
-        <com.limelight.preferences.AddControllerLayoutPreference
+        <com.limelight.preferences.AddLayoutPreference
             android:key="edit_add_controls_layout"
             android:title="@string/title_add_controller_layout"
             android:summary="@string/summary_add_controller_layout"
             />
 
         <!--重命名布局-->
-        <com.limelight.preferences.RenameControllerLayoutPreference
+        <com.limelight.preferences.RenameLayoutPreference
             android:key="edit_rename_controls_layout"
             android:title="@string/title_rename_controller_layout"
             android:summary="@string/summary_rename_controller_layout"/>
 
         <!--重置布局-->
-        <com.limelight.preferences.ConfirmResetControllerLayoutPreference
+        <com.limelight.preferences.ConfirmResetLayoutPreference
             android:key="dialog_reset_controls_layout"
             android:title="@string/title_reset_controller_layout"
             android:summary="@string/summary_reset_controller_layout"
@@ -159,7 +159,7 @@
             />
 
         <!--删除布局-->
-        <com.limelight.preferences.ConfirmDeleteControllerLayoutPreference
+        <com.limelight.preferences.ConfirmDeleteLayoutPreference
             android:key="dialog_delete_controls_layout"
             android:title="@string/title_delete_controller_layout"
             android:summary="@string/summary_delete_controller_layout"
