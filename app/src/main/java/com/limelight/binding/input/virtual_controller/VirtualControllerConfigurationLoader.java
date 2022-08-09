@@ -527,6 +527,7 @@ public class VirtualControllerConfigurationLoader {
             case "Y" :return KeyEvent.KEYCODE_Y;
             case "Z" :return KeyEvent.KEYCODE_Z;
             //
+            case "ESC" :return KeyEvent.KEYCODE_ESCAPE;
             case "CTRLL" :return KeyEvent.KEYCODE_CTRL_LEFT;
             case "SHIFTL" :return KeyEvent.KEYCODE_SHIFT_LEFT;
             case "CTRLR" :return KeyEvent.KEYCODE_CTRL_RIGHT;
