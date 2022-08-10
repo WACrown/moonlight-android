@@ -8,6 +8,11 @@ public class LayoutHelper {
 
     private static LayoutAdmin layoutAdmin;
 
+    public static int selectLayout(String layoutName){
+
+        return layoutAdmin.setCurrentLayoutNum(getLayoutList().indexOf(layoutName));
+    }
+
     public static int selectLayout(int layoutIndex){
 
         return layoutAdmin.setCurrentLayoutNum(layoutIndex);
@@ -44,17 +49,27 @@ public class LayoutHelper {
         LayoutHelper.layoutAdmin = layoutAdmin;
     }
 
+    public static LayoutList getLayoutListAdapterSelector(){
+        return layoutAdmin.getLayoutList();
+    }
+
 
 
     public static LayoutList getLayoutList(){
         return layoutAdmin.getLayoutList();
     }
 
-    public static int getCurrentNum(){
+    public static int getCurrentLayoutNum(){
         return layoutAdmin.getCurrentLayoutNum();
     }
 
-    public static String getName(){
+    public static String getCurrentLayoutName(){
+        return layoutAdmin.getLayoutList().get(layoutAdmin.getCurrentLayoutNum());
+    }
+
+
+
+    public static String getAdminName(){
         return layoutAdmin.toString();
     }
 }

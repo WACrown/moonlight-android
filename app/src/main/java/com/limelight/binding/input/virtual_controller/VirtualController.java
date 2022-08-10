@@ -21,6 +21,8 @@ import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
 import com.limelight.binding.input.KeyboardTranslator;
 import com.limelight.preferences.PreferenceConfiguration;
+import com.limelight.utils.LayoutHelper;
+import com.limelight.utils.LayoutList;
 import com.limelight.utils.SelectControllerLayoutHelp;
 import com.limelight.utils.SelectKeyboardLayoutHelp;
 
@@ -84,23 +86,15 @@ public class VirtualController {
         this.virtualController = this;
 
         config = PreferenceConfiguration.readPreferences(context);
-        SelectControllerLayoutHelp.initSharedPreferences(context);
-        SelectKeyboardLayoutHelp.initSharedPreferences(context);
 
         VCLSelector = new VirtualControllerLayoutSelector(context,frame_layout);
         VCLSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                LayoutHelper.selectLayout(i);
+                VCLSelector.setSelection(i);
+                VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, LayoutHelper.getCurrentLayoutName());
 
-                if (config.onscreenController){
-                    SelectControllerLayoutHelp.setCurrentNum(context,i);
-                    VCLSelector.setSelection(i);
-                    VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentController(context)));
-                } else if (true) {
-                    SelectKeyboardLayoutHelp.setCurrentNum(context,i);
-                    VCLSelector.setSelection(i);
-                    VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentController(context)));
-                }
                 for (VirtualControllerElement element : elements) {
                     element.invalidate();
                 }
@@ -246,11 +240,7 @@ public class VirtualController {
 
 
         // Apply user preferences onto the default layout
-        if (config.onscreenController){
-            VirtualControllerConfigurationLoader.loadFromPreferences(this, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentController(context)));
-        } else if (config.onscreenKeyboard) {
-            VirtualControllerConfigurationLoader.loadFromPreferences(this, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentController(context)));
-        }
+        VirtualControllerConfigurationLoader.loadFromPreferences(this, context, LayoutHelper.getCurrentLayoutName());
         VCLSelector.refreshLayout();
 
 

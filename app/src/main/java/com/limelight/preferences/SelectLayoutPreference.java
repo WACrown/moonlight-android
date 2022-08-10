@@ -2,6 +2,7 @@ package com.limelight.preferences;
 
 import android.content.Context;
 import android.preference.ListPreference;
+import android.preference.Preference;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -17,10 +18,24 @@ import com.limelight.utils.SelectKeyboardLayoutHelp;
 public class SelectLayoutPreference extends ListPreference {
     public SelectLayoutPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
+        setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                LayoutHelper.selectLayout((String) o);
+                return true;
+            }
+        });
     }
 
     public SelectLayoutPreference(Context context) {
         super(context);
+        setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                LayoutHelper.selectLayout((String) o);
+                return true;
+            }
+        });
     }
 
     @Override
@@ -31,14 +46,13 @@ public class SelectLayoutPreference extends ListPreference {
         CharSequence[] layoutCharSequences = layoutList.toArray(new CharSequence[layoutList.size()]);
         setEntries(layoutCharSequences);
         setEntryValues(layoutCharSequences);
-        setValue(layoutList.get(LayoutHelper.getCurrentNum()));
+        setValue(LayoutHelper.getCurrentLayoutName());
         return view;
     }
 
     private ListAdapter adapter() {
         return new ArrayAdapter(getContext(), android.R.layout.select_dialog_singlechoice);
     }
-
 
 
 }

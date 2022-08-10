@@ -22,9 +22,15 @@ public class LayoutAdmin {
         this.PRE_LAYOUT = processor + "_";
         this.context = context;
         this.name = processor;
-        getAllLayoutFromTable();
-        getCurrentLayoutNumFromTable();
 
+        if (getAllLayoutFromTable() != 0){
+            layoutList.add("default");
+            setAllLayoutToTable();
+        }
+
+        if (getCurrentLayoutNumFromTable() != 0){
+            setCurrentLayoutNumToTable();
+        }
 
     }
 
@@ -102,6 +108,10 @@ public class LayoutAdmin {
         //layoutNamesControllerFixed → layoutNames
         for (String layoutNameControllerFixed : layoutNamesFixed){
             layoutList.add(layoutNameControllerFixed.substring(PRE_LAYOUT.length()));
+        }
+
+        if (layoutList.size() < 1){
+            return -2;
         }
 
         return 0;

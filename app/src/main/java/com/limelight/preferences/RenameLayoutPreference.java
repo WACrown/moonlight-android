@@ -39,7 +39,7 @@ public class RenameLayoutPreference extends EditTextPreference {
     protected View onCreateDialogView() {
 
         setDialogTitle(getContext().getResources().getString(R.string.title_rename_controller_layout));
-        setText(LayoutHelper.getLayoutList().get(LayoutHelper.getCurrentNum()));
+        setText(LayoutHelper.getCurrentLayoutName());
         return super.onCreateDialogView();
 
     }
@@ -51,31 +51,10 @@ public class RenameLayoutPreference extends EditTextPreference {
             if (LayoutHelper.renameCurrentLayout(getEditText().getText().toString()) == 0) {
                 Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_rename_controller_layout_success), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getContext(), "myString", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "myString 重命名失败，已经存在改布局", Toast.LENGTH_SHORT).show();
             }
 
         }
-
-        if (PreferenceConfiguration.readPreferences(getContext()).onscreenController){
-
-        } else if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard) {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                int flag = SelectKeyboardLayoutHelp.renameLayout(getContext(), SelectKeyboardLayoutHelp.getCurrentController(getContext()),getEditText().getText().toString());
-
-                if (flag == 0){
-                    Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_rename_controller_layout_success), Toast.LENGTH_SHORT).show();
-                } else if (flag == 2){
-                    Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_rename_controller_layout_failed_2), Toast.LENGTH_SHORT).show();
-                } else if (flag == 3){
-                    Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_rename_controller_layout_failed_3), Toast.LENGTH_SHORT).show();
-                } else {
-
-                }
-
-            }
-        }
-
-
 
     }
 }

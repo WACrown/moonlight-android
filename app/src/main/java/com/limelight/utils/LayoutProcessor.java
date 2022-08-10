@@ -9,6 +9,8 @@ public abstract class LayoutProcessor {
 
     public abstract Map<String, String> get();
 
+    public abstract String get(String key);
+
     public abstract int add();
 
     public abstract int delete();

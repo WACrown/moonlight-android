@@ -37,4 +37,9 @@ public class SharedPreferencesHelp {
         preEdit.apply();
         return 0;
     }
+
+    public static void DEG_getTable(Context context, String tableName){
+        System.out.println(load(context,tableName));
+
+    }
 }

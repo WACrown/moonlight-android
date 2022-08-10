@@ -32,6 +32,7 @@ import com.limelight.PcView;
 import com.limelight.R;
 import com.limelight.binding.video.MediaCodecHelper;
 import com.limelight.utils.Dialog;
+import com.limelight.utils.LayoutAdmin;
 import com.limelight.utils.SelectControllerLayoutHelp;
 import com.limelight.utils.SelectKeyboardLayoutHelp;
 import com.limelight.utils.UiHelper;
@@ -41,7 +42,6 @@ import java.util.Arrays;
 
 public class StreamSettings extends Activity {
     private PreferenceConfiguration previousPrefs;
-
     // HACK for Android 9
     static DisplayCutout displayCutoutP;
 
@@ -105,6 +105,8 @@ public class StreamSettings extends Activity {
 
     public static class SettingsFragment extends PreferenceFragment {
         private int nativeResolutionStartIndex = Integer.MAX_VALUE;
+        private LayoutAdmin layoutAdminController;
+        private LayoutAdmin layoutAdminKeyboard;
 
         private void setValue(String preferenceKey, String value) {
             ListPreference pref = (ListPreference) findPreference(preferenceKey);
@@ -217,8 +219,8 @@ public class StreamSettings extends Activity {
 
             addPreferencesFromResource(R.xml.preferences);
             PreferenceScreen screen = getPreferenceScreen();
-            SelectControllerLayoutHelp.initSharedPreferences(getContext());
-            SelectKeyboardLayoutHelp.initSharedPreferences(getContext());
+            layoutAdminController = new LayoutAdmin(getContext(),"controller");
+            layoutAdminKeyboard = new LayoutAdmin(getContext(),"keyboard");
             // hide on-screen controls category on non touch screen devices
             if (!getActivity().getPackageManager().
                     hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)) {
@@ -613,31 +615,6 @@ public class StreamSettings extends Activity {
                     resetBitrateToDefault(prefs, null, valueStr);
 
                     // Allow the original preference change to take place
-                    return true;
-                }
-            });
-
-            SelectLayoutPreference selectLayoutPreference = (SelectLayoutPreference) findPreference(PreferenceConfiguration.SELECT_CONTROLLER_LAYOUT);
-
-            selectLayoutPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-
-                @TargetApi(Build.VERSION_CODES.M)
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-
-                    return true;
-                }
-            });
-
-            selectLayoutPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (PreferenceConfiguration.readPreferences(getContext()).onscreenController){
-                        SelectControllerLayoutHelp.setCurrentNum(getContext(), SelectControllerLayoutHelp.loadAllLayoutName(getContext()).indexOf((String) o));
-                    } else if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard) {
-                        SelectKeyboardLayoutHelp.setCurrentNum(getContext(), SelectKeyboardLayoutHelp.loadAllLayoutName(getContext()).indexOf((String) o));
-                    }
-
                     return true;
                 }
             });

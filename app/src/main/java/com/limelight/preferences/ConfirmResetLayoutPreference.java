@@ -37,7 +37,7 @@ public class ConfirmResetLayoutPreference extends DialogPreference {
 
     @Override
     protected View onCreateDialogView() {
-        String currentLayoutName = LayoutHelper.getLayoutList().get(LayoutHelper.getCurrentNum());
+        String currentLayoutName = LayoutHelper.getCurrentLayoutName();
         this.setDialogTitle(getContext().getResources().getString(R.string.dialog_title_reset_controller_layout));
         this.setDialogMessage(getContext().getResources().getString(R.string.dialog_text_reset_controller_layout) + currentLayoutName);
         return super.onCreateDialogView();
