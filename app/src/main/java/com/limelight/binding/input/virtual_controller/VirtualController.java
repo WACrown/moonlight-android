@@ -4,9 +4,7 @@
 
 package com.limelight.binding.input.virtual_controller;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
@@ -19,19 +17,13 @@ import com.limelight.Game;
 import com.limelight.LimeLog;
 import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
-import com.limelight.binding.input.KeyboardTranslator;
 import com.limelight.preferences.PreferenceConfiguration;
-import com.limelight.utils.LayoutHelper;
-import com.limelight.utils.LayoutList;
-import com.limelight.utils.SelectControllerLayoutHelp;
-import com.limelight.utils.SelectKeyboardLayoutHelp;
+import com.limelight.utils.LayoutSelectHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -91,9 +83,9 @@ public class VirtualController {
         VCLSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                LayoutHelper.selectLayout(i);
+                LayoutSelectHelper.selectLayout(i);
                 VCLSelector.setSelection(i);
-                VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, LayoutHelper.getCurrentLayoutName());
+                VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, LayoutSelectHelper.getCurrentLayoutName());
 
                 for (VirtualControllerElement element : elements) {
                     element.invalidate();
@@ -126,11 +118,7 @@ public class VirtualController {
                     message = "Entering configuration mode (Resize buttons)";
                 } else {
                     currentMode = ControllerMode.Active;
-                    if (config.onscreenController){
-                        VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, SelectControllerLayoutHelp.loadSingleLayoutName(context, SelectControllerLayoutHelp.getCurrentController(context)));
-                    } else if (config.onscreenKeyboard) {
-                        VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, SelectKeyboardLayoutHelp.loadSingleLayoutName(context, SelectKeyboardLayoutHelp.getCurrentController(context)));
-                    }
+                    VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, LayoutSelectHelper.getCurrentLayoutName());
                     message = "Exiting configuration mode";
                 }
 
@@ -240,7 +228,7 @@ public class VirtualController {
 
 
         // Apply user preferences onto the default layout
-        VirtualControllerConfigurationLoader.loadFromPreferences(this, context, LayoutHelper.getCurrentLayoutName());
+        VirtualControllerConfigurationLoader.loadFromPreferences(this, context, LayoutSelectHelper.getCurrentLayoutName());
         VCLSelector.refreshLayout();
 
 

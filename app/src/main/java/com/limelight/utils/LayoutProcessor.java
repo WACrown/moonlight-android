@@ -11,10 +11,10 @@ public abstract class LayoutProcessor {
 
     public abstract String get(String key);
 
-    public abstract int add();
+    public abstract int add(String key, String value);
 
-    public abstract int delete();
+    public abstract int delete(String key);
 
-    public abstract int update();
+    public abstract int update(String key, String newValue);
 
 }

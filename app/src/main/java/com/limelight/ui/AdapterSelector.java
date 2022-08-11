@@ -10,11 +10,8 @@ import android.widget.TextView;
 
 
 import com.limelight.R;
-import com.limelight.preferences.PreferenceConfiguration;
-import com.limelight.utils.LayoutHelper;
+import com.limelight.utils.LayoutSelectHelper;
 import com.limelight.utils.LayoutList;
-import com.limelight.utils.SelectControllerLayoutHelp;
-import com.limelight.utils.SelectKeyboardLayoutHelp;
 
 public class AdapterSelector implements SpinnerAdapter {
 
@@ -23,7 +20,7 @@ public class AdapterSelector implements SpinnerAdapter {
 
     public AdapterSelector(Context context) {
         this.context = context;
-        list = LayoutHelper.getLayoutList();
+        list = LayoutSelectHelper.getLayoutList();
     }
 
 

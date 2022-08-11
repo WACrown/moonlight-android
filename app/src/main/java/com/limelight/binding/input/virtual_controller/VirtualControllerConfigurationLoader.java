@@ -5,24 +5,20 @@
 package com.limelight.binding.input.virtual_controller;
 
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.Instrumentation;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 
-import com.limelight.Game;
 import com.limelight.nvstream.input.ControllerPacket;
 import com.limelight.preferences.PreferenceConfiguration;
-import com.limelight.utils.SelectKeyboardLayoutHelp;
+import com.limelight.utils.LayoutSelectHelper;
+import com.limelight.utils.LayoutKeyboardProcessor;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.Set;
 
 public class VirtualControllerConfigurationLoader {
     public static final String OSC_PREFERENCE = "OSC";
@@ -427,10 +423,9 @@ public class VirtualControllerConfigurationLoader {
 
     public static void createDefaultKeyboardButton(final VirtualController controller, final Context context){
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
-
+        LayoutKeyboardProcessor layoutKeyboardProcessor = new LayoutKeyboardProcessor(context, LayoutSelectHelper.getCurrentLayoutName());
         int height = screen.heightPixels;
-        SharedPreferences preferences = context.getSharedPreferences(SelectKeyboardLayoutHelp.loadSingleLayoutName(context,SelectKeyboardLayoutHelp.getCurrentController(context)),Activity.MODE_PRIVATE);
-        Map<String,?> allButton =  preferences.getAll();
+        Map<String,String> allButton = layoutKeyboardProcessor.get();
         for (String key : allButton.keySet()){
             String[] keycodeAndName = key.split("-");
 

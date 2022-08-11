@@ -22,21 +22,18 @@ public class SharedPreferencesHelp {
 
     public static int store(Context context, String preference, Map<String, String> map){
         SharedPreferences.Editor preEdit= context.getSharedPreferences(preference, Activity.MODE_PRIVATE).edit();
-        for (String key : map.keySet()){
-            preEdit.putString(key, map.get(key));
+        if (map.isEmpty()){
+            preEdit.clear();
+        } else {
+            for (String key : map.keySet()){
+                preEdit.putString(key, map.get(key));
+            }
         }
+
         preEdit.apply();
         return  0;
     }
 
-    public static int delete(Context context, String preference, Set<String> set){
-        SharedPreferences.Editor preEdit= context.getSharedPreferences(preference, Activity.MODE_PRIVATE).edit();
-        for (String key : set){
-            preEdit.remove(key);
-        }
-        preEdit.apply();
-        return 0;
-    }
 
     public static void DEG_getTable(Context context, String tableName){
         System.out.println(load(context,tableName));

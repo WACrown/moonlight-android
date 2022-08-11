@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 
 public class SelectKeyboardLayoutHelp {
 
-    public static SelectControllerLayoutHelp selectControllerLayoutHelp;
 
     public static int initSharedPreferences(Context context){
 

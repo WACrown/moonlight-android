@@ -8,8 +8,7 @@ import android.preference.EditTextPreference;
 import android.util.AttributeSet;
 import android.widget.Toast;
 
-import com.limelight.utils.EditKeyboardLayoutHelp;
-import com.limelight.utils.SelectKeyboardLayoutHelp;
+import com.limelight.utils.LayoutEditHelper;
 
 public class DeleteKeyboardButtonPreference extends EditTextPreference {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -33,10 +32,8 @@ public class DeleteKeyboardButtonPreference extends EditTextPreference {
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            String keyName = getEditText().getText().toString();
-            boolean isExist = EditKeyboardLayoutHelp.getAllButtonSet(getContext(), SelectKeyboardLayoutHelp.loadSingleLayoutName(getContext(),SelectKeyboardLayoutHelp.getCurrentController(getContext()))).contains(keyName);
-            if (isExist) {
-                EditKeyboardLayoutHelp.deleteKeyboardButton(getContext(),keyName,SelectKeyboardLayoutHelp.loadSingleLayoutName(getContext(),SelectKeyboardLayoutHelp.getCurrentController(getContext())));
+            int flag = LayoutEditHelper.deleteKeyboardButton(getEditText().getText().toString());
+            if (flag == 0){
                 Toast.makeText(getContext(), "myString  删除成功", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getContext(), "myString 3 删除失败，没有该按钮", Toast.LENGTH_SHORT).show();

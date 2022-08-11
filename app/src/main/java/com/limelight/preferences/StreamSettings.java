@@ -105,8 +105,10 @@ public class StreamSettings extends Activity {
 
     public static class SettingsFragment extends PreferenceFragment {
         private int nativeResolutionStartIndex = Integer.MAX_VALUE;
-        private LayoutAdmin layoutAdminController;
+        public LayoutAdmin layoutAdminController;
         private LayoutAdmin layoutAdminKeyboard;
+
+
 
         private void setValue(String preferenceKey, String value) {
             ListPreference pref = (ListPreference) findPreference(preferenceKey);
@@ -211,6 +213,7 @@ public class StreamSettings extends Activity {
             UiHelper.applyStatusBarPadding(view);
             return view;
         }
+
 
         @TargetApi(Build.VERSION_CODES.M)
         @Override
@@ -618,6 +621,7 @@ public class StreamSettings extends Activity {
                     return true;
                 }
             });
+
 
             CheckBoxPreference onscreenControllerPreference = (CheckBoxPreference) findPreference(PreferenceConfiguration.ONSCREEN_CONTROLLER_PREF_STRING);
             CheckBoxPreference onscreenKeyboardPreference = (CheckBoxPreference) findPreference(PreferenceConfiguration.ONSCREEN_KEYBOARD_PREF_STRING);

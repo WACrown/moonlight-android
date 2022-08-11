@@ -5,42 +5,60 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.limelight.binding.input.virtual_controller.VirtualControllerConfigurationLoader;
+import com.limelight.preferences.StreamSettings;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-public class EditKeyboardLayoutHelp {
+public class LayoutEditHelper {
 
-    public static int addKeyboardButton(final Context context, String key, String layoutName){
+    private static LayoutProcessor layoutProcessor;
 
-        SharedPreferences.Editor prefEditor = context.getSharedPreferences(layoutName, Activity.MODE_PRIVATE).edit();
-        if (key.split("-").length == 2) {
-            prefEditor.putString(key,"{\"LEFT\":2004,\"TOP\":302,\"WIDTH\":143,\"HEIGHT\":143}");
-        } else if (key.split("-").length == 6) {
-            prefEditor.putString(key,"{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
+    public static int addKeyboardButton(String name){
+
+        if (isInvalid(name) != 0){
+            return -1;
         }
 
-        prefEditor.apply();
+        if (isExist(name) == 0) {
+            return -2;
+        }
+
+        if (name.split("-").length == 2) {
+            layoutProcessor.add(name,"{\"LEFT\":2004,\"TOP\":302,\"WIDTH\":143,\"HEIGHT\":143}");
+        } else if (name.split("-").length == 6) {
+            layoutProcessor.add(name,"{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
+        }
         return 0;
     }
 
-    public static int deleteKeyboardButton(final Context context,String deleteName, String layoutName){
+    public static int deleteKeyboardButton(String deleteName){
+        if (isInvalid(deleteName) != 0){
+            return -1;
+        }
 
-        SharedPreferences.Editor prefEditor = context.getSharedPreferences(layoutName, Activity.MODE_PRIVATE).edit();
-        prefEditor.remove(deleteName);
-        prefEditor.apply();
+        if (isExist(deleteName) == -2) {
+            return -2;
+        }
+
+        layoutProcessor.delete(deleteName);
         return 0;
     }
 
-    public static Set<String> getAllButtonSet(final Context context, String layoutName){
-        SharedPreferences sharedPreferences = context.getSharedPreferences(layoutName, Activity.MODE_PRIVATE);
-        Map<String,?> allButtonMap =  sharedPreferences.getAll();
-        return allButtonMap.keySet();
+
+    private static int isExist(String key){
+        if (layoutProcessor.get().containsKey(key)){
+            return 0;
+        }
+
+        return -2;
+
     }
 
-    public static int isInvalid(String keyName){
+
+    private static int isInvalid(String keyName){
         String[] keysAndName = keyName.split("-");
         if ((keysAndName.length == 2 )&& Pattern.matches("^[A-Za-z0-9]{1,5}$",keysAndName[keysAndName.length-1])){
             if (VirtualControllerConfigurationLoader.getKeycode(keysAndName[0]) != -1){

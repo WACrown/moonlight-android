@@ -7,6 +7,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 
 import com.limelight.nvstream.jni.MoonBridge;
+import com.limelight.utils.LayoutAdmin;
 
 public class PreferenceConfiguration {
     private static final String LEGACY_RES_FPS_PREF_STRING = "list_resolution_fps";
@@ -126,6 +127,9 @@ public class PreferenceConfiguration {
     public int framePacing;
     public boolean absoluteMouseMode;
     public boolean enableAudioFx;
+
+
+
 
     public static boolean isNativeResolution(int width, int height) {
         // It's not a native resolution if it matches an existing resolution option

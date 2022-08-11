@@ -9,11 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.limelight.preferences.PreferenceConfiguration;
-import com.limelight.utils.LayoutHelper;
+import com.limelight.utils.LayoutSelectHelper;
 import com.limelight.utils.LayoutList;
-import com.limelight.utils.SelectControllerLayoutHelp;
-import com.limelight.utils.SelectKeyboardLayoutHelp;
 
 public class SelectLayoutPreference extends ListPreference {
     public SelectLayoutPreference(Context context, AttributeSet attrs) {
@@ -21,7 +18,7 @@ public class SelectLayoutPreference extends ListPreference {
         setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
-                LayoutHelper.selectLayout((String) o);
+                LayoutSelectHelper.selectLayout((String) o);
                 return true;
             }
         });
@@ -32,7 +29,7 @@ public class SelectLayoutPreference extends ListPreference {
         setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
-                LayoutHelper.selectLayout((String) o);
+                LayoutSelectHelper.selectLayout((String) o);
                 return true;
             }
         });
@@ -42,11 +39,11 @@ public class SelectLayoutPreference extends ListPreference {
     protected View onCreateDialogView() {
         ListView view = new ListView(getContext());
         view.setAdapter(adapter());
-        LayoutList layoutList = LayoutHelper.getLayoutList();
+        LayoutList layoutList = LayoutSelectHelper.getLayoutList();
         CharSequence[] layoutCharSequences = layoutList.toArray(new CharSequence[layoutList.size()]);
         setEntries(layoutCharSequences);
         setEntryValues(layoutCharSequences);
-        setValue(LayoutHelper.getCurrentLayoutName());
+        setValue(LayoutSelectHelper.getCurrentLayoutName());
         return view;
     }
 

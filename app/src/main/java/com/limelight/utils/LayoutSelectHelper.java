@@ -1,12 +1,14 @@
 package com.limelight.utils;
 
 import android.content.Context;
+
+import com.limelight.preferences.StreamSettings;
+
 import java.util.regex.Pattern;
 
 
-public class LayoutHelper {
+public class LayoutSelectHelper {
 
-    private static LayoutAdmin layoutAdmin;
 
     public static int selectLayout(String layoutName){
 
@@ -46,12 +48,9 @@ public class LayoutHelper {
     }
 
     public static void setLayoutAdmin(LayoutAdmin layoutAdmin){
-        LayoutHelper.layoutAdmin = layoutAdmin;
+        LayoutSelectHelper.layoutAdmin = layoutAdmin;
     }
 
-    public static LayoutList getLayoutListAdapterSelector(){
-        return layoutAdmin.getLayoutList();
-    }
 
 
 
