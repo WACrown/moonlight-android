@@ -3,7 +3,7 @@ package com.limelight.utils;
 
 import java.util.Map;
 
-public abstract class LayoutProcessor {
+public abstract class LayoutEdit {
 
     public abstract int init();
 
@@ -11,7 +11,7 @@ public abstract class LayoutProcessor {
 
     public abstract String get(String key);
 
-    public abstract int add(String key, String value);
+    public abstract int add(String key);
 
     public abstract int delete(String key);
 

@@ -19,7 +19,7 @@ public class VirtualControllerLayoutSelector extends Spinner{
         this.frame_layout = layout;
         this.context = context;
         this.setAdapter(new AdapterSelector(context));
-        this.setSelection(LayoutSelectHelper.getCurrentLayoutNum());
+        this.setSelection(LayoutSelectHelper.getCurrentLayoutNum(getContext()));
         this.setVisibility(View.INVISIBLE);
     }
 

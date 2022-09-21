@@ -1169,11 +1169,11 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
         boolean handled = false;
 
-//        if (ControllerHandler.isGameControllerDevice(event.getDevice())) {
-//            // Always try the controller handler first, unless it's an alphanumeric keyboard device.
-//            // Otherwise, controller handler will eat keyboard d-pad events.
-//            handled = controllerHandler.handleButtonDown(event);
-//        }
+        if (ControllerHandler.isGameControllerDevice(event.getDevice())) {
+            // Always try the controller handler first, unless it's an alphanumeric keyboard device.
+            // Otherwise, controller handler will eat keyboard d-pad events.
+            handled = controllerHandler.handleButtonDown(event);
+        }
 
         if (!handled) {
 

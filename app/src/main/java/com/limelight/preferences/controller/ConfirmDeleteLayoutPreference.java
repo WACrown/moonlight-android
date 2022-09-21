@@ -1,4 +1,4 @@
-package com.limelight.preferences;
+package com.limelight.preferences.controller;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Toast;
 
+import com.limelight.utils.LayoutAdminHelper;
 import com.limelight.utils.LayoutSelectHelper;
 
 public class ConfirmDeleteLayoutPreference extends DialogPreference {
@@ -34,7 +35,7 @@ public class ConfirmDeleteLayoutPreference extends DialogPreference {
 
     @Override
     protected View onCreateDialogView() {
-        String currentLayoutName = LayoutSelectHelper.getLayoutList().get(LayoutSelectHelper.getCurrentNum());
+        String currentLayoutName = LayoutSelectHelper.getCurrentLayoutName(getContext());
         this.setDialogTitle("myString 删除当前布局");
         this.setDialogMessage("myString 确定要删除当前布局: " + currentLayoutName);
         return super.onCreateDialogView();
@@ -42,7 +43,7 @@ public class ConfirmDeleteLayoutPreference extends DialogPreference {
 
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            if (LayoutSelectHelper.deleteCurrentLayout() == 0) {
+            if (LayoutAdminHelper.deleteCurrentLayout(getContext()) == 0) {
                 Toast.makeText(getContext(), "myString 删除布局成功", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getContext(), "myString 删除布局失败，你至少有一个布局", Toast.LENGTH_SHORT).show();

@@ -7,7 +7,6 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 
 import com.limelight.nvstream.jni.MoonBridge;
-import com.limelight.utils.LayoutAdmin;
 
 public class PreferenceConfiguration {
     private static final String LEGACY_RES_FPS_PREF_STRING = "list_resolution_fps";

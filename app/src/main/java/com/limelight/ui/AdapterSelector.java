@@ -20,7 +20,7 @@ public class AdapterSelector implements SpinnerAdapter {
 
     public AdapterSelector(Context context) {
         this.context = context;
-        list = LayoutSelectHelper.getLayoutList();
+        list = LayoutSelectHelper.getLayoutList(context);
     }
 
 

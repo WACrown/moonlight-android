@@ -129,7 +129,7 @@
             android:title="myString 显示键盘按键" />
 
         <!--选择布局-->
-        <com.limelight.preferences.SelectLayoutPreference
+        <com.limelight.preferences.controller.SelectLayoutPreference
             android:key="list_select_controls_layout"
             android:title="@string/title_select_controller_layout"
             android:summary="@string/summary_select_controller_layout"
@@ -137,20 +137,20 @@
             android:entryValues="@array/default_layout_list" />
 
         <!--新建布局-->
-        <com.limelight.preferences.AddLayoutPreference
+        <com.limelight.preferences.controller.AddLayoutPreference
             android:key="edit_add_controls_layout"
             android:title="@string/title_add_controller_layout"
             android:summary="@string/summary_add_controller_layout"
             />
 
         <!--重命名布局-->
-        <com.limelight.preferences.RenameLayoutPreference
+        <com.limelight.preferences.controller.RenameLayoutPreference
             android:key="edit_rename_controls_layout"
             android:title="@string/title_rename_controller_layout"
             android:summary="@string/summary_rename_controller_layout"/>
 
         <!--重置布局-->
-        <com.limelight.preferences.ConfirmResetLayoutPreference
+        <com.limelight.preferences.controller.ConfirmResetLayoutPreference
             android:key="dialog_reset_controls_layout"
             android:title="@string/title_reset_controller_layout"
             android:summary="@string/summary_reset_controller_layout"
@@ -159,7 +159,7 @@
             />
 
         <!--删除布局-->
-        <com.limelight.preferences.ConfirmDeleteLayoutPreference
+        <com.limelight.preferences.controller.ConfirmDeleteLayoutPreference
             android:key="dialog_delete_controls_layout"
             android:title="@string/title_delete_controller_layout"
             android:summary="@string/summary_delete_controller_layout"
@@ -168,7 +168,7 @@
             />
 
         <!--新建按钮-->
-        <com.limelight.preferences.AddKeyboardButtonPreference
+        <com.limelight.preferences.controller.AddKeyboardButtonPreference
             android:key="edit_add_keyboard_button"
             android:title="myString 新建按钮"
             android:summary="myString 新建一个按钮 格式：A-name1"
@@ -176,7 +176,7 @@
             android:negativeButtonText="@string/no"
             />
 
-        <com.limelight.preferences.DeleteKeyboardButtonPreference
+        <com.limelight.preferences.controller.DeleteKeyboardButtonPreference
             android:key="edit_delete_keyboard_button"
             android:title="myString 删除按钮"
             android:summary="myString 删除一个按钮 格式：A-name1"

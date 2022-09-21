@@ -83,9 +83,9 @@ public class VirtualController {
         VCLSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                LayoutSelectHelper.selectLayout(i);
+                LayoutSelectHelper.selectLayout(context,i);
                 VCLSelector.setSelection(i);
-                VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, LayoutSelectHelper.getCurrentLayoutName());
+                VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, LayoutSelectHelper.getCurrentLayoutName(context));
 
                 for (VirtualControllerElement element : elements) {
                     element.invalidate();
@@ -118,7 +118,7 @@ public class VirtualController {
                     message = "Entering configuration mode (Resize buttons)";
                 } else {
                     currentMode = ControllerMode.Active;
-                    VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, LayoutSelectHelper.getCurrentLayoutName());
+                    VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, LayoutSelectHelper.getCurrentLayoutName(context));
                     message = "Exiting configuration mode";
                 }
 
@@ -228,7 +228,7 @@ public class VirtualController {
 
 
         // Apply user preferences onto the default layout
-        VirtualControllerConfigurationLoader.loadFromPreferences(this, context, LayoutSelectHelper.getCurrentLayoutName());
+        VirtualControllerConfigurationLoader.loadFromPreferences(this, context, LayoutSelectHelper.getCurrentLayoutName(context));
         VCLSelector.refreshLayout();
 
 

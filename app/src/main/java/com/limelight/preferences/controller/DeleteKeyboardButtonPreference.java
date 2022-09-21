@@ -1,4 +1,4 @@
-package com.limelight.preferences;
+package com.limelight.preferences.controller;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -32,7 +32,7 @@ public class DeleteKeyboardButtonPreference extends EditTextPreference {
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            int flag = LayoutEditHelper.deleteKeyboardButton(getEditText().getText().toString());
+            int flag = LayoutEditHelper.deleteButton(getContext(),getEditText().getText().toString());
             if (flag == 0){
                 Toast.makeText(getContext(), "myString  删除成功", Toast.LENGTH_SHORT).show();
             } else {

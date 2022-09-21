@@ -1,4 +1,4 @@
-package com.limelight.preferences;
+package com.limelight.preferences.controller;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.limelight.R;
+import com.limelight.utils.LayoutAdminHelper;
 import com.limelight.utils.LayoutSelectHelper;
 
 public class RenameLayoutPreference extends EditTextPreference {
@@ -36,7 +37,7 @@ public class RenameLayoutPreference extends EditTextPreference {
     protected View onCreateDialogView() {
 
         setDialogTitle(getContext().getResources().getString(R.string.title_rename_controller_layout));
-        setText(LayoutSelectHelper.getCurrentLayoutName());
+        setText(LayoutSelectHelper.getCurrentLayoutName(getContext()));
         return super.onCreateDialogView();
 
     }
@@ -45,7 +46,7 @@ public class RenameLayoutPreference extends EditTextPreference {
     public void onClick(DialogInterface dialog, int which) {
 
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            if (LayoutSelectHelper.renameCurrentLayout(getEditText().getText().toString()) == 0) {
+            if (LayoutAdminHelper.renameCurrentLayout(getContext(),getEditText().getText().toString()) == 0) {
                 Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_rename_controller_layout_success), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getContext(), "myString 重命名失败，已经存在改布局", Toast.LENGTH_SHORT).show();

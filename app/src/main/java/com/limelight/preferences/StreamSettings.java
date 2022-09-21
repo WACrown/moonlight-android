@@ -31,10 +31,20 @@ import com.limelight.LimeLog;
 import com.limelight.PcView;
 import com.limelight.R;
 import com.limelight.binding.video.MediaCodecHelper;
+import com.limelight.preferences.controller.AddKeyboardButtonPreference;
+import com.limelight.preferences.controller.AddLayoutPreference;
+import com.limelight.preferences.controller.ConfirmDeleteLayoutPreference;
+import com.limelight.preferences.controller.ConfirmResetLayoutPreference;
+import com.limelight.preferences.controller.DeleteKeyboardButtonPreference;
+import com.limelight.preferences.controller.RenameLayoutPreference;
+import com.limelight.preferences.controller.SelectLayoutPreference;
 import com.limelight.utils.Dialog;
 import com.limelight.utils.LayoutAdmin;
-import com.limelight.utils.SelectControllerLayoutHelp;
-import com.limelight.utils.SelectKeyboardLayoutHelp;
+import com.limelight.utils.LayoutControllerAdmin;
+import com.limelight.utils.LayoutControllerEdit;
+import com.limelight.utils.LayoutEdit;
+import com.limelight.utils.LayoutKeyboardAdmin;
+import com.limelight.utils.LayoutKeyboardEdit;
 import com.limelight.utils.UiHelper;
 
 import java.lang.reflect.Method;
@@ -105,9 +115,22 @@ public class StreamSettings extends Activity {
 
     public static class SettingsFragment extends PreferenceFragment {
         private int nativeResolutionStartIndex = Integer.MAX_VALUE;
-        public LayoutAdmin layoutAdminController;
-        private LayoutAdmin layoutAdminKeyboard;
 
+        public static LayoutAdmin getLayoutAdmin(Context context){
+            if (PreferenceConfiguration.readPreferences(context).onscreenKeyboard){
+                return new LayoutKeyboardAdmin(context);
+            } else {
+                return new LayoutControllerAdmin(context);
+            }
+        }
+
+        public static LayoutEdit getLayoutEdit(Context context, String buttonTable){
+            if (PreferenceConfiguration.readPreferences(context).onscreenKeyboard){
+                return new LayoutKeyboardEdit(context, buttonTable);
+            } else {
+                return new LayoutControllerEdit(context, buttonTable);
+            }
+        }
 
 
         private void setValue(String preferenceKey, String value) {
@@ -222,8 +245,6 @@ public class StreamSettings extends Activity {
 
             addPreferencesFromResource(R.xml.preferences);
             PreferenceScreen screen = getPreferenceScreen();
-            layoutAdminController = new LayoutAdmin(getContext(),"controller");
-            layoutAdminKeyboard = new LayoutAdmin(getContext(),"keyboard");
             // hide on-screen controls category on non touch screen devices
             if (!getActivity().getPackageManager().
                     hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)) {
@@ -637,6 +658,7 @@ public class StreamSettings extends Activity {
             onscreenControllerPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
+                    new LayoutControllerAdmin(getContext());
                     if ((boolean)o){
                         onscreenKeyboardPreference.setChecked(false);
                         onscreenControllerPreference.setChecked(true);
@@ -675,6 +697,7 @@ public class StreamSettings extends Activity {
             onscreenKeyboardPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
+                    new LayoutKeyboardAdmin(getContext());
                     if ((boolean)o){
                         onscreenControllerPreference.setChecked(false);
                         onscreenKeyboardPreference.setChecked(true);

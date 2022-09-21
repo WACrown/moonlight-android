@@ -13,7 +13,7 @@ import android.view.KeyEvent;
 import com.limelight.nvstream.input.ControllerPacket;
 import com.limelight.preferences.PreferenceConfiguration;
 import com.limelight.utils.LayoutSelectHelper;
-import com.limelight.utils.LayoutKeyboardProcessor;
+import com.limelight.utils.LayoutKeyboardEdit;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -423,9 +423,9 @@ public class VirtualControllerConfigurationLoader {
 
     public static void createDefaultKeyboardButton(final VirtualController controller, final Context context){
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
-        LayoutKeyboardProcessor layoutKeyboardProcessor = new LayoutKeyboardProcessor(context, LayoutSelectHelper.getCurrentLayoutName());
+        LayoutKeyboardEdit layoutKeyboardEdit = new LayoutKeyboardEdit(context, LayoutSelectHelper.getCurrentLayoutName(context));
         int height = screen.heightPixels;
-        Map<String,String> allButton = layoutKeyboardProcessor.get();
+        Map<String,String> allButton = layoutKeyboardEdit.get();
         for (String key : allButton.keySet()){
             String[] keycodeAndName = key.split("-");
 
