@@ -39,12 +39,12 @@ import com.limelight.preferences.controller.DeleteKeyboardButtonPreference;
 import com.limelight.preferences.controller.RenameLayoutPreference;
 import com.limelight.preferences.controller.SelectLayoutPreference;
 import com.limelight.utils.Dialog;
-import com.limelight.utils.LayoutAdmin;
-import com.limelight.utils.LayoutControllerAdmin;
-import com.limelight.utils.LayoutControllerEdit;
-import com.limelight.utils.LayoutEdit;
-import com.limelight.utils.LayoutKeyboardAdmin;
-import com.limelight.utils.LayoutKeyboardEdit;
+import com.limelight.utils.controller.LayoutAdmin;
+import com.limelight.utils.controller.LayoutControllerAdmin;
+import com.limelight.utils.controller.LayoutControllerEdit;
+import com.limelight.utils.controller.LayoutEdit;
+import com.limelight.utils.controller.LayoutKeyboardAdmin;
+import com.limelight.utils.controller.LayoutKeyboardEdit;
 import com.limelight.utils.UiHelper;
 
 import java.lang.reflect.Method;

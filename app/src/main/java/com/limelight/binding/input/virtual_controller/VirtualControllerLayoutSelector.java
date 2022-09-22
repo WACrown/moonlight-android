@@ -7,7 +7,7 @@ import android.widget.FrameLayout;
 import android.widget.Spinner;
 
 import com.limelight.ui.AdapterSelector;
-import com.limelight.utils.LayoutSelectHelper;
+import com.limelight.utils.controller.LayoutSelectHelper;
 
 public class VirtualControllerLayoutSelector extends Spinner{
 

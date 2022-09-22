@@ -10,8 +10,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.limelight.R;
-import com.limelight.utils.LayoutAdminHelper;
-import com.limelight.utils.LayoutSelectHelper;
+import com.limelight.utils.controller.LayoutAdminHelper;
+import com.limelight.utils.controller.LayoutSelectHelper;
 
 public class RenameLayoutPreference extends EditTextPreference {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

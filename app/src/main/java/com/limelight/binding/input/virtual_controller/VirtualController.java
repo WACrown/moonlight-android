@@ -18,7 +18,7 @@ import com.limelight.LimeLog;
 import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
 import com.limelight.preferences.PreferenceConfiguration;
-import com.limelight.utils.LayoutSelectHelper;
+import com.limelight.utils.controller.LayoutSelectHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -221,7 +221,7 @@ public class VirtualController {
 
         // Start with the default layout
         if (config.onscreenController){
-            VirtualControllerConfigurationLoader.createDefaultLayout(this, context);
+            VirtualControllerConfigurationLoader.createDefaultControllerLayout(this, context);
         } else if (config.onscreenKeyboard) {
             VirtualControllerConfigurationLoader.createDefaultKeyboardButton(this,context);
         }

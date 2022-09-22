@@ -9,8 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.limelight.utils.LayoutSelectHelper;
-import com.limelight.utils.LayoutList;
+import com.limelight.utils.controller.LayoutSelectHelper;
+import com.limelight.utils.controller.LayoutList;
 
 public class SelectLayoutPreference extends ListPreference {
     public SelectLayoutPreference(Context context, AttributeSet attrs) {

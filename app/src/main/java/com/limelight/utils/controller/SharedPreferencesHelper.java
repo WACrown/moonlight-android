@@ -1,4 +1,4 @@
-package com.limelight.utils;
+package com.limelight.utils.controller;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,7 +8,7 @@ import android.content.SharedPreferences;
 import java.util.Map;
 import java.util.Set;
 
-public class SharedPreferencesHelp {
+public class SharedPreferencesHelper {
 
     public static String load(Context context, String preference, String key){
         SharedPreferences sharedPreferences = context.getSharedPreferences(preference, Activity.MODE_PRIVATE);

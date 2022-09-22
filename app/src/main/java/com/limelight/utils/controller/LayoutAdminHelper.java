@@ -1,10 +1,8 @@
-package com.limelight.utils;
+package com.limelight.utils.controller;
 
 import android.content.Context;
 
 import com.limelight.preferences.StreamSettings;
-
-import java.util.regex.Pattern;
 
 public class LayoutAdminHelper {
 

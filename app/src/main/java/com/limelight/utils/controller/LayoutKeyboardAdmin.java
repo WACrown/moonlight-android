@@ -1,4 +1,4 @@
-package com.limelight.utils;
+package com.limelight.utils.controller;
 
 import android.content.Context;
 
@@ -6,25 +6,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class LayoutControllerAdmin extends LayoutAdmin{
+public class LayoutKeyboardAdmin extends LayoutAdmin{
 
     private final String CURRENT_NUM = "current_num";
     private final String ALL_LAYOUT = "all_layout";
 
-    private final String ADMIN_TABLE = "controller_admin";
-    private final String PRE_LAYOUT = "controller_";
+    private final String ADMIN_TABLE = "keyboard_admin";
+    private final String PRE_LAYOUT = "keyboard_";
     private LayoutList layoutList;
     private int currentNum;
     private final Context context;
 
-    public LayoutControllerAdmin(Context context) {
+    public LayoutKeyboardAdmin(Context context) {
         this.context = context;
-        //是否正确获取layoutList
+
         if (loadAllLayoutFromTable() != 0){
             layoutList.add("default");
             saveAllLayoutToTable();
         }
-        //是否正确获取currentNum
+
         if (getCurrentLayoutNumFromTable() != 0){
             setCurrentLayoutNumToTable();
         }
@@ -49,7 +49,7 @@ public class LayoutControllerAdmin extends LayoutAdmin{
 
         layoutList.add(layoutName);
         saveAllLayoutToTable();
-        LayoutEdit layoutEdit = new LayoutControllerEdit(context,layoutName);
+        LayoutEdit layoutEdit = new LayoutKeyboardEdit(context,layoutName);
         layoutEdit.init();
         return 0;
     }
@@ -109,7 +109,7 @@ public class LayoutControllerAdmin extends LayoutAdmin{
         //layoutNamesFixed中layout名字格式controller_default
         layoutList = new LayoutList();
         LayoutList layoutNamesFixed = new LayoutList();
-        String listString = SharedPreferencesHelp.load(context, ADMIN_TABLE, ALL_LAYOUT);
+        String listString = SharedPreferencesHelper.load(context, ADMIN_TABLE, ALL_LAYOUT);
 
         if (listString == null) {
             return -1;
@@ -140,7 +140,7 @@ public class LayoutControllerAdmin extends LayoutAdmin{
 
         Map<String, String> map = new HashMap<>();
         map.put(ALL_LAYOUT,layoutNamesControllerFixed.toString());
-        SharedPreferencesHelp.store(context, ADMIN_TABLE, map);
+        SharedPreferencesHelper.store(context, ADMIN_TABLE, map);
 
         return 0;
     }
@@ -148,7 +148,7 @@ public class LayoutControllerAdmin extends LayoutAdmin{
 
     private int getCurrentLayoutNumFromTable(){
 
-        String currentNumString = SharedPreferencesHelp.load(context, ADMIN_TABLE, CURRENT_NUM);
+        String currentNumString = SharedPreferencesHelper.load(context, ADMIN_TABLE, CURRENT_NUM);
 
         if (currentNumString == null) {
             //如果CURRENT_NUM的值为空
@@ -174,7 +174,7 @@ public class LayoutControllerAdmin extends LayoutAdmin{
 
         Map<String, String> map = new HashMap<>();
         map.put(CURRENT_NUM,currentNumString);
-        SharedPreferencesHelp.store(context, ADMIN_TABLE, map);
+        SharedPreferencesHelper.store(context, ADMIN_TABLE, map);
 
         return 0;
 
@@ -192,5 +192,4 @@ public class LayoutControllerAdmin extends LayoutAdmin{
     public String toString() {
         return PRE_LAYOUT;
     }
-
 }

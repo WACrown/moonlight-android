@@ -8,8 +8,7 @@ import android.preference.EditTextPreference;
 import android.util.AttributeSet;
 import android.widget.Toast;
 
-import com.limelight.utils.LayoutAdminHelper;
-import com.limelight.utils.LayoutSelectHelper;
+import com.limelight.utils.controller.LayoutAdminHelper;
 
 public class AddLayoutPreference extends EditTextPreference {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

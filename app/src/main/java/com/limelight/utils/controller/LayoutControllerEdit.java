@@ -1,10 +1,9 @@
-package com.limelight.utils;
+package com.limelight.utils.controller;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class LayoutControllerEdit extends LayoutEdit {
@@ -16,7 +15,7 @@ public class LayoutControllerEdit extends LayoutEdit {
     public LayoutControllerEdit(Context context, String preference) {
         this.context = context;
         this.preference = preference;
-        this.map = SharedPreferencesHelp.load(context, preference);
+        this.map = SharedPreferencesHelper.load(context, preference);
     }
 
     @Override
@@ -35,7 +34,7 @@ public class LayoutControllerEdit extends LayoutEdit {
         map.put("EID_START","{\"LEFT\":1673,\"TOP\":920,\"WIDTH\":172,\"HEIGHT\":100}");
         map.put("EID_LS","{\"LEFT\":86,\"TOP\":57,\"WIDTH\":374,\"HEIGHT\":374}");
         map.put("EID_RS","{\"LEFT\":1889,\"TOP\":604,\"WIDTH\":374,\"HEIGHT\":374}");
-        SharedPreferencesHelp.store(context, preference, map);
+        SharedPreferencesHelper.store(context, preference, map);
         return 0;
     }
 
@@ -67,7 +66,7 @@ public class LayoutControllerEdit extends LayoutEdit {
             return -1;
         }
         map.remove(key);
-        SharedPreferencesHelp.store(context, preference, map);
+        SharedPreferencesHelper.store(context, preference, map);
         return 0;
     }
 
@@ -79,7 +78,7 @@ public class LayoutControllerEdit extends LayoutEdit {
             return -1;
         }
         map.replace(key, newValue);
-        SharedPreferencesHelp.store(context, preference, map);
+        SharedPreferencesHelper.store(context, preference, map);
         return 0;
     }
 

@@ -10,8 +10,8 @@ import android.widget.TextView;
 
 
 import com.limelight.R;
-import com.limelight.utils.LayoutSelectHelper;
-import com.limelight.utils.LayoutList;
+import com.limelight.utils.controller.LayoutSelectHelper;
+import com.limelight.utils.controller.LayoutList;
 
 public class AdapterSelector implements SpinnerAdapter {
 

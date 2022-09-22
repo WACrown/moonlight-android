@@ -1,4 +1,4 @@
-package com.limelight.utils;
+package com.limelight.utils.controller;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -18,13 +18,13 @@ public class LayoutKeyboardEdit extends LayoutEdit {
     public LayoutKeyboardEdit(Context context, String preference) {
         this.context = context;
         this.preference = preference;
-        this.map = SharedPreferencesHelp.load(context, preference);
+        this.map = SharedPreferencesHelper.load(context, preference);
     }
 
     @Override
     public int init() {
         map.clear();
-        SharedPreferencesHelp.store(context, preference, map);
+        SharedPreferencesHelper.store(context, preference, map);
         return 0;
     }
 
@@ -49,12 +49,19 @@ public class LayoutKeyboardEdit extends LayoutEdit {
         }
 
         if (key.split("-").length == 2) {
+            //BUTTON
             map.put(key, "{\"LEFT\":2004,\"TOP\":302,\"WIDTH\":143,\"HEIGHT\":143}");
-            SharedPreferencesHelp.store(context, preference, map);
+            SharedPreferencesHelper.store(context, preference, map);
             return 0;
         } else if (key.split("-").length == 6) {
+            //PAD
             map.put(key, "{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
-            SharedPreferencesHelp.store(context, preference, map);
+            SharedPreferencesHelper.store(context, preference, map);
+            return 0;
+        } else if (key.split("-").length == 7) {
+            //STICK
+            map.put(key, "{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
+            SharedPreferencesHelper.store(context, preference, map);
             return 0;
         } else {
             return -2; //格式非法
@@ -67,7 +74,7 @@ public class LayoutKeyboardEdit extends LayoutEdit {
             return -3; //名字不存在
         }
         map.remove(key);
-        SharedPreferencesHelp.store(context, preference, map);
+        SharedPreferencesHelper.store(context, preference, map);
         return 0;
     }
 
@@ -79,7 +86,7 @@ public class LayoutKeyboardEdit extends LayoutEdit {
             return -1;
         }
         map.replace(key, newValue);
-        SharedPreferencesHelp.store(context, preference, map);
+        SharedPreferencesHelper.store(context, preference, map);
         return 0;
     }
 
@@ -93,14 +100,24 @@ public class LayoutKeyboardEdit extends LayoutEdit {
                 return -4;
             }
         } else if ((keysAndName.length == 6 && keysAndName[0].equals("PAD")) && (Pattern.matches("^[A-Za-z0-9]{1,5}$",keysAndName[keysAndName.length-1]))){
-            //验证PAD名称是否合法
-            if ((VirtualControllerConfigurationLoader.getKeycode(keysAndName[1]) != -1 && VirtualControllerConfigurationLoader.getKeycode(keysAndName[2]) != -1) && (VirtualControllerConfigurationLoader.getKeycode(keysAndName[3]) != -1 && VirtualControllerConfigurationLoader.getKeycode(keysAndName[4]) != -1)) {
-                return 0;
-            } else {
-                //PAD按键组中有按键映射表中没有的按键
-                return -4;
+            //验证PAD名称是否合法,合法PAD：PAD-W-S-A-D-1
+            for (int i = 1;i < keysAndName.length-1; i ++) {
+                //依次验证所有设置的按键存不存在
+                if (VirtualControllerConfigurationLoader.getKeycode(keysAndName[i]) == -1){
+                    return -4; //按键映射表中没有此按键
+                }
             }
+            return 0;
 
+        } else if ((keysAndName.length == 7 && keysAndName[0].equals("STK")) && (Pattern.matches("^[A-Za-z0-9]{1,5}$",keysAndName[keysAndName.length-1]))){
+            //验证STICK名称是否合法,合法PAD：STK-W-S-A-D-SHIFT-1
+            for (int i = 1;i < keysAndName.length-1; i ++) {
+                //依次验证所有设置的按键存不存在
+                if (VirtualControllerConfigurationLoader.getKeycode(keysAndName[i]) == -1){
+                    return -4; //按键映射表中没有此按键
+                }
+            }
+            return 0;
         } else {
             //格式非法
             return -2;

@@ -1,4 +1,4 @@
-package com.limelight.utils;
+package com.limelight.utils.controller;
 
 public abstract class LayoutAdmin {
 

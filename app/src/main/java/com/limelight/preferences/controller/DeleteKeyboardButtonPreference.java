@@ -8,7 +8,7 @@ import android.preference.EditTextPreference;
 import android.util.AttributeSet;
 import android.widget.Toast;
 
-import com.limelight.utils.LayoutEditHelper;
+import com.limelight.utils.controller.LayoutEditHelper;
 
 public class DeleteKeyboardButtonPreference extends EditTextPreference {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

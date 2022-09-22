@@ -9,8 +9,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Toast;
 
-import com.limelight.utils.LayoutAdminHelper;
-import com.limelight.utils.LayoutSelectHelper;
+import com.limelight.utils.controller.LayoutAdminHelper;
+import com.limelight.utils.controller.LayoutSelectHelper;
 
 public class ConfirmDeleteLayoutPreference extends DialogPreference {
 

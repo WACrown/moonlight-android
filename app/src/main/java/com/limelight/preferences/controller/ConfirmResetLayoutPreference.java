@@ -10,10 +10,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.limelight.R;
-import com.limelight.utils.LayoutAdminHelper;
-import com.limelight.utils.LayoutEdit;
-import com.limelight.utils.LayoutEditHelper;
-import com.limelight.utils.LayoutSelectHelper;
+import com.limelight.utils.controller.LayoutEditHelper;
+import com.limelight.utils.controller.LayoutSelectHelper;
 
 public class ConfirmResetLayoutPreference extends DialogPreference {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

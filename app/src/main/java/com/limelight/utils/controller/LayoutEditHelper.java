@@ -1,11 +1,8 @@
-package com.limelight.utils;
+package com.limelight.utils.controller;
 
 import android.content.Context;
 
-import com.limelight.binding.input.virtual_controller.VirtualControllerConfigurationLoader;
 import com.limelight.preferences.StreamSettings;
-
-import java.util.regex.Pattern;
 
 public class LayoutEditHelper {
 

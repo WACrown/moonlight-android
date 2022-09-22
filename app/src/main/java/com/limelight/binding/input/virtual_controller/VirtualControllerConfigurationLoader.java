@@ -12,8 +12,8 @@ import android.view.KeyEvent;
 
 import com.limelight.nvstream.input.ControllerPacket;
 import com.limelight.preferences.PreferenceConfiguration;
-import com.limelight.utils.LayoutSelectHelper;
-import com.limelight.utils.LayoutKeyboardEdit;
+import com.limelight.utils.controller.LayoutSelectHelper;
+import com.limelight.utils.controller.LayoutKeyboardEdit;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -160,6 +160,14 @@ public class VirtualControllerConfigurationLoader {
         return new RightAnalogStick(controller, elementId, context);
     }
 
+    private static AnalogStick createKeyboardStick(
+            final VirtualController controller,
+            final String elementId,
+            final Context context,
+            final int keyUp, final int keyDown, final int keyLeft, final int keyRight, final int keyDouble) {
+        return new KeyboardAnalogStick(controller, elementId, context, keyUp, keyDown, keyLeft, keyRight ,keyDouble);
+    }
+
     private static DigitalButton createKeyboardButton(
             final String elementId,
             final int keyShort,
@@ -204,12 +212,10 @@ public class VirtualControllerConfigurationLoader {
             final int keyUp, final int keyDown, final int keyLeft, final int keyRight) {
 
         DigitalPad digitalPad = new DigitalPad(controller, elementId, context);
+        Map<String,KeyEvent> keyEventMap = controller.getKeyboardInputContext();
         digitalPad.addDigitalPadListener(new DigitalPad.DigitalPadListener() {
             @Override
             public void onDirectionChange(int direction) {
-
-
-                Map<String,KeyEvent> keyEventMap = controller.getKeyboardInputContext();
 
                 keyEventMap.put(""+keyLeft,new KeyEvent(KeyEvent.ACTION_UP,keyLeft));
                 keyEventMap.put(""+keyRight,new KeyEvent(KeyEvent.ACTION_UP,keyRight));
@@ -270,7 +276,7 @@ public class VirtualControllerConfigurationLoader {
     private static final int START_BACK_WIDTH = 12;
     private static final int START_BACK_HEIGHT = 7;
 
-    public static void createDefaultLayout(final VirtualController controller, final Context context) {
+    public static void createDefaultControllerLayout(final VirtualController controller, final Context context) {
 
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
         PreferenceConfiguration config = PreferenceConfiguration.readPreferences(context);
@@ -446,6 +452,14 @@ public class VirtualControllerConfigurationLoader {
                         screenScale(DPAD_SIZE, height),
                         screenScale(DPAD_SIZE, height)
                 );
+            } else if (keycodeAndName.length == 7){
+                controller.addElement(
+                        createKeyboardStick(controller, key, context,getKeycode(keycodeAndName[1]),getKeycode(keycodeAndName[2]),getKeycode(keycodeAndName[3]),getKeycode(keycodeAndName[4]),getKeycode(keycodeAndName[5])),
+                        screenScale(DPAD_BASE_X, height),
+                        screenScale(DPAD_BASE_Y, height),
+                        screenScale(DPAD_SIZE, height),
+                        screenScale(DPAD_SIZE, height)
+                );
             } else {
                 for (String name : keycodeAndName){
                     System.out.println("WG error:" + name);
@@ -534,6 +548,7 @@ public class VirtualControllerConfigurationLoader {
             case "TAB" :return KeyEvent.KEYCODE_TAB;
             case "CAPS" :return KeyEvent.KEYCODE_CAPS_LOCK;
             //功能键
+            case "WIN" :return KeyEvent.KEYCODE_WINDOW;
             case "DEL" :return KeyEvent.KEYCODE_FORWARD_DEL;
             case "INS" :return KeyEvent.KEYCODE_INSERT;
             case "HOME" :return KeyEvent.KEYCODE_MOVE_HOME;
