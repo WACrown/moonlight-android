@@ -548,7 +548,7 @@ public class VirtualControllerConfigurationLoader {
             case "TAB" :return KeyEvent.KEYCODE_TAB;
             case "CAPS" :return KeyEvent.KEYCODE_CAPS_LOCK;
             //功能键
-            case "WIN" :return KeyEvent.KEYCODE_WINDOW;
+            case "WIN" :return KeyEvent.KEYCODE_META_LEFT;
             case "DEL" :return KeyEvent.KEYCODE_FORWARD_DEL;
             case "INS" :return KeyEvent.KEYCODE_INSERT;
             case "HOME" :return KeyEvent.KEYCODE_MOVE_HOME;
