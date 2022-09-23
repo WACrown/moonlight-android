@@ -11,6 +11,6 @@
         android:text="getView()的视图"
         android:textColor="#03A9F4"
         android:textSize="18sp"
-        android:background="#5483E388"/>
+        android:background="#549F9F9F"/>
 
 </LinearLayout>

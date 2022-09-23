@@ -13,14 +13,16 @@ import com.limelight.R;
 import com.limelight.utils.controller.LayoutSelectHelper;
 import com.limelight.utils.controller.LayoutList;
 
+import java.util.List;
+
 public class AdapterSelector implements SpinnerAdapter {
 
     private Context context;
-    private LayoutList list = null;
+    private List list = null;
 
-    public AdapterSelector(Context context) {
+    public AdapterSelector(Context context,List list) {
         this.context = context;
-        list = LayoutSelectHelper.getLayoutList(context);
+        this.list = list;
     }
 
 

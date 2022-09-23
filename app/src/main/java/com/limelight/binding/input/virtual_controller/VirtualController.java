@@ -17,7 +17,9 @@ import com.limelight.Game;
 import com.limelight.LimeLog;
 import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
-import com.limelight.preferences.PreferenceConfiguration;
+import com.limelight.binding.input.virtual_controller.selector.VirtualControllerAddButton;
+import com.limelight.binding.input.virtual_controller.selector.VirtualControllerKeyTypeSelector;
+import com.limelight.binding.input.virtual_controller.selector.VirtualControllerLayoutSelector;
 import com.limelight.utils.controller.LayoutSelectHelper;
 
 import java.util.ArrayList;
@@ -44,7 +46,9 @@ public class VirtualController {
         Active,
         MoveButtons,
         ResizeButtons,
-        SelectLayout
+        SelectLayout,
+        AddButton,
+        DeleteButton
     }
 
     private static final boolean _PRINT_DEBUG_INFORMATION = false;
@@ -52,6 +56,11 @@ public class VirtualController {
     private final ControllerHandler controllerHandler;
     private final Game game;
     private final Context context;
+    private final Map<String,KeyEvent> keyEventMap = new HashMap<>();
+    private final List<VirtualControllerElement> elements = new ArrayList<>();
+    private final VirtualController virtualController;
+
+
 
     private FrameLayout frame_layout = null;
 
@@ -60,43 +69,35 @@ public class VirtualController {
     ControllerMode currentMode = ControllerMode.Active;
     ControllerInputContext inputContext = new ControllerInputContext();
 
-    private static Map<String,KeyEvent> keyEventMap = new HashMap<>();
+
     private Button buttonConfigure = null;
     private VirtualControllerLayoutSelector VCLSelector = null;
+    private VirtualControllerKeyTypeSelector typeSelector = null;
+    private VirtualControllerAddButton buttonUpSelector = null;
+    private VirtualControllerAddButton buttonDownSelector = null;
+    private VirtualControllerAddButton buttonLeftSelector = null;
+    private VirtualControllerAddButton buttonRightSelector = null;
+    private VirtualControllerAddButton buttonSelector = null;
+    private Toast toast;
 
 
-    private List<VirtualControllerElement> elements = new ArrayList<>();
-    private VirtualController virtualController;
-    private PreferenceConfiguration config;
 
 
-    public VirtualController(final ControllerHandler controllerHandler, FrameLayout layout, final Context context, final Game game) {
+    public VirtualController(final ControllerHandler controllerHandler, FrameLayout layout, final Context mContext, final Game game) {
         this.controllerHandler = controllerHandler;
         this.game = game;
         this.frame_layout = layout;
-        this.context = context;
+        this.context = mContext;
         this.virtualController = this;
+        VCLSelector = new VirtualControllerLayoutSelector(context,frame_layout,this);
+        typeSelector = new VirtualControllerKeyTypeSelector(context,frame_layout);
+        DisplayMetrics screen = context.getResources().getDisplayMetrics();
+        buttonUpSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.heightPixels*0.025f));
+        buttonDownSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.heightPixels*0.275f));
+        buttonLeftSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.heightPixels*0.525f));
+        buttonRightSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.heightPixels*0.775f));
+        buttonSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.heightPixels*0.1f));
 
-        config = PreferenceConfiguration.readPreferences(context);
-
-        VCLSelector = new VirtualControllerLayoutSelector(context,frame_layout);
-        VCLSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                LayoutSelectHelper.selectLayout(context,i);
-                VCLSelector.setSelection(i);
-                VirtualControllerConfigurationLoader.loadFromPreferences(virtualController, context, LayoutSelectHelper.getCurrentLayoutName(context));
-
-                for (VirtualControllerElement element : elements) {
-                    element.invalidate();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
 
         buttonConfigure = new Button(context);
         buttonConfigure.setAlpha(0.25f);
@@ -109,31 +110,60 @@ public class VirtualController {
 
                 if (currentMode == ControllerMode.Active){
                     currentMode = ControllerMode.SelectLayout;
-                    message = "Entering configuration mode (Select layout)";
+                    message = "Setting (Select layout)";
                 } else if (currentMode == ControllerMode.SelectLayout) {
+                    currentMode = ControllerMode.AddButton;
+                    message = "Setting (Add buttons)";
+                } else if (currentMode == ControllerMode.AddButton) {
                     currentMode = ControllerMode.MoveButtons;
-                    message = "Entering configuration mode (Move buttons)";
+                    message = "Setting (Move buttons)";
                 } else if (currentMode == ControllerMode.MoveButtons) {
                     currentMode = ControllerMode.ResizeButtons;
-                    message = "Entering configuration mode (Resize buttons)";
+                    message = "Setting (Resize buttons)";
+                } else if (currentMode == ControllerMode.ResizeButtons) {
+                    currentMode = ControllerMode.DeleteButton;
+                    message = "Setting (Delete buttons)";
                 } else {
                     currentMode = ControllerMode.Active;
                     VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, LayoutSelectHelper.getCurrentLayoutName(context));
-                    message = "Exiting configuration mode";
+                    message = "Exiting Setting";
                 }
 
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+
+                if (toast != null){
+                    toast.cancel();
+                }
+                toast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
+                toast.show();
+
 
                 buttonConfigure.invalidate();
-
                 for (VirtualControllerElement element : elements) {
                     element.invalidate();
                 }
+
                 if (currentMode == ControllerMode.SelectLayout){
                     VCLSelector.setVisibility(View.VISIBLE);
                 } else {
                     VCLSelector.setVisibility(View.INVISIBLE);
                 }
+                if (currentMode == ControllerMode.AddButton){
+                    typeSelector.setVisibility(View.VISIBLE);
+                    buttonSelector.setVisibility(View.VISIBLE);
+                    buttonRightSelector.setVisibility(View.VISIBLE);
+                    buttonLeftSelector.setVisibility(View.VISIBLE);
+                    buttonDownSelector.setVisibility(View.VISIBLE);
+                    buttonUpSelector.setVisibility(View.VISIBLE);
+                } else {
+                    typeSelector.setVisibility(View.INVISIBLE);
+                    buttonSelector.setVisibility(View.INVISIBLE);
+                    buttonRightSelector.setVisibility(View.INVISIBLE);
+                    buttonLeftSelector.setVisibility(View.INVISIBLE);
+                    buttonDownSelector.setVisibility(View.INVISIBLE);
+                    buttonUpSelector.setVisibility(View.INVISIBLE);
+                }
+
+
             }
         });
 
@@ -179,8 +209,6 @@ public class VirtualController {
             frame_layout.removeView(element);
         }
         elements.clear();
-
-        frame_layout.removeView(buttonConfigure);
     }
 
     public void setOpacity(int opacity) {
@@ -210,6 +238,7 @@ public class VirtualController {
 
     public void refreshLayout() {
         removeElements();
+        frame_layout.removeView(buttonConfigure);
 
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
 
@@ -218,18 +247,14 @@ public class VirtualController {
         params.leftMargin = 15;
         params.topMargin = 15;
         frame_layout.addView(buttonConfigure, params);
-
-        // Start with the default layout
-        if (config.onscreenController){
-            VirtualControllerConfigurationLoader.createDefaultControllerLayout(this, context);
-        } else if (config.onscreenKeyboard) {
-            VirtualControllerConfigurationLoader.createDefaultKeyboardButton(this,context);
-        }
-
-
-        // Apply user preferences onto the default layout
-        VirtualControllerConfigurationLoader.loadFromPreferences(this, context, LayoutSelectHelper.getCurrentLayoutName(context));
+        VirtualControllerConfigurationLoader.createButtonLayout(this,context);
         VCLSelector.refreshLayout();
+        typeSelector.refreshLayout();
+        buttonSelector.refreshLayout();
+        buttonRightSelector.refreshLayout();
+        buttonLeftSelector.refreshLayout();
+        buttonDownSelector.refreshLayout();
+        buttonUpSelector.refreshLayout();
 
 
     }

@@ -21,7 +21,6 @@ import org.json.JSONObject;
 import java.util.Map;
 
 public class VirtualControllerConfigurationLoader {
-    public static final String OSC_PREFERENCE = "OSC";
 
     private static int getPercent(
             int percent,
@@ -276,6 +275,17 @@ public class VirtualControllerConfigurationLoader {
     private static final int START_BACK_WIDTH = 12;
     private static final int START_BACK_HEIGHT = 7;
 
+    public static void createButtonLayout(final VirtualController controller, final Context context){
+        PreferenceConfiguration config = PreferenceConfiguration.readPreferences(context);
+        if (config.onscreenKeyboard){
+            createDefaultKeyboardButton(controller,context);
+            loadFromPreferences(controller,context,LayoutSelectHelper.getCurrentLayoutName(context));
+        } else if (config.onscreenController){
+            createDefaultControllerLayout(controller,context);
+            loadFromPreferences(controller,context,LayoutSelectHelper.getCurrentLayoutName(context));
+        }
+    }
+
     public static void createDefaultControllerLayout(final VirtualController controller, final Context context) {
 
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
@@ -423,7 +433,6 @@ public class VirtualControllerConfigurationLoader {
                     screenScale(TRIGGER_HEIGHT, height)
             );
         }
-
         controller.setOpacity(config.layoutOpacity);
     }
 
