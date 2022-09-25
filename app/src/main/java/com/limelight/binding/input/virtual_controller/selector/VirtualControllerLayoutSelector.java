@@ -35,7 +35,6 @@ public class VirtualControllerLayoutSelector extends Spinner{
         this.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
                 virtualController.removeElements(); //移除旧布局
                 LayoutSelectHelper.selectLayout(context,i); //选定新布局
                 virtualControllerLayoutSelector.setSelection(i);

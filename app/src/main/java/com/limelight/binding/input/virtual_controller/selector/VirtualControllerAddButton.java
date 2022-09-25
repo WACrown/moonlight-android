@@ -23,8 +23,7 @@ public class VirtualControllerAddButton extends Spinner {
     private final FrameLayout frame_layout;
     private final int leftMargin;
     private final int topMargin;
-    private final List<String> keyList = Arrays.asList("A",
-            "");
+    private final List<String> keyList = Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M");
 
     public VirtualControllerAddButton(Context context, FrameLayout layout, int leftMargin, int topMargin) {
         super(context);
@@ -34,6 +33,7 @@ public class VirtualControllerAddButton extends Spinner {
         this.topMargin = topMargin;
         this.setAdapter(new AdapterSelector(context,keyList));
         this.setVisibility(View.INVISIBLE);
+
         this.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
