@@ -46,9 +46,7 @@ public abstract class VirtualControllerElement extends View {
     protected int pressedColor = 0xF00000FF;
     private int configMoveColor = 0xF0FF0000;
     private int configResizeColor = 0xF0FF00FF;
-    private int configSelectColor = 0xFF03A9F4;
-    private int configAddColor = 0xFF03A9F4;
-    private int configDeleteColor = 0xFF03A9F4;
+    private int configEditColor = 0xFF03A9F4;
     private int configSelectedColor = 0xF000FF00;
 
     protected int startSize_x;
@@ -61,9 +59,7 @@ public abstract class VirtualControllerElement extends View {
         Normal,
         Resize,
         Move,
-        Select,
-        Add,
-        Delete
+        Edit
     }
 
     private Mode currentMode = Mode.Normal;
@@ -100,13 +96,18 @@ public abstract class VirtualControllerElement extends View {
         requestLayout();
     }
 
-    protected void selectLayout(int pressed_x, int pressed_y, int width, int height) {
-
-    }
 
     protected void deleteElement() {
 
-        System.out.println("wangguan deleteElement");
+        if (configEditColor == 0xFF03A9F4){
+            setConfigEditColor(0xF0FF0000);
+            virtualController.virtualControllerElementSet.add(this);
+        } else {
+            setConfigEditColor(0xFF03A9F4);
+            virtualController.virtualControllerElementSet.remove(this);
+        }
+
+        System.out.println("wangguan deleteElement" + elementId);
 
     }
 
@@ -158,12 +159,8 @@ public abstract class VirtualControllerElement extends View {
     }
     */
 
-    protected void actionEnableSelect() {
-        currentMode = Mode.Select;
-    }
-
-    protected void actionEnableAdd() {
-        currentMode = Mode.Add;
+    protected void actionEnableEdit() {
+        currentMode = Mode.Edit;
     }
 
     protected void actionEnableMove() {
@@ -174,10 +171,6 @@ public abstract class VirtualControllerElement extends View {
         currentMode = Mode.Resize;
     }
 
-    protected void actionEnableDelete() {
-        currentMode = Mode.Delete;
-    }
-
     protected void actionCancel() {
         currentMode = Mode.Normal;
         invalidate();
@@ -185,16 +178,12 @@ public abstract class VirtualControllerElement extends View {
 
     protected int getDefaultColor() {
 
-        if (virtualController.getControllerMode() == VirtualController.ControllerMode.SelectLayout)
-            return configSelectColor;
-        else if (virtualController.getControllerMode() == VirtualController.ControllerMode.AddButton)
-            return configAddColor;
+        if (virtualController.getControllerMode() == VirtualController.ControllerMode.EditLayout)
+            return configEditColor;
         else if (virtualController.getControllerMode() == VirtualController.ControllerMode.MoveButtons)
             return configMoveColor;
         else if (virtualController.getControllerMode() == VirtualController.ControllerMode.ResizeButtons)
             return configResizeColor;
-        else if (virtualController.getControllerMode() == VirtualController.ControllerMode.DeleteButton)
-            return configDeleteColor;
         else
             return normalColor;
     }
@@ -235,7 +224,7 @@ public abstract class VirtualControllerElement extends View {
                         break;
                     }
                     case 2: { // select
-                        actionEnableSelect();
+                        actionEnableEdit();
                         break;
                     }
                 /*
@@ -268,31 +257,29 @@ public abstract class VirtualControllerElement extends View {
 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: {
+                if (virtualController.getControllerMode() == VirtualController.ControllerMode.EditLayout)
+                    actionEnableEdit();
+                else if (virtualController.getControllerMode() == VirtualController.ControllerMode.MoveButtons)
+                    actionEnableMove();
+                else if (virtualController.getControllerMode() == VirtualController.ControllerMode.ResizeButtons)
+                    actionEnableResize();
+
                 switch (currentMode) {
-                    case Delete: {
+                    case Edit: {
                         deleteElement();
                         break;
                     }
                 }
+
             }
             case MotionEvent.ACTION_POINTER_DOWN: {
                 position_pressed_x = event.getX();
                 position_pressed_y = event.getY();
                 startSize_x = getWidth();
                 startSize_y = getHeight();
-
-                if (virtualController.getControllerMode() == VirtualController.ControllerMode.SelectLayout)
-                    actionEnableSelect();
-                else if (virtualController.getControllerMode() == VirtualController.ControllerMode.AddButton)
-                    actionEnableAdd();
-                else if (virtualController.getControllerMode() == VirtualController.ControllerMode.MoveButtons)
-                    actionEnableMove();
-                else if (virtualController.getControllerMode() == VirtualController.ControllerMode.ResizeButtons)
-                    actionEnableResize();
-                else if (virtualController.getControllerMode() == VirtualController.ControllerMode.DeleteButton)
-                    actionEnableDelete();
                 return true;
             }
+
             case MotionEvent.ACTION_MOVE: {
                 switch (currentMode) {
                     case Move: {
@@ -343,6 +330,11 @@ public abstract class VirtualControllerElement extends View {
         this.normalColor = normalColor;
         this.pressedColor = pressedColor;
 
+        invalidate();
+    }
+
+    public void setConfigEditColor(int deleteColor){
+        this.configEditColor = deleteColor;
         invalidate();
     }
 

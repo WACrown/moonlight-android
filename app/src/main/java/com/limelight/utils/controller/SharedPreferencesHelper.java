@@ -22,14 +22,10 @@ public class SharedPreferencesHelper {
 
     public static int store(Context context, String preference, Map<String, String> map){
         SharedPreferences.Editor preEdit= context.getSharedPreferences(preference, Activity.MODE_PRIVATE).edit();
-        if (map.isEmpty()){
-            preEdit.clear();
-        } else {
-            for (String key : map.keySet()){
-                preEdit.putString(key, map.get(key));
-            }
+        preEdit.clear();
+        for (String key : map.keySet()){
+            preEdit.putString(key, map.get(key));
         }
-
         preEdit.apply();
         return  0;
     }

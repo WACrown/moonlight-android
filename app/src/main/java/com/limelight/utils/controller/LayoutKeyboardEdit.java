@@ -17,7 +17,7 @@ public class LayoutKeyboardEdit extends LayoutEdit {
 
     public LayoutKeyboardEdit(Context context, String preference) {
         this.context = context;
-        this.preference = preference;
+        this.preference = "keyboard_" + preference;
         this.map = SharedPreferencesHelper.load(context, preference);
     }
 
@@ -47,7 +47,7 @@ public class LayoutKeyboardEdit extends LayoutEdit {
         if (isInvalid(key) != 0) {
             return -2;//格式非法
         }
-
+        System.out.println("wangguan db " + preference + "  " + map);
         if (key.split("-").length == 2) {
             //BUTTON
             map.put(key, "{\"LEFT\":2004,\"TOP\":302,\"WIDTH\":143,\"HEIGHT\":143}");
@@ -66,6 +66,7 @@ public class LayoutKeyboardEdit extends LayoutEdit {
         } else {
             return -2; //格式非法
         }
+
     }
 
     @Override
@@ -74,6 +75,7 @@ public class LayoutKeyboardEdit extends LayoutEdit {
             return -3; //名字不存在
         }
         map.remove(key);
+        System.out.println("wangguan db " + preference + "  " + map);
         SharedPreferencesHelper.store(context, preference, map);
         return 0;
     }
@@ -109,7 +111,7 @@ public class LayoutKeyboardEdit extends LayoutEdit {
             }
             return 0;
 
-        } else if ((keysAndName.length == 7 && keysAndName[0].equals("STK")) && (Pattern.matches("^[A-Za-z0-9]{1,5}$",keysAndName[keysAndName.length-1]))){
+        } else if ((keysAndName.length == 7 && keysAndName[0].equals("STICK")) && (Pattern.matches("^[A-Za-z0-9]{1,5}$",keysAndName[keysAndName.length-1]))){
             //验证STICK名称是否合法,合法PAD：STK-W-S-A-D-SHIFT-1
             for (int i = 1;i < keysAndName.length-1; i ++) {
                 //依次验证所有设置的按键存不存在

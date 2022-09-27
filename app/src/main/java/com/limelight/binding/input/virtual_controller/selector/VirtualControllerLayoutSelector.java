@@ -20,9 +20,7 @@ public class VirtualControllerLayoutSelector extends Spinner{
 
     private Context context;
     private FrameLayout frame_layout;
-    private final List<String> typeList = Arrays.asList("BUTTON", "PAD", "STICK");
-    private final List<String> keyList = Arrays.asList("A",
-            "");
+
 
     public VirtualControllerLayoutSelector(Context mContext, FrameLayout layout, VirtualController virtualController) {
         super(mContext);
@@ -57,7 +55,7 @@ public class VirtualControllerLayoutSelector extends Spinner{
         int spinnerHigh = (int)(screen.heightPixels*0.1f);
         int spinnerWidth = (int)(screen.widthPixels*0.2f);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(spinnerWidth, spinnerHigh);
-        params.leftMargin = (int)(screen.widthPixels*0.4f);
+        params.leftMargin = (int)(screen.widthPixels*0.15f);
         params.topMargin = (int)(screen.heightPixels*0.1f);
         frame_layout.addView(this, params);
     }

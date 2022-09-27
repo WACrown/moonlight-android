@@ -14,7 +14,7 @@ public class LayoutControllerEdit extends LayoutEdit {
 
     public LayoutControllerEdit(Context context, String preference) {
         this.context = context;
-        this.preference = preference;
+        this.preference = "controller_"+ preference;
         this.map = SharedPreferencesHelper.load(context, preference);
     }
 

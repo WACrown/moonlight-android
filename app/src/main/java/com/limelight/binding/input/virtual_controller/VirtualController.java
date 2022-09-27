@@ -5,11 +5,9 @@
 package com.limelight.binding.input.virtual_controller;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -21,12 +19,17 @@ import com.limelight.binding.input.ControllerHandler;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerAddButton;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerKeyTypeSelector;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerLayoutSelector;
+import com.limelight.binding.input.virtual_controller.selector.VirtualControllerTypeSelector;
+import com.limelight.preferences.PreferenceConfiguration;
+import com.limelight.utils.controller.LayoutEditHelper;
 import com.limelight.utils.controller.LayoutSelectHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -47,10 +50,10 @@ public class VirtualController {
         Active,
         MoveButtons,
         ResizeButtons,
-        SelectLayout,
-        AddButton,
-        DeleteButton
+        EditLayout
     }
+
+    public final Set<VirtualControllerElement> virtualControllerElementSet = new HashSet<>();
 
     private static final boolean _PRINT_DEBUG_INFORMATION = false;
 
@@ -75,7 +78,7 @@ public class VirtualController {
     private Button buttonAdd = null;
     private Button buttonDelete = null;
     private VirtualControllerLayoutSelector VCLSelector = null;
-    private VirtualControllerKeyTypeSelector typeSelector = null;
+    private VirtualControllerTypeSelector typeSelector = null;
     private VirtualControllerAddButton buttonUpSelector = null;
     private VirtualControllerAddButton buttonDownSelector = null;
     private VirtualControllerAddButton buttonLeftSelector = null;
@@ -93,47 +96,13 @@ public class VirtualController {
         this.context = mContext;
         this.virtualController = this;
         VCLSelector = new VirtualControllerLayoutSelector(context,frame_layout,this);
-        DisplayMetrics screen = context.getResources().getDisplayMetrics();
-        buttonUpSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.025f),(int)(screen.heightPixels*0.25f));
-        buttonDownSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.275f),(int)(screen.heightPixels*0.25f));
-        buttonLeftSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.525f),(int)(screen.heightPixels*0.25f));
-        buttonRightSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.775f),(int)(screen.heightPixels*0.25f));
-        buttonSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.525f),(int)(screen.heightPixels*0.1f));
-        typeSelector = new VirtualControllerKeyTypeSelector(context,frame_layout,buttonSelector,buttonUpSelector,buttonDownSelector,buttonLeftSelector,buttonRightSelector);
+
 
         buttonAdd = new Button(context);
         buttonAdd.setBackgroundColor(0xFF3EFF13);
         buttonAdd.setText("ADD");
         buttonAdd.setTextColor(0xFF505050);
         buttonAdd.setVisibility(View.INVISIBLE);
-        buttonAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                switch ((String) typeSelector.getSelectedItem()) {
-                    case "BUTTON" : {
-                        System.out.println("wangguan BUTTON " + buttonSelector.getSelectedItem());
-                        break;
-                    }
-                    case "PAD" : {
-                        System.out.println("wangguan PAD " + buttonUpSelector.getSelectedItem());
-                        System.out.println("wangguan PAD " + buttonDownSelector.getSelectedItem());
-                        System.out.println("wangguan PAD " + buttonLeftSelector.getSelectedItem());
-                        System.out.println("wangguan PAD " + buttonRightSelector.getSelectedItem());
-                        break;
-                    }
-                    case "STICK" : {
-                        System.out.println("wangguan STICK " + buttonSelector.getSelectedItem());
-                        System.out.println("wangguan STICK " + buttonUpSelector.getSelectedItem());
-                        System.out.println("wangguan STICK " + buttonDownSelector.getSelectedItem());
-                        System.out.println("wangguan STICK " + buttonLeftSelector.getSelectedItem());
-                        System.out.println("wangguan STICK " + buttonRightSelector.getSelectedItem());
-                        break;
-                    }
-                }
-
-            }
-        });
 
 
         buttonDelete = new Button(context);
@@ -141,9 +110,18 @@ public class VirtualController {
         buttonDelete.setText("DELETE");
         buttonDelete.setTextColor(0xFF505050);
         buttonDelete.setVisibility(View.INVISIBLE);
+
+
         buttonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                for (VirtualControllerElement virtualControllerElement : virtualControllerElementSet){
+
+                    System.out.println("wangguan delete:" + virtualControllerElement.elementId + LayoutEditHelper.deleteButton(context,virtualControllerElement.elementId));
+                }
+                virtualControllerElementSet.clear();
+                removeElements();
+                VirtualControllerConfigurationLoader.createButtonLayout(virtualController,context);
                 toast = Toast.makeText(context, "wangguan shangchu", Toast.LENGTH_SHORT);
                 toast.show();
             }
@@ -160,23 +138,17 @@ public class VirtualController {
                 String message;
 
                 if (currentMode == ControllerMode.Active){
-                    currentMode = ControllerMode.SelectLayout;
-                    message = "Setting (Select layout)";
-                } else if (currentMode == ControllerMode.SelectLayout) {
-                    currentMode = ControllerMode.AddButton;
-                    message = "Setting (Add buttons)";
-                } else if (currentMode == ControllerMode.AddButton) {
+                    currentMode = ControllerMode.EditLayout;
+                    message = "Setting (Edit layout)";
+                } else if (currentMode == ControllerMode.EditLayout) {
                     currentMode = ControllerMode.MoveButtons;
                     message = "Setting (Move buttons)";
                 } else if (currentMode == ControllerMode.MoveButtons) {
                     currentMode = ControllerMode.ResizeButtons;
                     message = "Setting (Resize buttons)";
-                } else if (currentMode == ControllerMode.ResizeButtons) {
-                    currentMode = ControllerMode.DeleteButton;
-                    message = "Setting (Delete buttons)";
                 } else {
                     currentMode = ControllerMode.Active;
-                    VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context, LayoutSelectHelper.getCurrentLayoutName(context));
+                    VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context);
                     message = "Exiting Setting";
                 }
 
@@ -193,26 +165,17 @@ public class VirtualController {
                     element.invalidate();
                 }
 
-                if (currentMode == ControllerMode.SelectLayout){
+                if (currentMode == ControllerMode.EditLayout){
                     VCLSelector.setVisibility(View.VISIBLE);
-                } else {
-                    VCLSelector.setVisibility(View.INVISIBLE);
-                }
-
-                if (currentMode == ControllerMode.AddButton){
                     typeSelector.setVisibility(View.VISIBLE);
                     buttonAdd.setVisibility(View.VISIBLE);
-                } else {
-                    typeSelector.setVisibility(View.INVISIBLE);
-                    buttonAdd.setVisibility(View.INVISIBLE);
-                }
-
-                if (currentMode == ControllerMode.DeleteButton){
                     buttonDelete.setVisibility(View.VISIBLE);
                 } else {
+                    VCLSelector.setVisibility(View.INVISIBLE);
+                    typeSelector.setVisibility(View.INVISIBLE);
+                    buttonAdd.setVisibility(View.INVISIBLE);
                     buttonDelete.setVisibility(View.INVISIBLE);
                 }
-
 
             }
         });
@@ -313,14 +276,79 @@ public class VirtualController {
 
         VirtualControllerConfigurationLoader.createButtonLayout(this,context);
         VCLSelector.refreshLayout();
+        displayEditSpinner();
+
+
+    }
+
+    private void displayEditSpinner(){
+        if (PreferenceConfiguration.readPreferences(context).onscreenController){
+            controllerEditSpinner();
+        } else if (PreferenceConfiguration.readPreferences(context).onscreenKeyboard){
+            keyboardEditSpinner();
+        }
+    }
+
+    private void controllerEditSpinner(){
+
+    }
+
+    private void keyboardEditSpinner(){
+        DisplayMetrics screen = context.getResources().getDisplayMetrics();
+        buttonUpSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.025f),(int)(screen.heightPixels*0.25f));
+        buttonDownSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.275f),(int)(screen.heightPixels*0.25f));
+        buttonLeftSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.525f),(int)(screen.heightPixels*0.25f));
+        buttonRightSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.775f),(int)(screen.heightPixels*0.25f));
+        buttonSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.65f),(int)(screen.heightPixels*0.1f));
+        typeSelector = new VirtualControllerKeyTypeSelector(context,frame_layout,buttonSelector,buttonUpSelector,buttonDownSelector,buttonLeftSelector,buttonRightSelector);
+        buttonAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (PreferenceConfiguration.readPreferences(context).onscreenController){
+                    return;
+                }
+
+                Set<String> allButtonName = LayoutEditHelper.getAllButton(context).keySet();
+                String buttonNamePre = "";
+                switch ((String) typeSelector.getSelectedItem()) {
+                    case "BUTTON" : {
+                        buttonNamePre = (String) buttonSelector.getSelectedItem() + "-";
+                        break;
+                    }
+                    case "PAD" : {
+
+                        buttonNamePre = "PAD-" + (String) buttonUpSelector.getSelectedItem() + "-" + (String) buttonDownSelector.getSelectedItem() + "-" + (String) buttonLeftSelector.getSelectedItem() + "-" + (String) buttonRightSelector.getSelectedItem() + "-";
+                        break;
+                    }
+                    case "STICK" : {
+                        buttonNamePre = "STICK-" + (String) buttonUpSelector.getSelectedItem() + "-" + (String) buttonDownSelector.getSelectedItem() + "-" + (String) buttonLeftSelector.getSelectedItem() + "-" + (String) buttonRightSelector.getSelectedItem() + "-" + (String) buttonSelector.getSelectedItem() + "-";
+                        break;
+                    }
+
+                }
+                for (int i = 0;i < 100;i ++){
+                    String buttonName = buttonNamePre + i;
+                    if (!allButtonName.contains(buttonName)){
+                        LayoutEditHelper.addButton(context,buttonName);
+                        System.out.println("wangguan " + buttonName);
+                        break;
+                    }
+                }
+                virtualController.removeElements();
+                VirtualControllerConfigurationLoader.createButtonLayout(virtualController,context);
+                for (VirtualControllerElement element : virtualController.getElements()) {
+                    element.invalidate();  //生成view
+                }
+            }
+        });
+
         typeSelector.refreshLayout();
         buttonSelector.refreshLayout();
         buttonRightSelector.refreshLayout();
         buttonLeftSelector.refreshLayout();
         buttonDownSelector.refreshLayout();
         buttonUpSelector.refreshLayout();
-
-
     }
 
     public ControllerMode getControllerMode() {

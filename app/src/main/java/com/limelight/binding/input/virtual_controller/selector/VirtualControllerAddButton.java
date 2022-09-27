@@ -33,18 +33,6 @@ public class VirtualControllerAddButton extends Spinner {
         this.topMargin = topMargin;
         this.setAdapter(new AdapterSelector(context,keyList));
         this.setVisibility(View.INVISIBLE);
-
-        this.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
     }
 
 

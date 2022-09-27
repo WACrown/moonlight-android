@@ -1475,7 +1475,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 if (virtualController != null &&
                         (virtualController.getControllerMode() == VirtualController.ControllerMode.MoveButtons ||
                          virtualController.getControllerMode() == VirtualController.ControllerMode.ResizeButtons ||
-                         virtualController.getControllerMode() == VirtualController.ControllerMode.SelectLayout)) {
+                         virtualController.getControllerMode() == VirtualController.ControllerMode.EditLayout)) {
                     // Ignore presses when the virtual controller is being configured
                     return true;
                 }

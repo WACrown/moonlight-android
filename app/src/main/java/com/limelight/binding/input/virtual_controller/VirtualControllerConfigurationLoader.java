@@ -12,6 +12,7 @@ import android.view.KeyEvent;
 
 import com.limelight.nvstream.input.ControllerPacket;
 import com.limelight.preferences.PreferenceConfiguration;
+import com.limelight.utils.controller.LayoutEditHelper;
 import com.limelight.utils.controller.LayoutSelectHelper;
 import com.limelight.utils.controller.LayoutKeyboardEdit;
 
@@ -279,10 +280,10 @@ public class VirtualControllerConfigurationLoader {
         PreferenceConfiguration config = PreferenceConfiguration.readPreferences(context);
         if (config.onscreenKeyboard){
             createDefaultKeyboardButton(controller,context);
-            loadFromPreferences(controller,context,LayoutSelectHelper.getCurrentLayoutName(context));
+            loadFromPreferences(controller,context);
         } else if (config.onscreenController){
             createDefaultControllerLayout(controller,context);
-            loadFromPreferences(controller,context,LayoutSelectHelper.getCurrentLayoutName(context));
+            loadFromPreferences(controller,context);
         }
     }
 
@@ -438,9 +439,8 @@ public class VirtualControllerConfigurationLoader {
 
     public static void createDefaultKeyboardButton(final VirtualController controller, final Context context){
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
-        LayoutKeyboardEdit layoutKeyboardEdit = new LayoutKeyboardEdit(context, LayoutSelectHelper.getCurrentLayoutName(context));
         int height = screen.heightPixels;
-        Map<String,String> allButton = layoutKeyboardEdit.get();
+        Map<String,String> allButton = LayoutEditHelper.getAllButton(context);
         for (String key : allButton.keySet()){
             String[] keycodeAndName = key.split("-");
 
@@ -480,15 +480,14 @@ public class VirtualControllerConfigurationLoader {
 
 
     public static void saveProfile(final VirtualController controller,
-                                   final Context context,
-                                   final String layout ) {
-        SharedPreferences.Editor prefEditor = context.getSharedPreferences(layout, Activity.MODE_PRIVATE).edit();
+                                   final Context context) {
+
 
         for (VirtualControllerElement element : controller.getElements()) {
             String prefKey = ""+element.elementId;
 
             try {
-                prefEditor.putString(prefKey, element.getConfiguration().toString());
+                LayoutEditHelper.updateButton(context,prefKey,element.getConfiguration().toString());
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -496,24 +495,20 @@ public class VirtualControllerConfigurationLoader {
             }
         }
 
-        prefEditor.apply();
     }
 
-    public static void loadFromPreferences(final VirtualController controller, final Context context, final String layout) {
-        SharedPreferences pref = context.getSharedPreferences(layout, Activity.MODE_PRIVATE);
+    public static void loadFromPreferences(final VirtualController controller, final Context context) {
 
         for (VirtualControllerElement element : controller.getElements()) {
             String prefKey = ""+element.elementId;
 
-            String jsonConfig = pref.getString(prefKey, null);
+            String jsonConfig = LayoutEditHelper.getSingleButtonValue(context,prefKey);
             if (jsonConfig != null) {
                 try {
                     element.loadConfiguration(new JSONObject(jsonConfig));
                 } catch (JSONException e) {
                     e.printStackTrace();
 
-                    // Remove the corrupt element from the preferences
-                    pref.edit().remove(prefKey).apply();
                 }
             }
         }
