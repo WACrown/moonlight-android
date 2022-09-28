@@ -107,7 +107,7 @@ public abstract class VirtualControllerElement extends View {
             virtualController.virtualControllerElementSet.remove(this);
         }
 
-        System.out.println("wangguan deleteElement" + elementId);
+        //System.out.println("wangguan deleteElement" + elementId);
 
     }
 

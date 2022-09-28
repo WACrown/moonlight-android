@@ -31,21 +31,9 @@ import com.limelight.LimeLog;
 import com.limelight.PcView;
 import com.limelight.R;
 import com.limelight.binding.video.MediaCodecHelper;
-import com.limelight.preferences.controller.AddKeyboardButtonPreference;
-import com.limelight.preferences.controller.AddLayoutPreference;
-import com.limelight.preferences.controller.ConfirmDeleteLayoutPreference;
-import com.limelight.preferences.controller.ConfirmResetLayoutPreference;
-import com.limelight.preferences.controller.DeleteKeyboardButtonPreference;
-import com.limelight.preferences.controller.RenameLayoutPreference;
-import com.limelight.preferences.controller.SelectLayoutPreference;
 import com.limelight.utils.Dialog;
-import com.limelight.utils.controller.LayoutAdmin;
-import com.limelight.utils.controller.LayoutControllerAdmin;
-import com.limelight.utils.controller.LayoutControllerEdit;
-import com.limelight.utils.controller.LayoutEdit;
-import com.limelight.utils.controller.LayoutKeyboardAdmin;
-import com.limelight.utils.controller.LayoutKeyboardEdit;
 import com.limelight.utils.UiHelper;
+import com.limelight.utils.controller.LayoutAdminHelper;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -115,22 +103,6 @@ public class StreamSettings extends Activity {
 
     public static class SettingsFragment extends PreferenceFragment {
         private int nativeResolutionStartIndex = Integer.MAX_VALUE;
-
-        public static LayoutAdmin getLayoutAdmin(Context context){
-            if (PreferenceConfiguration.readPreferences(context).onscreenKeyboard){
-                return new LayoutKeyboardAdmin(context);
-            } else {
-                return new LayoutControllerAdmin(context);
-            }
-        }
-
-        public static LayoutEdit getLayoutEdit(Context context, String buttonTable){
-            if (PreferenceConfiguration.readPreferences(context).onscreenKeyboard){
-                return new LayoutKeyboardEdit(context, buttonTable);
-            } else {
-                return new LayoutControllerEdit(context, buttonTable);
-            }
-        }
 
 
         private void setValue(String preferenceKey, String value) {
@@ -242,7 +214,6 @@ public class StreamSettings extends Activity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-
             addPreferencesFromResource(R.xml.preferences);
             PreferenceScreen screen = getPreferenceScreen();
             // hide on-screen controls category on non touch screen devices
@@ -642,118 +613,6 @@ public class StreamSettings extends Activity {
                     return true;
                 }
             });
-
-
-            CheckBoxPreference onscreenControllerPreference = (CheckBoxPreference) findPreference(PreferenceConfiguration.ONSCREEN_CONTROLLER_PREF_STRING);
-            CheckBoxPreference onscreenKeyboardPreference = (CheckBoxPreference) findPreference(PreferenceConfiguration.ONSCREEN_KEYBOARD_PREF_STRING);
-            SelectLayoutPreference selectLayout = (SelectLayoutPreference) findPreference("list_select_controls_layout");
-            AddLayoutPreference addLayout = (AddLayoutPreference) findPreference("edit_add_controls_layout");
-            RenameLayoutPreference renameLayout = (RenameLayoutPreference) findPreference("edit_rename_controls_layout");
-            ConfirmResetLayoutPreference resetLayout = (ConfirmResetLayoutPreference) findPreference("dialog_reset_controls_layout");
-            ConfirmDeleteLayoutPreference deleteLayout = (ConfirmDeleteLayoutPreference) findPreference("dialog_delete_controls_layout");
-            SeekBarPreference opacityPreference =  (SeekBarPreference) findPreference("seekbar_layout_opacity");
-            AddKeyboardButtonPreference addKeyboardButtonPreference = (AddKeyboardButtonPreference) findPreference("edit_add_keyboard_button");
-            DeleteKeyboardButtonPreference deleteKeyboardButtonPreference = (DeleteKeyboardButtonPreference) findPreference("edit_delete_keyboard_button");
-
-            onscreenControllerPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object o) {
-                    new LayoutControllerAdmin(getContext());
-                    if ((boolean)o){
-                        onscreenKeyboardPreference.setChecked(false);
-                        onscreenControllerPreference.setChecked(true);
-                    } else {
-                        onscreenControllerPreference.setChecked(false);
-                    }
-                    if (PreferenceConfiguration.readPreferences(getContext()).onscreenController || PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard){
-                        selectLayout.setEnabled(true);
-                        addLayout.setEnabled(true);
-                        renameLayout.setEnabled(true);
-                        resetLayout.setEnabled(true);
-                        deleteLayout.setEnabled(true);
-                        opacityPreference.setEnabled(true);
-                    } else {
-                        selectLayout.setEnabled(false);
-                        addLayout.setEnabled(false);
-                        renameLayout.setEnabled(false);
-                        resetLayout.setEnabled(false);
-                        deleteLayout.setEnabled(false);
-                        opacityPreference.setEnabled(false);
-                    }
-
-                    if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard){
-                        addKeyboardButtonPreference.setEnabled(true);
-                        deleteKeyboardButtonPreference.setEnabled(true);
-                    } else {
-                        addKeyboardButtonPreference.setEnabled(false);
-                        deleteKeyboardButtonPreference.setEnabled(false);
-                    }
-
-
-                    return true;
-                }
-            });
-
-            onscreenKeyboardPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object o) {
-                    new LayoutKeyboardAdmin(getContext());
-                    if ((boolean)o){
-                        onscreenControllerPreference.setChecked(false);
-                        onscreenKeyboardPreference.setChecked(true);
-                    } else {
-                        onscreenKeyboardPreference.setChecked(false);
-                    }
-                    if (PreferenceConfiguration.readPreferences(getContext()).onscreenController || PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard){
-                        selectLayout.setEnabled(true);
-                        addLayout.setEnabled(true);
-                        renameLayout.setEnabled(true);
-                        resetLayout.setEnabled(true);
-                        deleteLayout.setEnabled(true);
-                        opacityPreference.setEnabled(true);
-                    } else {
-                        selectLayout.setEnabled(false);
-                        addLayout.setEnabled(false);
-                        renameLayout.setEnabled(false);
-                        resetLayout.setEnabled(false);
-                        deleteLayout.setEnabled(false);
-                        opacityPreference.setEnabled(false);
-                    }
-
-                    if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard){
-                        addKeyboardButtonPreference.setEnabled(true);
-                        deleteKeyboardButtonPreference.setEnabled(true);
-                    } else {
-                        addKeyboardButtonPreference.setEnabled(false);
-                        deleteKeyboardButtonPreference.setEnabled(false);
-                    }
-
-                    return true;
-                }
-            });
-            if (PreferenceConfiguration.readPreferences(getContext()).onscreenController || PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard){
-                selectLayout.setEnabled(true);
-                addLayout.setEnabled(true);
-                renameLayout.setEnabled(true);
-                resetLayout.setEnabled(true);
-                deleteLayout.setEnabled(true);
-                opacityPreference.setEnabled(true);
-            } else {
-                selectLayout.setEnabled(false);
-                addLayout.setEnabled(false);
-                renameLayout.setEnabled(false);
-                resetLayout.setEnabled(false);
-                deleteLayout.setEnabled(false);
-                opacityPreference.setEnabled(false);
-            }
-
-            if (PreferenceConfiguration.readPreferences(getContext()).onscreenKeyboard){
-                addKeyboardButtonPreference.setEnabled(true);
-                deleteKeyboardButtonPreference.setEnabled(true);
-            } else {
-                addKeyboardButtonPreference.setEnabled(false);
-                deleteKeyboardButtonPreference.setEnabled(false);
-            }
 
         }
     }

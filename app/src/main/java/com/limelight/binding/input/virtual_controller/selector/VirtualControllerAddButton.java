@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import com.limelight.ui.AdapterSelector;
 
@@ -23,7 +24,13 @@ public class VirtualControllerAddButton extends Spinner {
     private final FrameLayout frame_layout;
     private final int leftMargin;
     private final int topMargin;
-    private final List<String> keyList = Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M");
+    private final List<String> keyList = Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+            "CTRLL" , "SHIFTL", "CTRLR" , "SHIFTR", "ALTL"  , "ALTR"  , "ENTER" , "BACK"  , "SPACE" , "TAB"   , "CAPS"  , "WIN", "DEL", "INS", "HOME", "END", "PGUP", "PGDN", "BREAK", "SLCK", "PRINT", "UP", "DOWN", "LEFT", "RIGHT",
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12",
+            "~", "_", "=", "[", "]", "\\", ";", "\"", "<", ">", "/",
+            "NUM1", "NUM2", "NUM3", "NUM4", "NUM5", "NUM6", "NUM7", "NUM8", "NUM9", "NUM0", "NUM.", "NUM+", "NUM_", "NUM*", "NUM/", "NUMENT", "NUMLCK");
+
+    private final List<String> GPList = Arrays.asList("GA", "GB", "GX", "GY", "PAD", "LS", "RS", "LB", "RB", "LSB", "RSB", "START","BACK","LT","RT");
 
     public VirtualControllerAddButton(Context context, FrameLayout layout, int leftMargin, int topMargin) {
         super(context);
@@ -45,6 +52,16 @@ public class VirtualControllerAddButton extends Spinner {
         params.topMargin = topMargin;
         frame_layout.addView(this, params);
     }
+
+    public List<String> getKeyList() {
+        return keyList;
+    }
+
+    public List<String> getGPList() {
+        return GPList;
+    }
+
+
 }
 
 

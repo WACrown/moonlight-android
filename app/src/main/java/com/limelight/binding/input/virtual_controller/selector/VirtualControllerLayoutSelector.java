@@ -9,12 +9,9 @@ import android.widget.Spinner;
 
 import com.limelight.binding.input.virtual_controller.VirtualController;
 import com.limelight.binding.input.virtual_controller.VirtualControllerConfigurationLoader;
-import com.limelight.binding.input.virtual_controller.VirtualControllerElement;
 import com.limelight.ui.AdapterSelector;
-import com.limelight.utils.controller.LayoutSelectHelper;
-
-import java.util.Arrays;
-import java.util.List;
+import com.limelight.utils.controller.LayoutAdminHelper;
+import com.limelight.utils.controller.LayoutEditHelper;
 
 public class VirtualControllerLayoutSelector extends Spinner{
 
@@ -28,18 +25,15 @@ public class VirtualControllerLayoutSelector extends Spinner{
         this.context = mContext;
         VirtualControllerLayoutSelector virtualControllerLayoutSelector = this;
         this.setVisibility(View.INVISIBLE);
-        this.setAdapter(new AdapterSelector(context,LayoutSelectHelper.getLayoutList(context)));
-        this.setSelection(LayoutSelectHelper.getCurrentLayoutNum(getContext()));
+        this.setAdapter(new AdapterSelector(context,LayoutAdminHelper.getLayoutList(context)));
+        this.setSelection(LayoutAdminHelper.getCurrentLayoutNum(getContext()));
         this.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 virtualController.removeElements(); //移除旧布局
-                LayoutSelectHelper.selectLayout(context,i); //选定新布局
+                LayoutAdminHelper.selectLayout(context,i); //选定新布局
                 virtualControllerLayoutSelector.setSelection(i);
-                VirtualControllerConfigurationLoader.createButtonLayout(virtualController,context);  //创建新布局
-                for (VirtualControllerElement element : virtualController.getElements()) {
-                    element.invalidate();  //生成view
-                }
+                VirtualControllerConfigurationLoader.createButtons(virtualController,context, LayoutEditHelper.loadAllButton(context));  //创建新布局
             }
 
             @Override

@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.limelight.utils.controller.LayoutSelectHelper;
+import com.limelight.utils.controller.LayoutAdminHelper;
 import com.limelight.utils.controller.LayoutList;
 
 public class SelectLayoutPreference extends ListPreference {
@@ -18,7 +18,7 @@ public class SelectLayoutPreference extends ListPreference {
         setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
-                LayoutSelectHelper.selectLayout(getContext(),(String) o);
+                LayoutAdminHelper.selectLayout(getContext(),(String) o);
                 return true;
             }
         });
@@ -29,7 +29,7 @@ public class SelectLayoutPreference extends ListPreference {
         setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
-                LayoutSelectHelper.selectLayout(getContext(),(String) o);
+                LayoutAdminHelper.selectLayout(getContext(),(String) o);
                 return true;
             }
         });
@@ -39,11 +39,11 @@ public class SelectLayoutPreference extends ListPreference {
     protected View onCreateDialogView() {
         ListView view = new ListView(getContext());
         view.setAdapter(adapter());
-        LayoutList layoutList = LayoutSelectHelper.getLayoutList(getContext());
+        LayoutList layoutList = LayoutAdminHelper.getLayoutList(getContext());
         CharSequence[] layoutCharSequences = layoutList.toArray(new CharSequence[layoutList.size()]);
         setEntries(layoutCharSequences);
         setEntryValues(layoutCharSequences);
-        setValue(LayoutSelectHelper.getCurrentLayoutName(getContext()));
+        setValue(LayoutAdminHelper.getCurrentLayoutName(getContext()));
         return view;
     }
 

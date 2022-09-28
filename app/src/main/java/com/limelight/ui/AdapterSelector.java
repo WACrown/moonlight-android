@@ -10,8 +10,6 @@ import android.widget.TextView;
 
 
 import com.limelight.R;
-import com.limelight.utils.controller.LayoutSelectHelper;
-import com.limelight.utils.controller.LayoutList;
 
 import java.util.List;
 

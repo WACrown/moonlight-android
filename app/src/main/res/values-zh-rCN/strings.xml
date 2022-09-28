@@ -138,37 +138,33 @@
     <string name="summary_checkbox_mouse_emulation"> 长按开始键将手柄切换为鼠标模式 </string>
     <string name="title_checkbox_mouse_nav_buttons"> 启用前进后退鼠标键 </string>
     <string name="summary_checkbox_mouse_nav_buttons"> 在一些支持不佳的设备上启用此项可能会使其右键失效 </string>
-    <string name="title_checkbox_flip_face_buttons"> 反转技能键 </string>
-    <string name="summary_checkbox_flip_face_buttons"> 为手柄和虚拟手柄调转A/B和X/Y技能键 </string>
 
     <!--选择布局-->
-    <string name="title_select_controller_layout"> 选择手柄/键盘布局 </string>
-    <string name="summary_select_controller_layout"> 选择当前的手柄/键盘布局 </string>
+    <string name="title_select_controller_layout">" 选择按键布局 "</string>
+    <string name="summary_select_controller_layout">" 选择当前的按键布局 "</string>
 
     <!--新建布局-->
-    <string name="title_add_controller_layout"> 新建手柄/键盘布局 </string>
-    <string name="summary_add_controller_layout"> 新建一个新的手柄/键盘布局 </string>
+    <string name="title_add_controller_layout">" 新建按键布局 "</string>
+    <string name="summary_add_controller_layout">" 新建一个新的按键布局 "</string>
     <string name="toast_add_controller_layout_success"> 新建布局成功 </string>
-    <string name="toast_add_controller_layout_failed_3"> 新建布局失败，名字只能包含字母和数字 </string>
-    <string name="toast_add_controller_layout_failed_2"> 新建布局失败，该名字已存在 </string>
+    <string name="toast_add_controller_layout_failed">失败，名字非法或存在</string>
     <!--重命名布局-->
-    <string name="title_rename_controller_layout"> 重命名手柄/键盘布局 </string>
-    <string name="summary_rename_controller_layout"> 重命名你当前的虚拟手柄/键盘布局 </string>
-    <string name="toast_rename_controller_layout_success"> 重命名成果 </string>
-    <string name="toast_rename_controller_layout_failed_3"> 重命名失败，名字只能包含字母和数字 </string>
-    <string name="toast_rename_controller_layout_failed_2"> 重命名失败，该名字已存在 </string>
+    <string name="title_rename_controller_layout">" 重命名按键布局 "</string>
+    <string name="summary_rename_controller_layout">" 重命名你当前的虚拟按键布局 "</string>
+    <string name="toast_rename_controller_layout_success">" 重命名成功"</string>
+    <string name="toast_rename_controller_layout_failed">失败，名字非法或存在</string>
 
     <!--重置布局-->
-    <string name="title_reset_controller_layout"> 重置手柄/键盘布局 </string>
-    <string name="summary_reset_controller_layout"> 重置当前选择的虚拟手柄/键盘布局 </string>
-    <string name="dialog_title_reset_controller_layout"> 重置手柄/键盘布局 </string>
+    <string name="title_reset_controller_layout">" 重置按键布局 "</string>
+    <string name="summary_reset_controller_layout">" 重置当前选择的虚拟按键布局 "</string>
+    <string name="dialog_title_reset_controller_layout">" 重置按键布局 "</string>
     <string name="dialog_text_reset_controller_layout"> 确定要重置布局 : </string>
     <string name="toast_reset_controller_layout_success"> 重置成功 </string>
 
     <!--删除布局-->
-    <string name="title_delete_controller_layout"> 删除手柄/键盘布局 </string>
-    <string name="summary_delete_controller_layout"> 删除当前选择的虚拟手柄/键盘布局 </string>
-    <string name="dialog_title_delete_controller_layout"> 删除手柄/键盘布局 </string>
+    <string name="title_delete_controller_layout">" 删除按键布局 "</string>
+    <string name="summary_delete_controller_layout">" 删除当前选择的虚拟按键布局 "</string>
+    <string name="dialog_title_delete_controller_layout">" 删除按键布局 "</string>
     <string name="dialog_text_delete_controller_layout"> 确定要删除布局 : </string>
     <string name="toast_delete_controller_layout_success"> 删除成功 </string>
     <string name="dialog_text_delete_controller_layout_failed"> 删除失败，你需要至少一个布局 </string>
@@ -184,8 +180,6 @@
     <string name="summary_checkbox_show_onscreen_controls"> 在触摸屏上显示一层虚拟手柄 </string>
     <string name="title_checkbox_vibrate_osc"> 启用震动 </string>
     <string name="summary_checkbox_vibrate_osc"> 使用屏幕控制按钮时震动设备以模拟游戏震动效果 </string>
-    <string name="title_only_l3r3"> 只显示L3和R3 </string>
-    <string name="summary_only_l3r3"> 隐藏除L3和R3外的所有虚拟按钮 </string>
 
     <string name="category_ui_settings"> 界面设置 </string>
     <string name="title_language_list"> 语言 </string>

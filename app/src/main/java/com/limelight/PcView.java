@@ -27,6 +27,7 @@ import com.limelight.utils.HelpLauncher;
 import com.limelight.utils.ServerHelper;
 import com.limelight.utils.ShortcutHelper;
 import com.limelight.utils.UiHelper;
+import com.limelight.utils.controller.LayoutAdminHelper;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -120,6 +121,7 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
     private final static int TEST_NETWORK_ID = 10;
 
     private void initializeViews() {
+        LayoutAdminHelper.initHelp(this);  //wangguan
         setContentView(R.layout.activity_pc_view);
 
         UiHelper.notifyNewRootView(this);

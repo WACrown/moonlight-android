@@ -4,43 +4,23 @@ import android.content.Context;
 
 import com.limelight.preferences.StreamSettings;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class LayoutEditHelper {
 
-    public static int init(Context context){
-        LayoutEdit layoutEdit = StreamSettings.SettingsFragment.getLayoutEdit(context,LayoutSelectHelper.getCurrentLayoutName(context));
-        return layoutEdit.init();
+    public static void init(Context context, String layoutName){
+        Map<String, String> allButton = new HashMap<>();
+        allButton.put("GP-LS-0","{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
+        SharedPreferencesHelper.store(context,layoutName,allButton);
     }
 
-    public static int addButton(Context context, String name){
-        LayoutEdit layoutEdit = StreamSettings.SettingsFragment.getLayoutEdit(context,LayoutSelectHelper.getCurrentLayoutName(context));
-        return layoutEdit.add(name);
+    public static int storeAllButton(Context context,Map<String, String> allButton){
+        return SharedPreferencesHelper.store(context,LayoutAdminHelper.getCurrentLayoutName(context),allButton);
     }
 
-    public static int updateButton(Context context, String key, String newValue){
-        LayoutEdit layoutEdit = StreamSettings.SettingsFragment.getLayoutEdit(context,LayoutSelectHelper.getCurrentLayoutName(context));
-        return layoutEdit.update(key, newValue);
-    }
-
-    public static int deleteButton(Context context, String deleteName){
-        LayoutEdit layoutEdit = StreamSettings.SettingsFragment.getLayoutEdit(context,LayoutSelectHelper.getCurrentLayoutName(context));
-        return layoutEdit.delete(deleteName);
-    }
-
-    public static int resetAllButton(Context context){
-        LayoutEdit layoutEdit = StreamSettings.SettingsFragment.getLayoutEdit(context,LayoutSelectHelper.getCurrentLayoutName(context));
-        return layoutEdit.init();
-    }
-
-    public static Map<String, String> getAllButton(Context context){
-        LayoutEdit layoutEdit = StreamSettings.SettingsFragment.getLayoutEdit(context,LayoutSelectHelper.getCurrentLayoutName(context));
-        return layoutEdit.get();
-    }
-
-    public static String getSingleButtonValue(Context context, String key){
-        LayoutEdit layoutEdit = StreamSettings.SettingsFragment.getLayoutEdit(context,LayoutSelectHelper.getCurrentLayoutName(context));
-        return layoutEdit.get(key);
+    public static Map<String, String> loadAllButton(Context context){
+        return SharedPreferencesHelper.load(context,LayoutAdminHelper.getCurrentLayoutName(context));
     }
 
 }

@@ -8,6 +8,7 @@ import android.preference.EditTextPreference;
 import android.util.AttributeSet;
 import android.widget.Toast;
 
+import com.limelight.R;
 import com.limelight.utils.controller.LayoutAdminHelper;
 
 public class AddLayoutPreference extends EditTextPreference {
@@ -37,9 +38,9 @@ public class AddLayoutPreference extends EditTextPreference {
         if (which == DialogInterface.BUTTON_POSITIVE) {
 
             if (LayoutAdminHelper.addLayout(getContext(),getEditText().getText().toString()) == 0){
-                Toast.makeText(getContext(), "myString 新建布局成功", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_add_controller_layout_success), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getContext(), "myString 新建布局失败，名字非法或布局已存在", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_add_controller_layout_failed), Toast.LENGTH_SHORT).show();
             }
 
         }

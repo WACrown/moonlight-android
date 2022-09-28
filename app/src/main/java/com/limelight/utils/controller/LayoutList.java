@@ -6,7 +6,7 @@ import java.util.Collections;
 public class LayoutList extends ArrayList<String> {
 
 
-    public int addStringToList(String listString){
+    public int StringToList(String listString){
         if (listString == null){
             return 1;
         } else {

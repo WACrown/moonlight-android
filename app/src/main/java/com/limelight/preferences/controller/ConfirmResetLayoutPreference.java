@@ -10,8 +10,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.limelight.R;
+import com.limelight.utils.controller.LayoutAdminHelper;
 import com.limelight.utils.controller.LayoutEditHelper;
-import com.limelight.utils.controller.LayoutSelectHelper;
 
 public class ConfirmResetLayoutPreference extends DialogPreference {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -35,7 +35,7 @@ public class ConfirmResetLayoutPreference extends DialogPreference {
 
     @Override
     protected View onCreateDialogView() {
-        String currentLayoutName = LayoutSelectHelper.getCurrentLayoutName(getContext());
+        String currentLayoutName = LayoutAdminHelper.getCurrentLayoutName(getContext());
         this.setDialogTitle(getContext().getResources().getString(R.string.dialog_title_reset_controller_layout));
         this.setDialogMessage(getContext().getResources().getString(R.string.dialog_text_reset_controller_layout) + currentLayoutName);
         return super.onCreateDialogView();
@@ -44,7 +44,7 @@ public class ConfirmResetLayoutPreference extends DialogPreference {
     public void onClick(DialogInterface dialog, int which) {
 
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            LayoutEditHelper.resetAllButton(getContext());
+            LayoutEditHelper.init(getContext(),LayoutAdminHelper.getCurrentLayoutName(getContext()));
             Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_reset_controller_layout_success), Toast.LENGTH_SHORT).show();
         }
 

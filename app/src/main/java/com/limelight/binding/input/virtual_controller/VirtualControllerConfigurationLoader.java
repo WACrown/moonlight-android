@@ -4,21 +4,17 @@
 
 package com.limelight.binding.input.virtual_controller;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 
 import com.limelight.nvstream.input.ControllerPacket;
-import com.limelight.preferences.PreferenceConfiguration;
 import com.limelight.utils.controller.LayoutEditHelper;
-import com.limelight.utils.controller.LayoutSelectHelper;
-import com.limelight.utils.controller.LayoutKeyboardEdit;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class VirtualControllerConfigurationLoader {
@@ -123,24 +119,26 @@ public class VirtualControllerConfigurationLoader {
     }
 
     private static DigitalButton createLeftTrigger(
+            final String elementId,
             final int layer,
             final String text,
             final int icon,
             final VirtualController controller,
             final Context context) {
-        LeftTrigger button = new LeftTrigger(controller, layer, context);
+        LeftTrigger button = new LeftTrigger(controller, layer, context, elementId);
         button.setText(text);
         button.setIcon(icon);
         return button;
     }
 
     private static DigitalButton createRightTrigger(
+            final String elementId,
             final int layer,
             final String text,
             final int icon,
             final VirtualController controller,
             final Context context) {
-        RightTrigger button = new RightTrigger(controller, layer, context);
+        RightTrigger button = new RightTrigger(controller, layer, context, elementId);
         button.setText(text);
         button.setIcon(icon);
         return button;
@@ -276,242 +274,250 @@ public class VirtualControllerConfigurationLoader {
     private static final int START_BACK_WIDTH = 12;
     private static final int START_BACK_HEIGHT = 7;
 
-    public static void createButtonLayout(final VirtualController controller, final Context context){
-        PreferenceConfiguration config = PreferenceConfiguration.readPreferences(context);
-        if (config.onscreenKeyboard){
-            createDefaultKeyboardButton(controller,context);
-            loadFromPreferences(controller,context);
-        } else if (config.onscreenController){
-            createDefaultControllerLayout(controller,context);
-            loadFromPreferences(controller,context);
-        }
-    }
 
-    public static void createDefaultControllerLayout(final VirtualController controller, final Context context) {
-
+    public static void createButtons(final VirtualController controller, final Context context,Map<String, String> keyInfoMap){
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
-        PreferenceConfiguration config = PreferenceConfiguration.readPreferences(context);
 
         // Displace controls on the right by this amount of pixels to account for different aspect ratios
         int rightDisplacement = screen.widthPixels - screen.heightPixels * 16 / 9;
 
-        int height = screen.heightPixels;
-
         // NOTE: Some of these getPercent() expressions seem like they can be combined
         // into a single call. Due to floating point rounding, this isn't actually possible.
 
-        if (!config.onlyL3R3)
-        {
-            controller.addElement(createDigitalPad(controller, VirtualControllerElement.EID_DPAD, context),
-                    screenScale(DPAD_BASE_X, height),
-                    screenScale(DPAD_BASE_Y, height),
-                    screenScale(DPAD_SIZE, height),
-                    screenScale(DPAD_SIZE, height)
-            );
+        for (String keyName : keyInfoMap.keySet()){
+            String[] keyTypeAndCodeAndName = keyName.split("-");
 
-            controller.addElement(createDigitalButton(
-                    VirtualControllerElement.EID_A,
-                    !config.flipFaceButtons ? ControllerPacket.A_FLAG : ControllerPacket.B_FLAG, 0, 1,
-                    !config.flipFaceButtons ? "A" : "B", -1, controller, context),
-                    screenScale(BUTTON_BASE_X, height) + rightDisplacement,
-                    screenScale(BUTTON_BASE_Y + 2 * BUTTON_SIZE, height),
-                    screenScale(BUTTON_SIZE, height),
-                    screenScale(BUTTON_SIZE, height)
-            );
+            int leftMargin = 0;
+            int topMargin = 0;
+            int width = 0;
+            int height = 0;
+            try {
+                JSONObject buttonInfo = new JSONObject((String) keyInfoMap.get(keyName));
+                leftMargin = buttonInfo.getInt("LEFT");
+                topMargin = buttonInfo.getInt("TOP");
+                width = buttonInfo.getInt("WIDTH");
+                height = buttonInfo.getInt("HEIGHT");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
-            controller.addElement(createDigitalButton(
-                    VirtualControllerElement.EID_B,
-                    config.flipFaceButtons ? ControllerPacket.A_FLAG : ControllerPacket.B_FLAG, 0, 1,
-                    config.flipFaceButtons ? "A" : "B", -1, controller, context),
-                    screenScale(BUTTON_BASE_X + BUTTON_SIZE, height) + rightDisplacement,
-                    screenScale(BUTTON_BASE_Y + BUTTON_SIZE, height),
-                    screenScale(BUTTON_SIZE, height),
-                    screenScale(BUTTON_SIZE, height)
-            );
+            if (keyTypeAndCodeAndName[0].equals("BUTTON")){
 
-            controller.addElement(createDigitalButton(
-                    VirtualControllerElement.EID_X,
-                    !config.flipFaceButtons ? ControllerPacket.X_FLAG : ControllerPacket.Y_FLAG, 0, 1,
-                    !config.flipFaceButtons ? "X" : "Y", -1, controller, context),
-                    screenScale(BUTTON_BASE_X - BUTTON_SIZE, height) + rightDisplacement,
-                    screenScale(BUTTON_BASE_Y + BUTTON_SIZE, height),
-                    screenScale(BUTTON_SIZE, height),
-                    screenScale(BUTTON_SIZE, height)
-            );
-
-            controller.addElement(createDigitalButton(
-                    VirtualControllerElement.EID_Y,
-                    config.flipFaceButtons ? ControllerPacket.X_FLAG : ControllerPacket.Y_FLAG, 0, 1,
-                    config.flipFaceButtons ? "X" : "Y", -1, controller, context),
-                    screenScale(BUTTON_BASE_X, height) + rightDisplacement,
-                    screenScale(BUTTON_BASE_Y, height),
-                    screenScale(BUTTON_SIZE, height),
-                    screenScale(BUTTON_SIZE, height)
-            );
-
-            controller.addElement(createLeftTrigger(
-                    1,"LT", -1, controller, context),
-                    screenScale(TRIGGER_L_BASE_X, height),
-                    screenScale(TRIGGER_BASE_Y, height),
-                    screenScale(TRIGGER_WIDTH, height),
-                    screenScale(TRIGGER_HEIGHT, height)
-            );
-
-            controller.addElement(createRightTrigger(
-                    1, "RT", -1, controller, context),
-                    screenScale(TRIGGER_R_BASE_X + TRIGGER_DISTANCE, height) + rightDisplacement,
-                    screenScale(TRIGGER_BASE_Y, height),
-                    screenScale(TRIGGER_WIDTH, height),
-                    screenScale(TRIGGER_HEIGHT, height)
-            );
-
-            controller.addElement(createDigitalButton(
-                    VirtualControllerElement.EID_LB,
-                    ControllerPacket.LB_FLAG, 0, 1, "LB", -1, controller, context),
-                    screenScale(TRIGGER_L_BASE_X + TRIGGER_DISTANCE, height),
-                    screenScale(TRIGGER_BASE_Y, height),
-                    screenScale(TRIGGER_WIDTH, height),
-                    screenScale(TRIGGER_HEIGHT, height)
-            );
-
-            controller.addElement(createDigitalButton(
-                    VirtualControllerElement.EID_RB,
-                    ControllerPacket.RB_FLAG, 0, 1, "RB", -1, controller, context),
-                    screenScale(TRIGGER_R_BASE_X, height) + rightDisplacement,
-                    screenScale(TRIGGER_BASE_Y, height),
-                    screenScale(TRIGGER_WIDTH, height),
-                    screenScale(TRIGGER_HEIGHT, height)
-            );
-
-            controller.addElement(createLeftStick(controller, VirtualControllerElement.EID_LS, context),
-                    screenScale(ANALOG_L_BASE_X, height),
-                    screenScale(ANALOG_L_BASE_Y, height),
-                    screenScale(ANALOG_SIZE, height),
-                    screenScale(ANALOG_SIZE, height)
-            );
-
-            controller.addElement(createRightStick(controller, VirtualControllerElement.EID_RS,context),
-                    screenScale(ANALOG_R_BASE_X, height) + rightDisplacement,
-                    screenScale(ANALOG_R_BASE_Y, height),
-                    screenScale(ANALOG_SIZE, height),
-                    screenScale(ANALOG_SIZE, height)
-            );
-
-            controller.addElement(createDigitalButton(
-                    VirtualControllerElement.EID_BACK,
-                    ControllerPacket.BACK_FLAG, 0, 2, "BACK", -1, controller, context),
-                    screenScale(BACK_X, height),
-                    screenScale(START_BACK_Y, height),
-                    screenScale(START_BACK_WIDTH, height),
-                    screenScale(START_BACK_HEIGHT, height)
-            );
-
-            controller.addElement(createDigitalButton(
-                    VirtualControllerElement.EID_START,
-                    ControllerPacket.PLAY_FLAG, 0, 3, "START", -1, controller, context),
-                    screenScale(START_X, height) + rightDisplacement,
-                    screenScale(START_BACK_Y, height),
-                    screenScale(START_BACK_WIDTH, height),
-                    screenScale(START_BACK_HEIGHT, height)
-            );
-        }
-        else {
-            controller.addElement(createDigitalButton(
-                    VirtualControllerElement.EID_LSB,
-                    ControllerPacket.LS_CLK_FLAG, 0, 1, "L3", -1, controller, context),
-                    screenScale(TRIGGER_L_BASE_X, height),
-                    screenScale(L3_R3_BASE_Y, height),
-                    screenScale(TRIGGER_WIDTH, height),
-                    screenScale(TRIGGER_HEIGHT, height)
-            );
-
-            controller.addElement(createDigitalButton(
-                    VirtualControllerElement.EID_RSB,
-                    ControllerPacket.RS_CLK_FLAG, 0, 1, "R3", -1, controller, context),
-                    screenScale(TRIGGER_R_BASE_X + TRIGGER_DISTANCE, height) + rightDisplacement,
-                    screenScale(L3_R3_BASE_Y, height),
-                    screenScale(TRIGGER_WIDTH, height),
-                    screenScale(TRIGGER_HEIGHT, height)
-            );
-        }
-        controller.setOpacity(config.layoutOpacity);
-    }
-
-    public static void createDefaultKeyboardButton(final VirtualController controller, final Context context){
-        DisplayMetrics screen = context.getResources().getDisplayMetrics();
-        int height = screen.heightPixels;
-        Map<String,String> allButton = LayoutEditHelper.getAllButton(context);
-        for (String key : allButton.keySet()){
-            String[] keycodeAndName = key.split("-");
-
-            if (keycodeAndName.length == 2){
                 controller.addElement(
-                        createKeyboardButton(key,getKeycode(keycodeAndName[0]),getKeycode(keycodeAndName[0]),1,key,-1,controller,context),
-                        screenScale(BUTTON_BASE_X,height),
-                        screenScale(BUTTON_BASE_Y,height),
-                        screenScale(BUTTON_SIZE,height),
-                        screenScale(BUTTON_SIZE,height)
+                        createKeyboardButton(keyName,getKeycode(keyTypeAndCodeAndName[1]),getKeycode(keyTypeAndCodeAndName[1]),1,keyTypeAndCodeAndName[1],-1,controller,context),
+                        leftMargin,
+                        topMargin,
+                        width,
+                        height
                 );
-                //字符数组有 PAD UP DOWN LEFT RIGHT NAME
-            } else if (keycodeAndName.length == 6){
+
+            }else if (keyTypeAndCodeAndName[0].equals("PAD")){
+                VirtualControllerElement element =createDirectionPad(controller, keyName, context,getKeycode(keyTypeAndCodeAndName[1]),getKeycode(keyTypeAndCodeAndName[2]),getKeycode(keyTypeAndCodeAndName[3]),getKeycode(keyTypeAndCodeAndName[4]));
+
                 controller.addElement(
-                        createDirectionPad(controller, key, context,getKeycode(keycodeAndName[1]),getKeycode(keycodeAndName[2]),getKeycode(keycodeAndName[3]),getKeycode(keycodeAndName[4])),
-                        screenScale(DPAD_BASE_X, height),
-                        screenScale(DPAD_BASE_Y, height),
-                        screenScale(DPAD_SIZE, height),
-                        screenScale(DPAD_SIZE, height)
+                        element,
+                        leftMargin,
+                        topMargin,
+                        width,
+                        height
                 );
-            } else if (keycodeAndName.length == 7){
+            }else if (keyTypeAndCodeAndName[0].equals("STICK")){
                 controller.addElement(
-                        createKeyboardStick(controller, key, context,getKeycode(keycodeAndName[1]),getKeycode(keycodeAndName[2]),getKeycode(keycodeAndName[3]),getKeycode(keycodeAndName[4]),getKeycode(keycodeAndName[5])),
-                        screenScale(DPAD_BASE_X, height),
-                        screenScale(DPAD_BASE_Y, height),
-                        screenScale(DPAD_SIZE, height),
-                        screenScale(DPAD_SIZE, height)
+                        createKeyboardStick(controller, keyName, context,getKeycode(keyTypeAndCodeAndName[1]),getKeycode(keyTypeAndCodeAndName[2]),getKeycode(keyTypeAndCodeAndName[3]),getKeycode(keyTypeAndCodeAndName[4]),getKeycode(keyTypeAndCodeAndName[5])),
+                        leftMargin,
+                        topMargin,
+                        width,
+                        height
                 );
-            } else {
-                for (String name : keycodeAndName){
-                    System.out.println("WG error:" + name);
+            }else if (keyTypeAndCodeAndName[0].equals("GP")){
+                switch (keyTypeAndCodeAndName[1]){
+                    case "GX" : {
+                        controller.addElement(createDigitalButton(
+                                        keyName,
+                                        ControllerPacket.X_FLAG, 0, 1,
+                                        "GX", -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "GY" : {
+                        controller.addElement(createDigitalButton(
+                                        keyName,
+                                        ControllerPacket.Y_FLAG, 0, 1,
+                                        "GY", -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "GA" : {
+                        controller.addElement(createDigitalButton(
+                                        keyName,
+                                        ControllerPacket.A_FLAG, 0, 1,
+                                        "GA", -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "GB" : {
+                        controller.addElement(createDigitalButton(
+                                        keyName,
+                                        ControllerPacket.B_FLAG, 0, 1,
+                                        "GB", -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "PAD" : {
+                        controller.addElement(createDigitalPad(controller, keyName, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "LT" : {
+                        controller.addElement(createLeftTrigger(
+                                        keyName,
+                                        1,"LT", -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "RT" : {
+                        controller.addElement(createRightTrigger(
+                                        keyName,
+                                        1, "RT", -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "LB" : {
+                        controller.addElement(createDigitalButton(
+                                        keyName,
+                                        ControllerPacket.LB_FLAG, 0, 1, "LB", -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "RB" : {
+                        controller.addElement(createDigitalButton(
+                                        keyName,
+                                        ControllerPacket.RB_FLAG, 0, 1, "RB", -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "LS" : {
+                        controller.addElement(createLeftStick(controller, keyName, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "RS" : {
+                        controller.addElement(createRightStick(controller, keyName,context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "START" : {
+                        controller.addElement(createDigitalButton(
+                                        keyName,
+                                        ControllerPacket.PLAY_FLAG, 0, 3, "START", -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "BACK" : {
+                        controller.addElement(createDigitalButton(
+                                        keyName,
+                                        ControllerPacket.BACK_FLAG, 0, 2, "BACK", -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "LSB" : {
+                        controller.addElement(createDigitalButton(
+                                        keyName,
+                                        ControllerPacket.LS_CLK_FLAG, 0, 1, "LSB", -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "RSB" : {
+                        controller.addElement(createDigitalButton(
+                                        keyName,
+                                        ControllerPacket.RS_CLK_FLAG, 0, 1, "RSB", -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                    }
+
                 }
+            }else {
+
             }
         }
-        controller.setOpacity(PreferenceConfiguration.readPreferences(context).layoutOpacity);
+
+
     }
 
 
     public static void saveProfile(final VirtualController controller,
                                    final Context context) {
 
-
+        Map<String, String> elementConfigurationsMap = new HashMap<>();
         for (VirtualControllerElement element : controller.getElements()) {
             String prefKey = ""+element.elementId;
-
             try {
-                LayoutEditHelper.updateButton(context,prefKey,element.getConfiguration().toString());
-
+                elementConfigurationsMap.put(prefKey, element.getConfiguration().toString());
             } catch (JSONException e) {
                 e.printStackTrace();
-
             }
         }
+        LayoutEditHelper.storeAllButton(context,elementConfigurationsMap);
 
-    }
-
-    public static void loadFromPreferences(final VirtualController controller, final Context context) {
-
-        for (VirtualControllerElement element : controller.getElements()) {
-            String prefKey = ""+element.elementId;
-
-            String jsonConfig = LayoutEditHelper.getSingleButtonValue(context,prefKey);
-            if (jsonConfig != null) {
-                try {
-                    element.loadConfiguration(new JSONObject(jsonConfig));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-
-                }
-            }
-        }
     }
 
     public static int getKeycode(String key){
@@ -540,84 +546,84 @@ public class VirtualControllerConfigurationLoader {
             case "Y" :return KeyEvent.KEYCODE_Y;
             case "Z" :return KeyEvent.KEYCODE_Z;
             //
-            case "CTRLL" :return KeyEvent.KEYCODE_CTRL_LEFT;
+            case "CTRLL"  :return KeyEvent.KEYCODE_CTRL_LEFT;
             case "SHIFTL" :return KeyEvent.KEYCODE_SHIFT_LEFT;
-            case "CTRLR" :return KeyEvent.KEYCODE_CTRL_RIGHT;
+            case "CTRLR"  :return KeyEvent.KEYCODE_CTRL_RIGHT;
             case "SHIFTR" :return KeyEvent.KEYCODE_SHIFT_RIGHT;
-            case "ALTL" :return KeyEvent.KEYCODE_ALT_LEFT;
-            case "ALTR" :return KeyEvent.KEYCODE_ALT_RIGHT;
-            case "ENTER" :return KeyEvent.KEYCODE_ENTER;
-            case "BACK" :return KeyEvent.KEYCODE_DEL;
-            case "SPACE" :return KeyEvent.KEYCODE_SPACE;
-            case "TAB" :return KeyEvent.KEYCODE_TAB;
-            case "CAPS" :return KeyEvent.KEYCODE_CAPS_LOCK;
+            case "ALTL"   :return KeyEvent.KEYCODE_ALT_LEFT;
+            case "ALTR"   :return KeyEvent.KEYCODE_ALT_RIGHT;
+            case "ENTER"  :return KeyEvent.KEYCODE_ENTER;
+            case "BACK"   :return KeyEvent.KEYCODE_DEL;
+            case "SPACE"  :return KeyEvent.KEYCODE_SPACE;
+            case "TAB"    :return KeyEvent.KEYCODE_TAB;
+            case "CAPS"   :return KeyEvent.KEYCODE_CAPS_LOCK;
             //功能键
-            case "WIN" :return KeyEvent.KEYCODE_META_LEFT;
-            case "DEL" :return KeyEvent.KEYCODE_FORWARD_DEL;
-            case "INS" :return KeyEvent.KEYCODE_INSERT;
-            case "HOME" :return KeyEvent.KEYCODE_MOVE_HOME;
-            case "END" :return KeyEvent.KEYCODE_MOVE_END;
-            case "PGUP" :return KeyEvent.KEYCODE_PAGE_UP;
-            case "PGDN" :return KeyEvent.KEYCODE_PAGE_DOWN;
-            case "BREAK" :return KeyEvent.KEYCODE_BREAK;
-            case "SLCK" :return KeyEvent.KEYCODE_SCROLL_LOCK;
-            case "PRINT" :return KeyEvent.KEYCODE_SYSRQ;
-            case "UP" :return KeyEvent.KEYCODE_DPAD_UP;
-            case "DOWN" :return KeyEvent.KEYCODE_DPAD_DOWN;
-            case "LEFT" :return KeyEvent.KEYCODE_DPAD_LEFT;
-            case "RIGHT" :return KeyEvent.KEYCODE_DPAD_RIGHT;
+            case "WIN"    :return KeyEvent.KEYCODE_META_LEFT;
+            case "DEL"    :return KeyEvent.KEYCODE_FORWARD_DEL;
+            case "INS"    :return KeyEvent.KEYCODE_INSERT;
+            case "HOME"   :return KeyEvent.KEYCODE_MOVE_HOME;
+            case "END"    :return KeyEvent.KEYCODE_MOVE_END;
+            case "PGUP"   :return KeyEvent.KEYCODE_PAGE_UP;
+            case "PGDN"   :return KeyEvent.KEYCODE_PAGE_DOWN;
+            case "BREAK"  :return KeyEvent.KEYCODE_BREAK;
+            case "SLCK"   :return KeyEvent.KEYCODE_SCROLL_LOCK;
+            case "PRINT"  :return KeyEvent.KEYCODE_SYSRQ;
+            case "UP"     :return KeyEvent.KEYCODE_DPAD_UP;
+            case "DOWN"   :return KeyEvent.KEYCODE_DPAD_DOWN;
+            case "LEFT"   :return KeyEvent.KEYCODE_DPAD_LEFT;
+            case "RIGHT"  :return KeyEvent.KEYCODE_DPAD_RIGHT;
             //
-            case "1" :return KeyEvent.KEYCODE_1;
-            case "2" :return KeyEvent.KEYCODE_2;
-            case "3" :return KeyEvent.KEYCODE_3;
-            case "4" :return KeyEvent.KEYCODE_4;
-            case "5" :return KeyEvent.KEYCODE_5;
-            case "6" :return KeyEvent.KEYCODE_6;
-            case "7" :return KeyEvent.KEYCODE_7;
-            case "8" :return KeyEvent.KEYCODE_8;
-            case "9" :return KeyEvent.KEYCODE_9;
-            case "0" :return KeyEvent.KEYCODE_0;
+            case "1"   :return KeyEvent.KEYCODE_1;
+            case "2"   :return KeyEvent.KEYCODE_2;
+            case "3"   :return KeyEvent.KEYCODE_3;
+            case "4"   :return KeyEvent.KEYCODE_4;
+            case "5"   :return KeyEvent.KEYCODE_5;
+            case "6"   :return KeyEvent.KEYCODE_6;
+            case "7"   :return KeyEvent.KEYCODE_7;
+            case "8"   :return KeyEvent.KEYCODE_8;
+            case "9"   :return KeyEvent.KEYCODE_9;
+            case "0"   :return KeyEvent.KEYCODE_0;
             //
-            case "F1" :return KeyEvent.KEYCODE_F1;
-            case "F2" :return KeyEvent.KEYCODE_F2;
-            case "F3" :return KeyEvent.KEYCODE_F3;
-            case "F4" :return KeyEvent.KEYCODE_F4;
-            case "F5" :return KeyEvent.KEYCODE_F5;
-            case "F6" :return KeyEvent.KEYCODE_F6;
-            case "F7" :return KeyEvent.KEYCODE_F7;
-            case "F8" :return KeyEvent.KEYCODE_F8;
-            case "F9" :return KeyEvent.KEYCODE_F9;
+            case "F1"  :return KeyEvent.KEYCODE_F1;
+            case "F2"  :return KeyEvent.KEYCODE_F2;
+            case "F3"  :return KeyEvent.KEYCODE_F3;
+            case "F4"  :return KeyEvent.KEYCODE_F4;
+            case "F5"  :return KeyEvent.KEYCODE_F5;
+            case "F6"  :return KeyEvent.KEYCODE_F6;
+            case "F7"  :return KeyEvent.KEYCODE_F7;
+            case "F8"  :return KeyEvent.KEYCODE_F8;
+            case "F9"  :return KeyEvent.KEYCODE_F9;
             case "F10" :return KeyEvent.KEYCODE_F10;
             case "F11" :return KeyEvent.KEYCODE_F11;
             case "F12" :return KeyEvent.KEYCODE_F12;
             //
-            case "~" :return KeyEvent.KEYCODE_GRAVE;
-            case "_" :return KeyEvent.KEYCODE_MINUS;
-            case "=" :return KeyEvent.KEYCODE_EQUALS;
-            case "[" :return KeyEvent.KEYCODE_LEFT_BRACKET;
-            case "]" :return KeyEvent.KEYCODE_RIGHT_BRACKET;
-            case "\\" :return KeyEvent.KEYCODE_BACKSLASH;
-            case ";" :return KeyEvent.KEYCODE_SEMICOLON;
-            case "\"" :return KeyEvent.KEYCODE_APOSTROPHE;
-            case "<" :return KeyEvent.KEYCODE_COMMA;
-            case ">" :return KeyEvent.KEYCODE_PERIOD;
-            case "/" :return KeyEvent.KEYCODE_SLASH;
+            case "~"   :return KeyEvent.KEYCODE_GRAVE;
+            case "_"   :return KeyEvent.KEYCODE_MINUS;
+            case "="   :return KeyEvent.KEYCODE_EQUALS;
+            case "["   :return KeyEvent.KEYCODE_LEFT_BRACKET;
+            case "]"   :return KeyEvent.KEYCODE_RIGHT_BRACKET;
+            case "\\"  :return KeyEvent.KEYCODE_BACKSLASH;
+            case ";"   :return KeyEvent.KEYCODE_SEMICOLON;
+            case "\""  :return KeyEvent.KEYCODE_APOSTROPHE;
+            case "<"   :return KeyEvent.KEYCODE_COMMA;
+            case ">"   :return KeyEvent.KEYCODE_PERIOD;
+            case "/"   :return KeyEvent.KEYCODE_SLASH;
             //
-            case "NUM1" :return KeyEvent.KEYCODE_NUMPAD_1;
-            case "NUM2" :return KeyEvent.KEYCODE_NUMPAD_2;
-            case "NUM3" :return KeyEvent.KEYCODE_NUMPAD_3;
-            case "NUM4" :return KeyEvent.KEYCODE_NUMPAD_4;
-            case "NUM5" :return KeyEvent.KEYCODE_NUMPAD_5;
-            case "NUM6" :return KeyEvent.KEYCODE_NUMPAD_6;
-            case "NUM7" :return KeyEvent.KEYCODE_NUMPAD_7;
-            case "NUM8" :return KeyEvent.KEYCODE_NUMPAD_8;
-            case "NUM9" :return KeyEvent.KEYCODE_NUMPAD_9;
-            case "NUM0" :return KeyEvent.KEYCODE_NUMPAD_0;
-            case "NUM." :return KeyEvent.KEYCODE_NUMPAD_DOT;
-            case "NUM+" :return KeyEvent.KEYCODE_NUMPAD_ADD;
-            case "NUM-" :return KeyEvent.KEYCODE_NUMPAD_SUBTRACT;
-            case "NUM*" :return KeyEvent.KEYCODE_NUMPAD_MULTIPLY;
-            case "NUM/" :return KeyEvent.KEYCODE_NUMPAD_DIVIDE;
+            case "NUM1"   :return KeyEvent.KEYCODE_NUMPAD_1;
+            case "NUM2"   :return KeyEvent.KEYCODE_NUMPAD_2;
+            case "NUM3"   :return KeyEvent.KEYCODE_NUMPAD_3;
+            case "NUM4"   :return KeyEvent.KEYCODE_NUMPAD_4;
+            case "NUM5"   :return KeyEvent.KEYCODE_NUMPAD_5;
+            case "NUM6"   :return KeyEvent.KEYCODE_NUMPAD_6;
+            case "NUM7"   :return KeyEvent.KEYCODE_NUMPAD_7;
+            case "NUM8"   :return KeyEvent.KEYCODE_NUMPAD_8;
+            case "NUM9"   :return KeyEvent.KEYCODE_NUMPAD_9;
+            case "NUM0"   :return KeyEvent.KEYCODE_NUMPAD_0;
+            case "NUM."   :return KeyEvent.KEYCODE_NUMPAD_DOT;
+            case "NUM+"   :return KeyEvent.KEYCODE_NUMPAD_ADD;
+            case "NUM_"   :return KeyEvent.KEYCODE_NUMPAD_SUBTRACT;
+            case "NUM*"   :return KeyEvent.KEYCODE_NUMPAD_MULTIPLY;
+            case "NUM/"   :return KeyEvent.KEYCODE_NUMPAD_DIVIDE;
             case "NUMENT" :return KeyEvent.KEYCODE_NUMPAD_ENTER;
             case "NUMLCK" :return KeyEvent.KEYCODE_NUM_LOCK;
 

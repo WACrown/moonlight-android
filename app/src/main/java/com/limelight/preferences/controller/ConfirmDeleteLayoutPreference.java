@@ -9,8 +9,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Toast;
 
+import com.limelight.R;
 import com.limelight.utils.controller.LayoutAdminHelper;
-import com.limelight.utils.controller.LayoutSelectHelper;
 
 public class ConfirmDeleteLayoutPreference extends DialogPreference {
 
@@ -35,18 +35,18 @@ public class ConfirmDeleteLayoutPreference extends DialogPreference {
 
     @Override
     protected View onCreateDialogView() {
-        String currentLayoutName = LayoutSelectHelper.getCurrentLayoutName(getContext());
-        this.setDialogTitle("myString 删除当前布局");
-        this.setDialogMessage("myString 确定要删除当前布局: " + currentLayoutName);
+        String currentLayoutName = LayoutAdminHelper.getCurrentLayoutName(getContext());
+        this.setDialogTitle(getContext().getResources().getString(R.string.title_delete_controller_layout));
+        this.setDialogMessage(getContext().getResources().getString(R.string.dialog_text_delete_controller_layout) + currentLayoutName);
         return super.onCreateDialogView();
     }
 
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
             if (LayoutAdminHelper.deleteCurrentLayout(getContext()) == 0) {
-                Toast.makeText(getContext(), "myString 删除布局成功", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getContext().getResources().getString(R.string.toast_delete_controller_layout_success), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getContext(), "myString 删除布局失败，你至少有一个布局", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getContext().getResources().getString(R.string.dialog_text_delete_controller_layout_failed), Toast.LENGTH_SHORT).show();
             }
         }
     }

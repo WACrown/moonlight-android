@@ -7,8 +7,8 @@ package com.limelight.binding.input.virtual_controller;
 import android.content.Context;
 
 public class LeftTrigger extends DigitalButton {
-    public LeftTrigger(final VirtualController controller, final int layer, final Context context) {
-        super(controller, EID_LT, layer, context);
+    public LeftTrigger(final VirtualController controller, final int layer, final Context context, String name) {
+        super(controller, name, layer, context);
         addDigitalButtonListener(new DigitalButton.DigitalButtonListener() {
             @Override
             public void onClick() {
