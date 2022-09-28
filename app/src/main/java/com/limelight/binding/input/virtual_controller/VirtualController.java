@@ -19,6 +19,7 @@ import com.limelight.binding.input.ControllerHandler;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerAddButton;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerTypeSelector;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerLayoutSelector;
+import com.limelight.nvstream.NvConnection;
 import com.limelight.utils.controller.LayoutAdminHelper;
 import com.limelight.utils.controller.LayoutEditHelper;
 
@@ -57,8 +58,10 @@ public class VirtualController {
 
     private final ControllerHandler controllerHandler;
     private final Game game;
+    private final NvConnection conn;
     private final Context context;
     private final Map<String,KeyEvent> keyEventMap = new HashMap<>();
+    private final Map<Byte,Boolean> mouseMap = new HashMap<>();
     private final List<VirtualControllerElement> elements = new ArrayList<>();
     private final VirtualController virtualController;
 
@@ -87,9 +90,10 @@ public class VirtualController {
 
 
 
-    public VirtualController(final ControllerHandler controllerHandler, FrameLayout layout, final Context mContext, final Game game) {
+    public VirtualController(final ControllerHandler controllerHandler, FrameLayout layout, final Context mContext, final Game game, final NvConnection conn) {
         this.controllerHandler = controllerHandler;
         this.game = game;
+        this.conn = conn;
         this.frame_layout = layout;
         this.context = mContext;
         this.virtualController = this;
@@ -294,8 +298,8 @@ public class VirtualController {
                 Set<String> allButtonName = LayoutEditHelper.loadAllButton(context).keySet();
                 String buttonNamePre = "";
                 switch ((String) typeSelector.getSelectedItem()) {
-                    case "BUTTON" : {
-                        buttonNamePre = "BUTTON-" + (String) buttonSelector.getSelectedItem() + "-";
+                    case "KEYBOARD" : {
+                        buttonNamePre = "KEYBOARD-" + (String) buttonSelector.getSelectedItem() + "-";
                         break;
                     }
                     case "PAD" : {
@@ -306,8 +310,12 @@ public class VirtualController {
                         buttonNamePre = "STICK-" + (String) buttonUpSelector.getSelectedItem() + "-" + (String) buttonDownSelector.getSelectedItem() + "-" + (String) buttonLeftSelector.getSelectedItem() + "-" + (String) buttonRightSelector.getSelectedItem() + "-" + (String) buttonSelector.getSelectedItem() + "-";
                         break;
                     }
-                    case "GP" : {
-                        buttonNamePre = "GP-" + (String) buttonSelector.getSelectedItem() + "-";
+                    case "GAMEPAD" : {
+                        buttonNamePre = "GAMEPAD-" + (String) buttonSelector.getSelectedItem() + "-";
+                        break;
+                    }
+                    case "MOUSE" : {
+                        buttonNamePre = "MOUSE-" + (String) buttonSelector.getSelectedItem() + "-";
                         break;
                     }
 
@@ -346,6 +354,10 @@ public class VirtualController {
         return keyEventMap;
     }
 
+    public Map<Byte,Boolean> getMouseInputContext() {
+        return mouseMap;
+    }
+
     void sendControllerInputContext() {
         _DBG("INPUT_MAP + " + inputContext.inputMap);
         _DBG("LEFT_TRIGGER " + inputContext.leftTrigger);
@@ -377,6 +389,23 @@ public class VirtualController {
                         game.handleKeyDown(keyEvent);
                     } else if (keyEvent.getAction() == KeyEvent.ACTION_UP){
                         game.handleKeyUp(keyEvent);
+                    }
+                }
+            }
+        }
+    }
+
+
+    void sendMouseKey() {
+        _DBG("MOUSE_EVENT_MAP + " + mouseMap);
+        if (game != null) {
+            for (Byte mouseKey : mouseMap.keySet()){
+                Boolean isDown = mouseMap.get(mouseKey);
+                if (isDown != null){
+                    if (isDown){
+                        conn.sendMouseButtonDown(mouseKey);
+                    } else {
+                        conn.sendMouseButtonUp(mouseKey);
                     }
                 }
             }

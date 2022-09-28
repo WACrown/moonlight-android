@@ -9,6 +9,7 @@ import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 
 import com.limelight.nvstream.input.ControllerPacket;
+import com.limelight.nvstream.input.MouseButtonPacket;
 import com.limelight.utils.controller.LayoutEditHelper;
 
 import org.json.JSONException;
@@ -176,7 +177,7 @@ public class VirtualControllerConfigurationLoader {
             final VirtualController controller,
             final Context context) {
         DigitalButton button = new DigitalButton(controller, elementId, layer, context);
-        button.setText(text.split("-")[0]);
+        button.setText(text);
         button.setIcon(icon);
         Map<String,KeyEvent> keyEventMap = controller.getKeyboardInputContext();
 
@@ -196,6 +197,42 @@ public class VirtualControllerConfigurationLoader {
             public void onRelease() {
                 keyEventMap.put(""+keyShort,new KeyEvent(KeyEvent.ACTION_UP,keyShort));
                 controller.sendKeyboardInputPadKey();
+            }
+        });
+
+        return button;
+    }
+
+    private static DigitalButton createMouseButton(
+            final String elementId,
+            final Byte keyShort,
+            final int keyLong,
+            final int layer,
+            final String text,
+            final int icon,
+            final VirtualController controller,
+            final Context context) {
+        DigitalButton button = new DigitalButton(controller, elementId, layer, context);
+        button.setText(text);
+        button.setIcon(icon);
+
+        Map<Byte,Boolean> mouseMap = controller.getMouseInputContext();
+        button.addDigitalButtonListener(new DigitalButton.DigitalButtonListener() {
+            @Override
+            public void onClick() {
+                mouseMap.put(keyShort,true);
+                controller.sendMouseKey();
+            }
+
+            @Override
+            public void onLongClick() {
+
+            }
+
+            @Override
+            public void onRelease() {
+                mouseMap.put(keyShort,false);
+                controller.sendMouseKey();
             }
         });
 
@@ -244,37 +281,6 @@ public class VirtualControllerConfigurationLoader {
 
 
 
-    private static final int TRIGGER_L_BASE_X = 1;
-    private static final int TRIGGER_R_BASE_X = 92;
-    private static final int TRIGGER_DISTANCE = 23;
-    private static final int TRIGGER_BASE_Y = 31;
-    private static final int TRIGGER_WIDTH = 12;
-    private static final int TRIGGER_HEIGHT = 9;
-
-    // Face buttons are defined based on the Y button (button number 9)
-    private static final int BUTTON_BASE_X = 106;
-    private static final int BUTTON_BASE_Y = 1;
-    private static final int BUTTON_SIZE = 10;
-
-    private static final int DPAD_BASE_X = 4;
-    private static final int DPAD_BASE_Y = 41;
-    private static final int DPAD_SIZE = 30;
-
-    private static final int ANALOG_L_BASE_X = 6;
-    private static final int ANALOG_L_BASE_Y = 4;
-    private static final int ANALOG_R_BASE_X = 98;
-    private static final int ANALOG_R_BASE_Y = 42;
-    private static final int ANALOG_SIZE = 26;
-
-    private static final int L3_R3_BASE_Y = 60;
-
-    private static final int START_X = 83;
-    private static final int BACK_X = 34;
-    private static final int START_BACK_Y = 64;
-    private static final int START_BACK_WIDTH = 12;
-    private static final int START_BACK_HEIGHT = 7;
-
-
     public static void createButtons(final VirtualController controller, final Context context,Map<String, String> keyInfoMap){
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
 
@@ -301,7 +307,7 @@ public class VirtualControllerConfigurationLoader {
                 e.printStackTrace();
             }
 
-            if (keyTypeAndCodeAndName[0].equals("BUTTON")){
+            if (keyTypeAndCodeAndName[0].equals("KEYBOARD")){
 
                 controller.addElement(
                         createKeyboardButton(keyName,getKeycode(keyTypeAndCodeAndName[1]),getKeycode(keyTypeAndCodeAndName[1]),1,keyTypeAndCodeAndName[1],-1,controller,context),
@@ -329,7 +335,7 @@ public class VirtualControllerConfigurationLoader {
                         width,
                         height
                 );
-            }else if (keyTypeAndCodeAndName[0].equals("GP")){
+            }else if (keyTypeAndCodeAndName[0].equals("GAMEPAD")){
                 switch (keyTypeAndCodeAndName[1]){
                     case "GX" : {
                         controller.addElement(createDigitalButton(
@@ -494,6 +500,69 @@ public class VirtualControllerConfigurationLoader {
                         );
                     }
 
+                }
+            }else if (keyTypeAndCodeAndName[0].equals("MOUSE")){
+                switch (keyTypeAndCodeAndName[1]) {
+                    case "ML": {
+                        controller.addElement(createMouseButton(
+                                        keyName,
+                                        MouseButtonPacket.BUTTON_LEFT, 0, 1,
+                                        keyTypeAndCodeAndName[1], -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "MR": {
+                        controller.addElement(createMouseButton(
+                                        keyName,
+                                        MouseButtonPacket.BUTTON_RIGHT, 0, 1,
+                                        keyTypeAndCodeAndName[1], -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "MM": {
+                        controller.addElement(createMouseButton(
+                                        keyName,
+                                        MouseButtonPacket.BUTTON_MIDDLE, 0, 1,
+                                        keyTypeAndCodeAndName[1], -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "MB1": {
+                        controller.addElement(createMouseButton(
+                                        keyName,
+                                        MouseButtonPacket.BUTTON_X1, 0, 1,
+                                        keyTypeAndCodeAndName[1], -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
+                    case "MB2": {
+                        controller.addElement(createMouseButton(
+                                        keyName,
+                                        MouseButtonPacket.BUTTON_X2, 0, 1,
+                                        keyTypeAndCodeAndName[1], -1, controller, context),
+                                leftMargin,
+                                topMargin,
+                                width,
+                                height
+                        );
+                        break;
+                    }
                 }
             }else {
 

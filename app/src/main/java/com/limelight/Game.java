@@ -483,7 +483,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             // create virtual onscreen controller
             virtualController = new VirtualController(controllerHandler,
                     (FrameLayout)streamView.getParent(),
-                    this, this);
+                    this,this, conn);
             virtualController.refreshLayout();
             virtualController.show();
         }

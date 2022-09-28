@@ -23,7 +23,7 @@ public class VirtualControllerTypeSelector extends Spinner {
     private final VirtualControllerAddButton buttonRightSelector;
     private final VirtualControllerAddButton buttonSelector;
     private final VirtualControllerTypeSelector virtualControllerTypeSelector;
-    private final List<String> typeList = Arrays.asList("BUTTON", "PAD", "STICK","GP");
+    private final List<String> typeList = Arrays.asList("KEYBOARD", "PAD", "STICK","GAMEPAD","MOUSE");
 
     public VirtualControllerTypeSelector(Context mcontext, FrameLayout layout,
                                          VirtualControllerAddButton mButtonSelector,
@@ -73,6 +73,14 @@ public class VirtualControllerTypeSelector extends Spinner {
                         buttonRightSelector.setVisibility(VISIBLE);
                     } else if (i == 3) {
                         buttonSelector.setAdapter(new AdapterSelector(context, buttonSelector.getGPList()));
+                        buttonSelector.setVisibility(VISIBLE);
+
+                        buttonUpSelector.setVisibility(INVISIBLE);
+                        buttonDownSelector.setVisibility(INVISIBLE);
+                        buttonLeftSelector.setVisibility(INVISIBLE);
+                        buttonRightSelector.setVisibility(INVISIBLE);
+                    } else if (i == 4) {
+                        buttonSelector.setAdapter(new AdapterSelector(context, buttonSelector.getMouseList()));
                         buttonSelector.setVisibility(VISIBLE);
 
                         buttonUpSelector.setVisibility(INVISIBLE);

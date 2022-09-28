@@ -32,6 +32,10 @@ public class VirtualControllerAddButton extends Spinner {
 
     private final List<String> GPList = Arrays.asList("GA", "GB", "GX", "GY", "PAD", "LS", "RS", "LB", "RB", "LSB", "RSB", "START","BACK","LT","RT");
 
+
+
+    private final List<String> mouseList = Arrays.asList("ML", "MR", "MM", "MB1", "MB2");
+
     public VirtualControllerAddButton(Context context, FrameLayout layout, int leftMargin, int topMargin) {
         super(context);
         this.frame_layout = layout;
@@ -61,7 +65,9 @@ public class VirtualControllerAddButton extends Spinner {
         return GPList;
     }
 
-
+    public List<String> getMouseList() {
+        return mouseList;
+    }
 }
 
 
