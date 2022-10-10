@@ -16,7 +16,7 @@ public class RightAnalogStick extends AnalogStick {
             @Override
             public void onMovement(float x, float y) {
                 VirtualController.ControllerInputContext inputContext =
-                        controller.getControllerInputContext();
+                        controller.getGamePadInputContext();
                 inputContext.rightStickX = (short) (x * 0x7FFE);
                 inputContext.rightStickY = (short) (y * 0x7FFE);
                 controller.sendControllerInputContext();
@@ -29,7 +29,7 @@ public class RightAnalogStick extends AnalogStick {
             @Override
             public void onDoubleClick() {
                 VirtualController.ControllerInputContext inputContext =
-                        controller.getControllerInputContext();
+                        controller.getGamePadInputContext();
                 inputContext.inputMap |= ControllerPacket.RS_CLK_FLAG;
 
                 controller.sendControllerInputContext();
@@ -38,7 +38,7 @@ public class RightAnalogStick extends AnalogStick {
             @Override
             public void onRevoke() {
                 VirtualController.ControllerInputContext inputContext =
-                        controller.getControllerInputContext();
+                        controller.getGamePadInputContext();
                 inputContext.inputMap &= ~ControllerPacket.RS_CLK_FLAG;
 
                 controller.sendControllerInputContext();

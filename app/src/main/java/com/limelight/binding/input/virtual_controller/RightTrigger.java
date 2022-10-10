@@ -13,7 +13,7 @@ public class RightTrigger extends DigitalButton {
             @Override
             public void onClick() {
                 VirtualController.ControllerInputContext inputContext =
-                        controller.getControllerInputContext();
+                        controller.getGamePadInputContext();
                 inputContext.rightTrigger = (byte) 0xFF;
 
                 controller.sendControllerInputContext();
@@ -26,7 +26,7 @@ public class RightTrigger extends DigitalButton {
             @Override
             public void onRelease() {
                 VirtualController.ControllerInputContext inputContext =
-                        controller.getControllerInputContext();
+                        controller.getGamePadInputContext();
                 inputContext.rightTrigger = (byte) 0x00;
 
                 controller.sendControllerInputContext();

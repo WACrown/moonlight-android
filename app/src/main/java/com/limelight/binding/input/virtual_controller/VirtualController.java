@@ -33,6 +33,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class VirtualController {
+
     public static class ControllerInputContext {
         public short inputMap = 0x0000;
         public byte leftTrigger = 0x00;
@@ -64,7 +65,7 @@ public class VirtualController {
     private final Map<Byte,Boolean> mouseMap = new HashMap<>();
     private final List<VirtualControllerElement> elements = new ArrayList<>();
     private final VirtualController virtualController;
-
+    private short[] gamePadInputContext = {0,0,0,0,0,0,0};//inputMap,leftTrigger ,rightTrigger,rightStickX,rightStickY,leftStickX,leftStickY
 
 
     private FrameLayout frame_layout = null;
@@ -342,12 +343,14 @@ public class VirtualController {
         buttonUpSelector.refreshLayout();
     }
 
+
+
     public ControllerMode getControllerMode() {
         return currentMode;
     }
 
-    public ControllerInputContext getControllerInputContext() {
-        return inputContext;
+    public short[] getGamePadInputContext() {
+        return gamePadInputContext;
     }
 
     public Map<String,KeyEvent> getKeyboardInputContext() {
@@ -358,27 +361,28 @@ public class VirtualController {
         return mouseMap;
     }
 
-    void sendControllerInputContext() {
-        _DBG("INPUT_MAP + " + inputContext.inputMap);
-        _DBG("LEFT_TRIGGER " + inputContext.leftTrigger);
-        _DBG("RIGHT_TRIGGER " + inputContext.rightTrigger);
-        _DBG("LEFT STICK X: " + inputContext.leftStickX + " Y: " + inputContext.leftStickY);
-        _DBG("RIGHT STICK X: " + inputContext.rightStickX + " Y: " + inputContext.rightStickY);
+
+    public void sendControllerInputContext() {
+        _DBG("INPUT_MAP + " + gamePadInputContext[0]);
+        _DBG("LEFT_TRIGGER " + gamePadInputContext[1]);
+        _DBG("RIGHT_TRIGGER " + gamePadInputContext[2]);
+        _DBG("LEFT STICK X: " + gamePadInputContext[3] + " Y: " + gamePadInputContext[4]);
+        _DBG("RIGHT STICK X: " + gamePadInputContext[5] + " Y: " + gamePadInputContext[6]);
 
         if (controllerHandler != null) {
             controllerHandler.reportOscState(
-                    inputContext.inputMap,
-                    inputContext.leftStickX,
-                    inputContext.leftStickY,
-                    inputContext.rightStickX,
-                    inputContext.rightStickY,
-                    inputContext.leftTrigger,
-                    inputContext.rightTrigger
+                    gamePadInputContext[0],
+                    gamePadInputContext[3],
+                    gamePadInputContext[4],
+                    gamePadInputContext[5],
+                    gamePadInputContext[6],
+                    (byte) gamePadInputContext[1],
+                    (byte) gamePadInputContext[2]
             );
         }
     }
 
-    void sendKeyboardInputPadKey() {
+    public void sendKeyboardInputPadKey() {
 
         _DBG("KEY_EVENT_MAP + " + keyEventMap);
         if (game != null) {
@@ -390,13 +394,14 @@ public class VirtualController {
                     } else if (keyEvent.getAction() == KeyEvent.ACTION_UP){
                         game.handleKeyUp(keyEvent);
                     }
+                    keyEventMap.remove(key);
                 }
             }
         }
     }
 
 
-    void sendMouseKey() {
+    public void sendMouseKey() {
         _DBG("MOUSE_EVENT_MAP + " + mouseMap);
         if (game != null) {
             for (Byte mouseKey : mouseMap.keySet()){
@@ -407,6 +412,7 @@ public class VirtualController {
                     } else {
                         conn.sendMouseButtonUp(mouseKey);
                     }
+                    mouseMap.remove(mouseKey);
                 }
             }
         }

@@ -9,4 +9,15 @@ public class MouseButtonPacket {
     public static final byte BUTTON_RIGHT = 0x03;
     public static final byte BUTTON_X1 = 0x04;
     public static final byte BUTTON_X2 = 0x05;
+
+    public static byte getMouseCode(String mouseButton){
+        switch (mouseButton) {
+            case "ML" : return BUTTON_LEFT;
+            case "MR" : return BUTTON_RIGHT;
+            case "MM" : return BUTTON_MIDDLE;
+            case "M1" : return BUTTON_X1;
+            case "M2" : return BUTTON_X2;
+            default: return 0;
+        }
+    }
 }

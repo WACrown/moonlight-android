@@ -41,7 +41,7 @@ public class VirtualControllerConfigurationLoader {
             @Override
             public void onDirectionChange(int direction) {
                 VirtualController.ControllerInputContext inputContext =
-                        controller.getControllerInputContext();
+                        controller.getGamePadInputContext();
 
                 if (direction == DigitalPad.DIGITAL_PAD_DIRECTION_NO_DIRECTION) {
                     inputContext.inputMap &= ~ControllerPacket.LEFT_FLAG;
@@ -90,7 +90,7 @@ public class VirtualControllerConfigurationLoader {
             @Override
             public void onClick() {
                 VirtualController.ControllerInputContext inputContext =
-                        controller.getControllerInputContext();
+                        controller.getGamePadInputContext();
                 inputContext.inputMap |= keyShort;
 
                 controller.sendControllerInputContext();
@@ -99,7 +99,7 @@ public class VirtualControllerConfigurationLoader {
             @Override
             public void onLongClick() {
                 VirtualController.ControllerInputContext inputContext =
-                        controller.getControllerInputContext();
+                        controller.getGamePadInputContext();
                 inputContext.inputMap |= keyLong;
 
                 controller.sendControllerInputContext();
@@ -108,7 +108,7 @@ public class VirtualControllerConfigurationLoader {
             @Override
             public void onRelease() {
                 VirtualController.ControllerInputContext inputContext =
-                        controller.getControllerInputContext();
+                        controller.getGamePadInputContext();
                 inputContext.inputMap &= ~keyShort;
                 inputContext.inputMap &= ~keyLong;
 
@@ -699,4 +699,6 @@ public class VirtualControllerConfigurationLoader {
         }
         return -1;
     }
+
+
 }
