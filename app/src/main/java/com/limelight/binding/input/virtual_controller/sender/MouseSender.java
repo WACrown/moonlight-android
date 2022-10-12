@@ -21,18 +21,14 @@ public class MouseSender extends ControllerSender{
         this.mouseMap = virtualController.getMouseInputContext();
     }
 
+
     @Override
-    public byte sendMessage(boolean isPress) {
+    public byte sendMessage(int index, boolean isPress) {
         if (lastStatus == isPress){
             return 0x0;
         }
         lastStatus = isPress;
         mouseMap.put(keyCode,isPress);
-        return 0x2;
-    }
-
-    @Override
-    public byte sendMessage(int index, boolean isPress) {
         return 0x2;
     }
 

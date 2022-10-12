@@ -101,10 +101,10 @@ public abstract class VirtualControllerElement extends View {
 
         if (configEditColor == 0xFF03A9F4){
             setConfigEditColor(0xF0FF0000);
-            virtualController.virtualControllerElementSet.add(this);
+            virtualController.virtualControllerNeedDeleteElementSet.add(this);
         } else {
             setConfigEditColor(0xFF03A9F4);
-            virtualController.virtualControllerElementSet.remove(this);
+            virtualController.virtualControllerNeedDeleteElementSet.remove(this);
         }
 
         //System.out.println("wangguan deleteElement" + elementId);

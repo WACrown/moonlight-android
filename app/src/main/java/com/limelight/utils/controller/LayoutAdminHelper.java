@@ -29,13 +29,15 @@ public class LayoutAdminHelper {
 
 
     public static int addLayout(Context context,String layoutName){
+        if (isInvalid(layoutName)){
+            return -2;//非法
+        }
+
         if (isExist(layoutName)){
             return -1;//已存在
         }
 
-        if (isInvalid(layoutName)){
-            return -2;//非法
-        }
+
 
         layoutList.add(layoutName);
         saveAllLayoutToTable(context);
@@ -45,14 +47,16 @@ public class LayoutAdminHelper {
     }
 
     public static int renameCurrentLayout(Context context, String newLayoutName){
-        if (layoutList == null){
-            String layoutListString = SharedPreferencesHelper.load(context,"layout_admin").get("all_layout");
-            layoutList.StringToList(layoutListString);
+
+        if (isInvalid(newLayoutName)){
+            return -2;//非法
         }
 
         if (isExist(newLayoutName)){
-            return -1;
+            return -1;//已存在
         }
+
+
         //复制表中的数值到新表，删除旧表
         Map<String, String> allButton = LayoutEditHelper.loadAllButton(context);
         LayoutEditHelper.storeAllButton(context,new HashMap<>());

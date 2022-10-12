@@ -24,17 +24,13 @@ public class VirtualControllerAddButton extends Spinner {
     private final FrameLayout frame_layout;
     private final int leftMargin;
     private final int topMargin;
-    private final List<String> keyList = Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-            "CTRLL" , "SHIFTL", "CTRLR" , "SHIFTR", "ALTL"  , "ALTR"  , "ENTER" , "BACK"  , "SPACE" , "TAB"   , "CAPS"  , "WIN", "DEL", "INS", "HOME", "END", "PGUP", "PGDN", "BREAK", "SLCK", "PRINT", "UP", "DOWN", "LEFT", "RIGHT",
-            "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12",
-            "~", "_", "=", "[", "]", "\\", ";", "\"", "<", ">", "/",
-            "NUM1", "NUM2", "NUM3", "NUM4", "NUM5", "NUM6", "NUM7", "NUM8", "NUM9", "NUM0", "NUM.", "NUM+", "NUM_", "NUM*", "NUM/", "NUMENT", "NUMLCK");
-
-    private final List<String> GPList = Arrays.asList("GA", "GB", "GX", "GY", "PAD", "LS", "RS", "LB", "RB", "LSB", "RSB", "START","BACK","LT","RT");
-
-
-
-    private final List<String> mouseList = Arrays.asList("ML", "MR", "MM", "MB1", "MB2");
+    private final List<String> keyList = Arrays.asList("K-A", "K-B", "K-C", "K-D", "K-E", "K-F", "K-G", "K-H", "K-I", "K-J", "K-K", "K-L", "K-M", "K-N", "K-O", "K-P", "K-Q", "K-R", "K-S", "K-T", "K-U", "K-V", "K-W", "K-X", "K-Y", "K-Z",
+            "K-ESC","K-CTRLL" , "K-SHIFTL", "K-CTRLR" , "K-SHIFTR", "K-ALTL"  , "K-ALTR"  , "K-ENTER" , "K-KBACK"  , "K-SPACE" , "K-TAB"   , "K-CAPS"  , "K-WIN", "K-DEL", "K-INS", "K-HOME", "K-END", "K-PGUP", "K-PGDN", "K-BREAK", "K-SLCK", "K-PRINT", "K-UP", "K-DOWN", "K-LEFT", "K-RIGHT",
+            "K-1", "K-2", "K-3", "K-4", "K-5", "K-6", "K-7", "K-8", "K-9", "K-0", "K-F1", "K-F2", "K-F3", "K-F4", "K-F5", "K-F6", "K-F7", "K-F8", "K-F9", "K-F10", "K-F11", "K-F12",
+            "K-~", "K-_", "K-=", "K-[", "K-]", "K-\\", "K-;", "\"", "K-<", "K->", "K-/",
+            "K-NUM1", "K-NUM2", "K-NUM3", "K-NUM4", "K-NUM5", "K-NUM6", "K-NUM7", "K-NUM8", "K-NUM9", "K-NUM0", "K-NUM.", "K-NUM+", "K-NUM_", "K-NUM*", "K-NUM/", "K-NUMENT", "K-NUMLCK",
+            "G-GA", "G-GB", "G-GX", "G-GY", "G-PU","G-PD","G-PL","G-PR","G-LT", "G-RT", "G-LB", "G-RB", "G-LSB", "G-RSB", "G-START","G-BACK","G-LSU","G-LSD","G-LSL","G-LSR","G-RSU","G-RSD","G-RSL","G-RSR",
+            "M-ML", "M-MR", "M-MM", "M-M1", "M-M2");
 
     public VirtualControllerAddButton(Context context, FrameLayout layout, int leftMargin, int topMargin) {
         super(context);
@@ -61,13 +57,7 @@ public class VirtualControllerAddButton extends Spinner {
         return keyList;
     }
 
-    public List<String> getGPList() {
-        return GPList;
-    }
 
-    public List<String> getMouseList() {
-        return mouseList;
-    }
 }
 
 

@@ -17,13 +17,14 @@ import com.limelight.LimeLog;
 import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerAddButton;
+import com.limelight.binding.input.virtual_controller.selector.VirtualControllerFuncSelector;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerTypeSelector;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerLayoutSelector;
 import com.limelight.nvstream.NvConnection;
-import com.limelight.utils.controller.LayoutAdminHelper;
 import com.limelight.utils.controller.LayoutEditHelper;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,18 +35,6 @@ import java.util.TimerTask;
 
 public class VirtualController {
 
-    public static class ControllerInputContext {
-        public short inputMap = 0x0000;
-        public byte leftTrigger = 0x00;
-        public byte rightTrigger = 0x00;
-        public short rightStickX = 0x0000;
-        public short rightStickY = 0x0000;
-        public short leftStickX = 0x0000;
-        public short leftStickY = 0x0000;
-    }
-
-
-
     public enum ControllerMode {
         Active,
         MoveButtons,
@@ -53,7 +42,7 @@ public class VirtualController {
         EditLayout
     }
 
-    public final Set<VirtualControllerElement> virtualControllerElementSet = new HashSet<>();
+    public final Set<VirtualControllerElement> virtualControllerNeedDeleteElementSet = new HashSet<>();
 
     private static final boolean _PRINT_DEBUG_INFORMATION = false;
 
@@ -65,15 +54,12 @@ public class VirtualController {
     private final Map<Byte,Boolean> mouseMap = new HashMap<>();
     private final List<VirtualControllerElement> elements = new ArrayList<>();
     private final VirtualController virtualController;
-    private short[] gamePadInputContext = {0,0,0,0,0,0,0};//inputMap,leftTrigger ,rightTrigger,rightStickX,rightStickY,leftStickX,leftStickY
+    private short[] gamePadInputContext = {0,0,0,0,0,0,0};//inputMap,leftTrigger ,rightTrigger,leftStickX,leftStickY,rightStickX,rightStickY
 
 
     private FrameLayout frame_layout = null;
-
     private Timer retransmitTimer;
-
     ControllerMode currentMode = ControllerMode.Active;
-    ControllerInputContext inputContext = new ControllerInputContext();
 
 
     private Button buttonConfigure = null;
@@ -81,6 +67,7 @@ public class VirtualController {
     private Button buttonDelete = null;
     private VirtualControllerLayoutSelector VCLSelector = null;
     private VirtualControllerTypeSelector typeSelector = null;
+    private VirtualControllerFuncSelector funcSelector = null;
     private VirtualControllerAddButton buttonUpSelector = null;
     private VirtualControllerAddButton buttonDownSelector = null;
     private VirtualControllerAddButton buttonLeftSelector = null;
@@ -118,11 +105,12 @@ public class VirtualController {
         buttonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                for (VirtualControllerElement virtualControllerElement : virtualControllerElementSet){
+                for (VirtualControllerElement virtualControllerElement : virtualControllerNeedDeleteElementSet){
                     frame_layout.removeView(virtualControllerElement);
                     elements.remove(virtualControllerElement);
                 }
-                virtualControllerElementSet.clear();
+                virtualControllerNeedDeleteElementSet.clear();
+                Toast.makeText(context,"已删除",Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -204,14 +192,14 @@ public class VirtualController {
         buttonConfigure.setVisibility(View.VISIBLE);
 
         // HACK: GFE sometimes discards gamepad packets when they are received
-        // very shortly after another. This can be critical if an axis zeroing packet
+        // very shortly after anothaer. This can be critical if an axis zeroing packet
         // is lost and causes an analog stick to get stuck. To avoid this, we send
         // a gamepad input packet every 100 ms to ensure any loss can be recovered.
         retransmitTimer = new Timer("OSC timer", true);
         retransmitTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                sendControllerInputContext();
+                //sendControllerInputContext();
             }
         }, 100, 100);
     }
@@ -290,17 +278,23 @@ public class VirtualController {
         buttonDownSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.275f),(int)(screen.heightPixels*0.25f));
         buttonLeftSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.525f),(int)(screen.heightPixels*0.25f));
         buttonRightSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.775f),(int)(screen.heightPixels*0.25f));
-        buttonSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.65f),(int)(screen.heightPixels*0.1f));
-        typeSelector = new VirtualControllerTypeSelector(context,frame_layout,buttonSelector,buttonUpSelector,buttonDownSelector,buttonLeftSelector,buttonRightSelector);
+        buttonSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.775f),(int)(screen.heightPixels*0.1f));
+        funcSelector = new VirtualControllerFuncSelector(context,frame_layout);
+        typeSelector = new VirtualControllerTypeSelector(context,frame_layout,funcSelector,buttonSelector,buttonUpSelector,buttonDownSelector,buttonLeftSelector,buttonRightSelector);
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                Set<String> allButtonName = LayoutEditHelper.loadAllButton(context).keySet();
+                Set<String> allButtonName = new HashSet<>();
+
+                for (VirtualControllerElement element : elements){
+                    allButtonName.add(element.elementId);
+                }
+
                 String buttonNamePre = "";
                 switch ((String) typeSelector.getSelectedItem()) {
-                    case "KEYBOARD" : {
-                        buttonNamePre = "KEYBOARD-" + (String) buttonSelector.getSelectedItem() + "-";
+                    case "BUTTON" : {
+                        buttonNamePre = "BUTTON-" + (String) funcSelector.getSelectedItem() + "-"+ (String) buttonSelector.getSelectedItem() + "-";
                         break;
                     }
                     case "PAD" : {
@@ -311,14 +305,6 @@ public class VirtualController {
                         buttonNamePre = "STICK-" + (String) buttonUpSelector.getSelectedItem() + "-" + (String) buttonDownSelector.getSelectedItem() + "-" + (String) buttonLeftSelector.getSelectedItem() + "-" + (String) buttonRightSelector.getSelectedItem() + "-" + (String) buttonSelector.getSelectedItem() + "-";
                         break;
                     }
-                    case "GAMEPAD" : {
-                        buttonNamePre = "GAMEPAD-" + (String) buttonSelector.getSelectedItem() + "-";
-                        break;
-                    }
-                    case "MOUSE" : {
-                        buttonNamePre = "MOUSE-" + (String) buttonSelector.getSelectedItem() + "-";
-                        break;
-                    }
 
                 }
                 for (int i = 0;i < 100;i ++){
@@ -327,15 +313,17 @@ public class VirtualController {
                         Map<String, String> newButton = new HashMap<>();
                         newButton.put(buttonName,"{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
                         VirtualControllerConfigurationLoader.createButtons(virtualController,context,newButton);
-                        //System.out.println("wangguan " + newButton);
+                        System.out.println("wangguan newButton:" + newButton);
                         break;
                     }
                 }
+                Toast.makeText(context,"已添加",Toast.LENGTH_SHORT).show();
 
             }
         });
 
         typeSelector.refreshLayout();
+        funcSelector.refreshLayout();
         buttonSelector.refreshLayout();
         buttonRightSelector.refreshLayout();
         buttonLeftSelector.refreshLayout();
@@ -383,7 +371,6 @@ public class VirtualController {
     }
 
     public void sendKeyboardInputPadKey() {
-
         _DBG("KEY_EVENT_MAP + " + keyEventMap);
         if (game != null) {
             for (String key : keyEventMap.keySet()){
@@ -394,9 +381,9 @@ public class VirtualController {
                     } else if (keyEvent.getAction() == KeyEvent.ACTION_UP){
                         game.handleKeyUp(keyEvent);
                     }
-                    keyEventMap.remove(key);
                 }
             }
+            keyEventMap.clear();
         }
     }
 
@@ -412,9 +399,9 @@ public class VirtualController {
                     } else {
                         conn.sendMouseButtonUp(mouseKey);
                     }
-                    mouseMap.remove(mouseKey);
                 }
             }
+            mouseMap.clear();
         }
     }
 

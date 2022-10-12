@@ -1,8 +1,10 @@
+package com.limelight.binding.input.virtual_controller;
+
 /**
  * Created by Karim Mreisi.
  */
 
-package com.limelight.binding.input.virtual_controller;
+
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -20,12 +22,12 @@ import java.util.TimerTask;
 /**
  * This is a digital button on screen element. It is used to get click and double click user input.
  */
-public class DigitalButton extends VirtualControllerElement {
+public class DigitalSwitch extends VirtualControllerElement {
 
     /**
      * Listener interface to update registered observers.
      */
-    public interface DigitalButtonListener {
+    public interface DigitalSwitchListener {
 
         /**
          * onClick event will be fired on button click.
@@ -53,7 +55,7 @@ public class DigitalButton extends VirtualControllerElement {
         }
     }
 
-    private List<DigitalButtonListener> listeners = new ArrayList<>();
+    private List<DigitalSwitchListener> listeners = new ArrayList<>();
     private String text = "";
     private int icon = -1;
     private long timerLongClickTimeout = 3000;
@@ -64,14 +66,14 @@ public class DigitalButton extends VirtualControllerElement {
     private final RectF rect = new RectF();
 
     private int layer;
-    private DigitalButton movingButton = null;
+    private DigitalSwitch movingButton = null;
 
     boolean inRange(float x, float y) {
         return (this.getX() < x && this.getX() + this.getWidth() > x) &&
                 (this.getY() < y && this.getY() + this.getHeight() > y);
     }
 
-    public boolean checkMovement(float x, float y, DigitalButton movingButton) {
+    public boolean checkMovement(float x, float y, DigitalSwitch movingButton) {
         // check if the movement happened in the same layer
         if (movingButton.layer != this.layer) {
             return false;
@@ -116,18 +118,18 @@ public class DigitalButton extends VirtualControllerElement {
 
     private void checkMovementForAllButtons(float x, float y) {
         for (VirtualControllerElement element : virtualController.getElements()) {
-            if (element != this && element instanceof DigitalButton) {
-                ((DigitalButton) element).checkMovement(x, y, this);
+            if (element != this && element instanceof DigitalSwitch) {
+                ((DigitalSwitch) element).checkMovement(x, y, this);
             }
         }
     }
 
-    public DigitalButton(VirtualController controller, String elementId, int layer, Context context) {
+    public DigitalSwitch(VirtualController controller, String elementId, int layer, Context context) {
         super(controller, context, elementId);
         this.layer = layer;
     }
 
-    public void addDigitalButtonListener(DigitalButtonListener listener) {
+    public void addDigitalSwitchListener(DigitalSwitchListener listener) {
         listeners.add(listener);
     }
 
@@ -173,7 +175,7 @@ public class DigitalButton extends VirtualControllerElement {
     private void onClickCallback() {
         _DBG("clicked");
         // notify listeners
-        for (DigitalButtonListener listener : listeners) {
+        for (DigitalSwitchListener listener : listeners) {
             listener.onClick();
         }
 
@@ -194,7 +196,7 @@ public class DigitalButton extends VirtualControllerElement {
     private void onLongClickCallback() {
         _DBG("long click");
         // notify listeners
-        for (DigitalButtonListener listener : listeners) {
+        for (DigitalSwitchListener listener : listeners) {
             listener.onLongClick();
         }
     }
@@ -202,7 +204,7 @@ public class DigitalButton extends VirtualControllerElement {
     private void onReleaseCallback() {
         _DBG("released");
         // notify listeners
-        for (DigitalButtonListener listener : listeners) {
+        for (DigitalSwitchListener listener : listeners) {
             listener.onRelease();
         }
 
@@ -257,3 +259,4 @@ public class DigitalButton extends VirtualControllerElement {
         return true;
     }
 }
+

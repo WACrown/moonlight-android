@@ -15,17 +15,19 @@ import java.util.List;
 
 public class VirtualControllerTypeSelector extends Spinner {
 
-    private Context context;
-    private FrameLayout frame_layout;
+    private final Context context;
+    private final FrameLayout frame_layout;
     private final VirtualControllerAddButton buttonUpSelector;
     private final VirtualControllerAddButton buttonDownSelector;
     private final VirtualControllerAddButton buttonLeftSelector;
     private final VirtualControllerAddButton buttonRightSelector;
     private final VirtualControllerAddButton buttonSelector;
+    private final VirtualControllerFuncSelector funcSelector;
     private final VirtualControllerTypeSelector virtualControllerTypeSelector;
-    private final List<String> typeList = Arrays.asList("KEYBOARD", "PAD", "STICK","GAMEPAD","MOUSE");
+    private final List<String> typeList = Arrays.asList("BUTTON", "PAD", "STICK");
 
     public VirtualControllerTypeSelector(Context mcontext, FrameLayout layout,
+                                         VirtualControllerFuncSelector mFuncSelector,
                                          VirtualControllerAddButton mButtonSelector,
                                          VirtualControllerAddButton mButtonUpSelector,
                                          VirtualControllerAddButton mButtonDownSelector,
@@ -34,6 +36,7 @@ public class VirtualControllerTypeSelector extends Spinner {
         super(mcontext);
         this.frame_layout = layout;
         this.context = mcontext;
+        this.funcSelector = mFuncSelector;
         this.buttonUpSelector = mButtonUpSelector;
         this.buttonDownSelector = mButtonDownSelector;
         this.buttonLeftSelector = mButtonLeftSelector;
@@ -50,6 +53,7 @@ public class VirtualControllerTypeSelector extends Spinner {
                     if (i == 0){
                         buttonSelector.setAdapter(new AdapterSelector(context, buttonSelector.getKeyList()));
                         buttonSelector.setVisibility(VISIBLE);
+                        funcSelector.setVisibility(VISIBLE);
 
                         buttonUpSelector.setVisibility(INVISIBLE);
                         buttonDownSelector.setVisibility(INVISIBLE);
@@ -58,6 +62,7 @@ public class VirtualControllerTypeSelector extends Spinner {
                     } else if (i == 1) {
                         buttonSelector.setAdapter(new AdapterSelector(context, buttonSelector.getKeyList()));
                         buttonSelector.setVisibility(INVISIBLE);
+                        funcSelector.setVisibility(INVISIBLE);
 
                         buttonUpSelector.setVisibility(VISIBLE);
                         buttonDownSelector.setVisibility(VISIBLE);
@@ -66,29 +71,15 @@ public class VirtualControllerTypeSelector extends Spinner {
                     } else if (i == 2) {
                         buttonSelector.setAdapter(new AdapterSelector(context, buttonSelector.getKeyList()));
                         buttonSelector.setVisibility(VISIBLE);
+                        funcSelector.setVisibility(INVISIBLE);
 
                         buttonUpSelector.setVisibility(VISIBLE);
                         buttonDownSelector.setVisibility(VISIBLE);
                         buttonLeftSelector.setVisibility(VISIBLE);
                         buttonRightSelector.setVisibility(VISIBLE);
-                    } else if (i == 3) {
-                        buttonSelector.setAdapter(new AdapterSelector(context, buttonSelector.getGPList()));
-                        buttonSelector.setVisibility(VISIBLE);
-
-                        buttonUpSelector.setVisibility(INVISIBLE);
-                        buttonDownSelector.setVisibility(INVISIBLE);
-                        buttonLeftSelector.setVisibility(INVISIBLE);
-                        buttonRightSelector.setVisibility(INVISIBLE);
-                    } else if (i == 4) {
-                        buttonSelector.setAdapter(new AdapterSelector(context, buttonSelector.getMouseList()));
-                        buttonSelector.setVisibility(VISIBLE);
-
-                        buttonUpSelector.setVisibility(INVISIBLE);
-                        buttonDownSelector.setVisibility(INVISIBLE);
-                        buttonLeftSelector.setVisibility(INVISIBLE);
-                        buttonRightSelector.setVisibility(INVISIBLE);
                     } else {
                         buttonSelector.setVisibility(INVISIBLE);
+                        funcSelector.setVisibility(INVISIBLE);
 
                         buttonUpSelector.setVisibility(INVISIBLE);
                         buttonDownSelector.setVisibility(INVISIBLE);
@@ -97,6 +88,7 @@ public class VirtualControllerTypeSelector extends Spinner {
                     }
                 } else {
                     buttonSelector.setVisibility(INVISIBLE);
+                    funcSelector.setVisibility(INVISIBLE);
 
                     buttonUpSelector.setVisibility(INVISIBLE);
                     buttonDownSelector.setVisibility(INVISIBLE);
@@ -121,8 +113,10 @@ public class VirtualControllerTypeSelector extends Spinner {
             this.setSelection(0);
             buttonSelector.setAdapter(new AdapterSelector(context, buttonSelector.getKeyList()));
             buttonSelector.setVisibility(VISIBLE);
+            funcSelector.setVisibility(VISIBLE);
         } else {
             buttonSelector.setVisibility(INVISIBLE);
+            funcSelector.setVisibility(INVISIBLE);
         }
         buttonUpSelector.setVisibility(INVISIBLE);
         buttonDownSelector.setVisibility(INVISIBLE);
@@ -135,7 +129,7 @@ public class VirtualControllerTypeSelector extends Spinner {
         int spinnerHigh = (int)(screen.heightPixels*0.1f);
         int spinnerWidth = (int)(screen.widthPixels*0.2f);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(spinnerWidth, spinnerHigh);
-        params.leftMargin = (int)(screen.widthPixels*0.4f);
+        params.leftMargin = (int)(screen.widthPixels*0.275f);
         params.topMargin = (int)(screen.heightPixels*0.1f);
         frame_layout.addView(this, params);
     }

@@ -49,7 +49,7 @@ public class VirtualControllerLayoutSelector extends Spinner{
         int spinnerHigh = (int)(screen.heightPixels*0.1f);
         int spinnerWidth = (int)(screen.widthPixels*0.2f);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(spinnerWidth, spinnerHigh);
-        params.leftMargin = (int)(screen.widthPixels*0.15f);
+        params.leftMargin = (int)(screen.widthPixels*0.025f);
         params.topMargin = (int)(screen.heightPixels*0.1f);
         frame_layout.addView(this, params);
     }

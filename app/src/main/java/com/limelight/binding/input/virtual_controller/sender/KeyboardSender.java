@@ -3,7 +3,7 @@ package com.limelight.binding.input.virtual_controller.sender;
 import android.view.KeyEvent;
 
 import com.limelight.binding.input.virtual_controller.VirtualController;
-import com.limelight.binding.input.virtual_controller.VirtualControllerConfigurationLoader;
+import com.limelight.nvstream.input.KeyboardPacket;
 
 import java.util.Map;
 
@@ -16,12 +16,14 @@ public class KeyboardSender extends ControllerSender{
 
     public KeyboardSender(String key,VirtualController virtualController) {
         this.key = key;
-        this.keyCode = VirtualControllerConfigurationLoader.getKeycode(key);
+        this.keyCode = KeyboardPacket.getKeycode(key);
         this.keyMap = virtualController.getKeyboardInputContext();
     }
 
+
     @Override
-    public byte sendMessage(boolean isPress) {
+    public byte sendMessage(int index, boolean isPress) {
+
         if (lastStatus == isPress){
             return 0x0;
         }
@@ -31,11 +33,6 @@ public class KeyboardSender extends ControllerSender{
         }else {
             keyMap.put(""+ keyCode,new KeyEvent(KeyEvent.ACTION_UP,keyCode));
         }
-        return 0x1;
-    }
-
-    @Override
-    public byte sendMessage(int index, boolean isPress) {
         return 0x1;
     }
 }
