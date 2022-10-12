@@ -251,12 +251,25 @@ public abstract class VirtualControllerElement extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // Ignore secondary touches on controls
+        //
+        // NB: We can get an additional pointer down if the user touches a non-StreamView area
+        // while also touching an OSC control, even if that pointer down doesn't correspond to
+        // an area of the OSC control.
+        if (event.getActionIndex() != 0) {
+            return true;
+        }
+
         if (virtualController.getControllerMode() == VirtualController.ControllerMode.Active) {
             return onElementTouchEvent(event);
         }
 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: {
+                position_pressed_x = event.getX();
+                position_pressed_y = event.getY();
+                startSize_x = getWidth();
+                startSize_y = getHeight();
                 if (virtualController.getControllerMode() == VirtualController.ControllerMode.EditLayout)
                     actionEnableEdit();
                 else if (virtualController.getControllerMode() == VirtualController.ControllerMode.MoveButtons)
@@ -264,19 +277,10 @@ public abstract class VirtualControllerElement extends View {
                 else if (virtualController.getControllerMode() == VirtualController.ControllerMode.ResizeButtons)
                     actionEnableResize();
 
-                switch (currentMode) {
-                    case Edit: {
-                        deleteElement();
-                        break;
-                    }
+                if (currentMode == Mode.Edit){
+                    deleteElement();
                 }
 
-            }
-            case MotionEvent.ACTION_POINTER_DOWN: {
-                position_pressed_x = event.getX();
-                position_pressed_y = event.getY();
-                startSize_x = getWidth();
-                startSize_y = getHeight();
                 return true;
             }
 
@@ -305,8 +309,7 @@ public abstract class VirtualControllerElement extends View {
                 return true;
             }
             case MotionEvent.ACTION_CANCEL:
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_POINTER_UP: {
+            case MotionEvent.ACTION_UP: {
                 actionCancel();
                 return true;
             }

@@ -20,6 +20,7 @@ import java.util.Map;
 
 public class VirtualControllerConfigurationLoader {
 
+
     private static GeneralButton createGeneralButton(
             final String elementId,
             final String[] keyInfo,

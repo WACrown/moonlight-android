@@ -1,14 +1,16 @@
 package com.limelight.binding.video;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jcodec.codecs.h264.H264Utils;
 import org.jcodec.codecs.h264.io.model.SeqParameterSet;
 import org.jcodec.codecs.h264.io.model.VUIParameters;
 
+import com.limelight.BuildConfig;
 import com.limelight.LimeLog;
 import com.limelight.R;
 import com.limelight.nvstream.av.video.VideoDecoderRenderer;
@@ -48,6 +50,9 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
     private boolean submittedCsd;
     private boolean submitCsdNextCall;
 
+    private int nextInputBufferIndex = -1;
+    private ByteBuffer nextInputBuffer;
+
     private Context context;
     private MediaCodec videoDecoder;
     private Thread rendererThread;
@@ -67,6 +72,23 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
     private String glRenderer;
     private boolean foreground = true;
     private PerfOverlayListener perfListener;
+
+    private static final int CR_TIMEOUT_MS = 5000;
+    private static final int CR_MAX_TRIES = 10;
+    private static final int CR_RECOVERY_TYPE_NONE = 0;
+    private static final int CR_RECOVERY_TYPE_RESTART = 1;
+    private static final int CR_RECOVERY_TYPE_RESET = 2;
+    private AtomicInteger codecRecoveryType = new AtomicInteger(CR_RECOVERY_TYPE_NONE);
+    private final Object codecRecoveryMonitor = new Object();
+
+    // Each thread that touches the MediaCodec object or any associated buffers must have a flag
+    // here and must call doCodecRecoveryIfRequired() on a regular basis.
+    private static final int CR_FLAG_INPUT_THREAD = 0x1;
+    private static final int CR_FLAG_RENDER_THREAD = 0x2;
+    private static final int CR_FLAG_CHOREOGRAPHER = 0x4;
+    private static final int CR_FLAG_ALL = CR_FLAG_INPUT_THREAD | CR_FLAG_RENDER_THREAD | CR_FLAG_CHOREOGRAPHER;
+    private int codecRecoveryThreadQuiescedFlags = 0;
+    private int codecRecoveryAttempts = 0;
 
     private MediaFormat inputFormat;
     private MediaFormat outputFormat;
@@ -176,7 +198,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         // for even required levels of HEVC.
         MediaCodecInfo hevcDecoderInfo = MediaCodecHelper.findProbableSafeDecoder("video/hevc", -1);
         if (hevcDecoderInfo != null) {
-            if (!MediaCodecHelper.decoderIsWhitelistedForHevc(hevcDecoderInfo.getName(), meteredNetwork, prefs)) {
+            if (!MediaCodecHelper.decoderIsWhitelistedForHevc(hevcDecoderInfo.getName())) {
                 LimeLog.info("Found HEVC decoder, but it's not whitelisted - "+hevcDecoderInfo.getName());
 
                 // Force HEVC enabled if the user asked for it
@@ -334,66 +356,68 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         return videoFormat;
     }
 
-    private boolean tryConfigureDecoder(MediaCodecInfo selectedDecoderInfo, MediaFormat format) {
-        try {
-            videoDecoder = MediaCodec.createByCodecName(selectedDecoderInfo.getName());
-            LimeLog.info("Configuring with format: "+format);
+    private void configureAndStartDecoder(MediaFormat format) {
+        LimeLog.info("Configuring with format: "+format);
 
-            videoDecoder.configure(format, renderTarget.getSurface(), null, 0);
+        videoDecoder.configure(format, renderTarget.getSurface(), null, 0);
 
-            configuredFormat = format;
+        configuredFormat = format;
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                // This will contain the actual accepted input format attributes
-                inputFormat = videoDecoder.getInputFormat();
-                LimeLog.info("Input format: "+inputFormat);
-            }
+        // After reconfiguration, we must resubmit CSD buffers
+        submittedCsd = false;
+        submitCsdNextCall = false;
+        vpsBuffer = null;
+        spsBuffer = null;
+        ppsBuffer = null;
 
-            videoDecoder.setVideoScalingMode(MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // This will contain the actual accepted input format attributes
+            inputFormat = videoDecoder.getInputFormat();
+            LimeLog.info("Input format: "+inputFormat);
+        }
 
-            if (USE_FRAME_RENDER_TIME && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                videoDecoder.setOnFrameRenderedListener(new MediaCodec.OnFrameRenderedListener() {
-                    @Override
-                    public void onFrameRendered(MediaCodec mediaCodec, long presentationTimeUs, long renderTimeNanos) {
-                        long delta = (renderTimeNanos / 1000000L) - (presentationTimeUs / 1000);
-                        if (delta >= 0 && delta < 1000) {
-                            if (USE_FRAME_RENDER_TIME) {
-                                activeWindowVideoStats.totalTimeMs += delta;
-                            }
-                        }
-                    }
-                }, null);
-            }
+        videoDecoder.setVideoScalingMode(MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 
-            LimeLog.info("Using codec "+selectedDecoderInfo.getName()+" for hardware decoding "+format.getString(MediaFormat.KEY_MIME));
+        // Start the decoder
+        videoDecoder.start();
 
-            // Start the decoder
-            videoDecoder.start();
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                legacyInputBuffers = videoDecoder.getInputBuffers();
-            }
-
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-
-            if (videoDecoder != null) {
-                videoDecoder.release();
-                videoDecoder = null;
-            }
-
-            return false;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            legacyInputBuffers = videoDecoder.getInputBuffers();
         }
     }
 
-    @Override
-    public int setup(int format, int width, int height, int redrawRate) {
-        this.initialWidth = width;
-        this.initialHeight = height;
-        this.videoFormat = format;
-        this.refreshRate = redrawRate;
+    private boolean tryConfigureDecoder(MediaCodecInfo selectedDecoderInfo, MediaFormat format, boolean throwOnCodecError) {
+        boolean configured = false;
+        try {
+            videoDecoder = MediaCodec.createByCodecName(selectedDecoderInfo.getName());
+            configureAndStartDecoder(format);
+            LimeLog.info("Using codec " + selectedDecoderInfo.getName() + " for hardware decoding " + format.getString(MediaFormat.KEY_MIME));
+            configured = true;
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            if (throwOnCodecError) {
+                throw e;
+            }
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            if (throwOnCodecError) {
+                throw e;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            if (throwOnCodecError) {
+                throw new RuntimeException(e);
+            }
+        } finally {
+            if (!configured && videoDecoder != null) {
+                videoDecoder.release();
+                videoDecoder = null;
+            }
+        }
+        return configured;
+    }
 
+    public int initializeDecoder(boolean throwOnCodecError) {
         String mimeType;
         MediaCodecInfo selectedDecoderInfo;
 
@@ -406,7 +430,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                 return -1;
             }
 
-            if (width > 4096 || height > 4096) {
+            if (initialWidth > 4096 || initialHeight > 4096) {
                 LimeLog.severe("> 4K streaming only supported on HEVC");
                 return -1;
             }
@@ -459,7 +483,8 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
             // This will try low latency options until we find one that works (or we give up).
             boolean newFormat = MediaCodecHelper.setDecoderLowLatencyOptions(mediaFormat, selectedDecoderInfo, tryNumber);
 
-            if (tryConfigureDecoder(selectedDecoderInfo, mediaFormat)) {
+            // Throw the underlying codec exception on the last attempt if the caller requested it
+            if (tryConfigureDecoder(selectedDecoderInfo, mediaFormat, !newFormat && throwOnCodecError)) {
                 // Success!
                 break;
             }
@@ -470,26 +495,233 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
             }
         }
 
+        if (USE_FRAME_RENDER_TIME && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            videoDecoder.setOnFrameRenderedListener(new MediaCodec.OnFrameRenderedListener() {
+                @Override
+                public void onFrameRendered(MediaCodec mediaCodec, long presentationTimeUs, long renderTimeNanos) {
+                    long delta = (renderTimeNanos / 1000000L) - (presentationTimeUs / 1000);
+                    if (delta >= 0 && delta < 1000) {
+                        if (USE_FRAME_RENDER_TIME) {
+                            activeWindowVideoStats.totalTimeMs += delta;
+                        }
+                    }
+                }
+            }, null);
+        }
+
         return 0;
     }
 
-    private void handleDecoderException(Exception e, ByteBuffer buf, int codecFlags, boolean throwOnTransient) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (e instanceof CodecException) {
-                CodecException codecExc = (CodecException) e;
+    @Override
+    public int setup(int format, int width, int height, int redrawRate) {
+        this.initialWidth = width;
+        this.initialHeight = height;
+        this.videoFormat = format;
+        this.refreshRate = redrawRate;
 
-                if (codecExc.isTransient() && !throwOnTransient) {
-                    // We'll let transient exceptions go
-                    LimeLog.warning(codecExc.getDiagnosticInfo());
-                    return;
+        return initializeDecoder(false);
+    }
+
+    // All threads that interact with the MediaCodec instance must call this function regularly!
+    private boolean doCodecRecoveryIfRequired(int quiescenceFlag) {
+        // NB: We cannot check 'stopping' here because we could end up bailing in a partially
+        // quiesced state that will cause the quiesced threads to never wake up.
+        if (codecRecoveryType.get() == CR_RECOVERY_TYPE_NONE) {
+            // Common case
+            return false;
+        }
+
+        // We need some sort of recovery, so quiesce all threads before starting that
+        synchronized (codecRecoveryMonitor) {
+            if (choreographerHandlerThread == null) {
+                // If we have no choreographer thread, we can just mark that as quiesced right now.
+                codecRecoveryThreadQuiescedFlags |= CR_FLAG_CHOREOGRAPHER;
+            }
+
+            codecRecoveryThreadQuiescedFlags |= quiescenceFlag;
+
+            if (codecRecoveryThreadQuiescedFlags == CR_FLAG_ALL) {
+                // This is the final thread to quiesce, so let's perform the codec recovery now.
+                codecRecoveryAttempts++;
+                LimeLog.info("Codec recovery attempt: "+codecRecoveryAttempts);
+
+                // Input and output buffers are invalidated by stop() and reset().
+                nextInputBuffer = null;
+                nextInputBufferIndex = -1;
+                outputBufferQueue.clear();
+
+                // For "recoverable" exceptions, we can just stop, reconfigure, and restart.
+                if (codecRecoveryType.get() == CR_RECOVERY_TYPE_RESTART) {
+                    LimeLog.warning("Trying to restart decoder after CodecException");
+                    try {
+                        videoDecoder.stop();
+                        configureAndStartDecoder(configuredFormat);
+                        codecRecoveryType.set(CR_RECOVERY_TYPE_NONE);
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
+
+                        // Our Surface is probably invalid, so just stop
+                        stopping = true;
+                        codecRecoveryType.set(CR_RECOVERY_TYPE_NONE);
+                    } catch (IllegalStateException e) {
+                        e.printStackTrace();
+
+                        // Something went wrong during the restart, let's use a bigger hammer
+                        // and try a reset instead.
+                        codecRecoveryType.set(CR_RECOVERY_TYPE_RESET);
+                    }
                 }
 
-                LimeLog.severe(codecExc.getDiagnosticInfo());
+                // For "non-recoverable" exceptions on L+, we can call reset() to recover
+                // without having to recreate the entire decoder again.
+                if (codecRecoveryType.get() == CR_RECOVERY_TYPE_RESET && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    LimeLog.warning("Trying to reset decoder after CodecException");
+                    try {
+                        videoDecoder.reset();
+                        configureAndStartDecoder(configuredFormat);
+                        codecRecoveryType.set(CR_RECOVERY_TYPE_NONE);
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
+
+                        // Our Surface is probably invalid, so just stop
+                        stopping = true;
+                        codecRecoveryType.set(CR_RECOVERY_TYPE_NONE);
+                    } catch (IllegalStateException e) {
+                        e.printStackTrace();
+
+                        // Something went wrong during the reset, we'll have to resort to
+                        // releasing and recreating the decoder now.
+                    }
+                }
+
+                // If we _still_ haven't managed to recover, go for the nuclear option and just
+                // throw away the old decoder and reinitialize a new one from scratch.
+                if (codecRecoveryType.get() == CR_RECOVERY_TYPE_RESET) {
+                    LimeLog.warning("Trying to recreate decoder after CodecException");
+                    videoDecoder.release();
+
+                    try {
+                        int err = initializeDecoder(true);
+                        if (err != 0) {
+                            throw new IllegalStateException("Decoder reset failed: " + err);
+                        }
+                        codecRecoveryType.set(CR_RECOVERY_TYPE_NONE);
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
+
+                        // Our Surface is probably invalid, so just stop
+                        stopping = true;
+                        codecRecoveryType.set(CR_RECOVERY_TYPE_NONE);
+                    } catch (IllegalStateException e) {
+                        // If we failed to recover after all of these attempts, just crash
+                        if (!reportedCrash) {
+                            reportedCrash = true;
+                            crashListener.notifyCrash(e);
+                        }
+                        throw new RendererException(this, e);
+                    }
+                }
+
+                // Wake all quiesced threads and allow them to begin work again
+                codecRecoveryThreadQuiescedFlags = 0;
+                codecRecoveryMonitor.notifyAll();
+            }
+            else {
+                // If we haven't quiesced all threads yet, wait to be signalled after recovery.
+                // The final thread to be quiesced will handle the codec recovery.
+                LimeLog.info("Waiting to quiesce decoder threads: "+codecRecoveryThreadQuiescedFlags);
+                long startTime = SystemClock.uptimeMillis();
+                while (codecRecoveryType.get() != CR_RECOVERY_TYPE_NONE) {
+                    try {
+                        if (SystemClock.uptimeMillis() - startTime >= CR_TIMEOUT_MS) {
+                            throw new IllegalStateException("Decoder failed to recover within timeout");
+                        }
+                        codecRecoveryMonitor.wait(CR_TIMEOUT_MS);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+
+                        // InterruptedException clears the thread's interrupt status. Since we can't
+                        // handle that here, we will re-interrupt the thread to set the interrupt
+                        // status back to true.
+                        Thread.currentThread().interrupt();
+
+                        break;
+                    }
+                }
             }
         }
 
-        // Only throw if we're not stopping
-        if (!stopping) {
+        return true;
+    }
+
+    // Returns true if the exception is transient
+    private boolean handleDecoderException(IllegalStateException e) {
+        // Eat decoder exceptions if we're in the process of stopping
+        if (stopping) {
+            return false;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && e instanceof CodecException) {
+            CodecException codecExc = (CodecException) e;
+
+            if (codecExc.isTransient()) {
+                // We'll let transient exceptions go
+                LimeLog.warning(codecExc.getDiagnosticInfo());
+                return true;
+            }
+
+            LimeLog.severe(codecExc.getDiagnosticInfo());
+
+            // We can attempt a recovery or reset at this stage to try to start decoding again
+            if (codecRecoveryAttempts < CR_MAX_TRIES) {
+                // If the exception is non-recoverable or we already require a reset, perform a reset.
+                // If we have no prior unrecoverable failure, we will try a restart instead.
+                if (codecExc.isRecoverable() && codecRecoveryType.compareAndSet(CR_RECOVERY_TYPE_NONE, CR_RECOVERY_TYPE_RESTART)) {
+                    LimeLog.info("Decoder requires restart for recoverable CodecException");
+                    e.printStackTrace();
+                }
+                else if (!codecExc.isRecoverable()) {
+                    if (codecRecoveryType.compareAndSet(CR_RECOVERY_TYPE_NONE, CR_RECOVERY_TYPE_RESET)) {
+                        LimeLog.info("Decoder requires reset for non-recoverable CodecException");
+                        e.printStackTrace();
+                    }
+                    else if (codecRecoveryType.compareAndSet(CR_RECOVERY_TYPE_RESTART, CR_RECOVERY_TYPE_RESET)) {
+                        LimeLog.info("Decoder restart promoted to reset for non-recoverable CodecException");
+                        e.printStackTrace();
+                    }
+                    else if (codecRecoveryType.get() != CR_RECOVERY_TYPE_RESET) {
+                        throw new IllegalStateException("Unexpected codec recovery type" + codecRecoveryType.get());
+                    }
+                }
+
+                // The recovery will take place when all threads reach doCodecRecoveryIfRequired().
+                return false;
+            }
+        }
+        else {
+            // IllegalStateException was primarily used prior to the introduction of CodecException.
+            // Recovery from this requires a full decoder reset.
+            //
+            // NB: CodecException is an IllegalStateException, so we must check for it first.
+            if (codecRecoveryAttempts < CR_MAX_TRIES) {
+                if (codecRecoveryType.compareAndSet(CR_RECOVERY_TYPE_NONE, CR_RECOVERY_TYPE_RESET)) {
+                    LimeLog.info("Decoder requires reset for IllegalStateException");
+                    e.printStackTrace();
+                }
+                else if (codecRecoveryType.compareAndSet(CR_RECOVERY_TYPE_RESTART, CR_RECOVERY_TYPE_RESET)) {
+                    LimeLog.info("Decoder restart promoted to reset for IllegalStateException");
+                    e.printStackTrace();
+                }
+                else if (codecRecoveryType.get() != CR_RECOVERY_TYPE_RESET) {
+                    throw new IllegalStateException("Unexpected codec recovery type: " + codecRecoveryType.get());
+                }
+
+                return false;
+            }
+        }
+
+        // Only throw if we're not in the middle of codec recovery
+        if (codecRecoveryType.get() == CR_RECOVERY_TYPE_NONE) {
             //
             // There seems to be a race condition with decoder/surface teardown causing some
             // decoders to to throw IllegalStateExceptions even before 'stopping' is set.
@@ -510,15 +742,13 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
             }
             else {
                 // This is the first exception we've hit
-                if (buf != null || codecFlags != 0) {
-                    initialException = new RendererException(this, e, buf, codecFlags);
-                }
-                else {
-                    initialException = new RendererException(this, e);
-                }
+                initialException = new RendererException(this, e);
                 initialExceptionTimestamp = SystemClock.uptimeMillis();
             }
         }
+
+        // Not transient
+        return false;
     }
 
     @Override
@@ -550,12 +780,22 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
 
                     lastRenderedFrameTimeNanos = frameTimeNanos;
                     activeWindowVideoStats.totalFramesRendered++;
-                } catch (Exception e) {
-                    // This will leak nextOutputBuffer, but there's really nothing else we can do
-                    handleDecoderException(e, null, 0, false);
+                } catch (IllegalStateException ignored) {
+                    try {
+                        // Try to avoid leaking the output buffer by releasing it without rendering
+                        videoDecoder.releaseOutputBuffer(nextOutputBuffer, false);
+                    } catch (IllegalStateException e) {
+                        // This will leak nextOutputBuffer, but there's really nothing else we can do
+                        e.printStackTrace();
+                        handleDecoderException(e);
+                    }
                 }
             }
         }
+
+        // Attempt codec recovery even if we have nothing to render right now. Recovery can still
+        // be required even if the codec died before giving any output.
+        doCodecRecoveryIfRequired(CR_FLAG_CHOREOGRAPHER);
 
         // Request another callback for next frame
         Choreographer.getInstance().postFrameCallback(this);
@@ -643,7 +883,13 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                                 // run for a while (if there is a huge mismatch between stream FPS and display
                                 // refresh rate).
                                 if (outputBufferQueue.size() == OUTPUT_BUFFER_QUEUE_LIMIT) {
-                                    videoDecoder.releaseOutputBuffer(outputBufferQueue.take(), false);
+                                    try {
+                                        videoDecoder.releaseOutputBuffer(outputBufferQueue.take(), false);
+                                    } catch (InterruptedException e) {
+                                        // We're shutting down, so we can just drop this buffer on the floor
+                                        // and it will be reclaimed when the codec is released.
+                                        return;
+                                    }
                                 }
 
                                 // Add this buffer
@@ -671,8 +917,10 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                                     break;
                             }
                         }
-                    } catch (Exception e) {
-                        handleDecoderException(e, null, 0, false);
+                    } catch (IllegalStateException e) {
+                        handleDecoderException(e);
+                    } finally {
+                        doCodecRecoveryIfRequired(CR_FLAG_RENDER_THREAD);
                     }
                 }
             }
@@ -682,19 +930,54 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         rendererThread.start();
     }
 
-    private int dequeueInputBuffer() {
-        int index = -1;
+    private boolean fetchNextInputBuffer() {
         long startTime;
+        boolean codecRecovered;
+
+        if (nextInputBuffer != null) {
+            // We already have an input buffer
+            return true;
+        }
 
         startTime = SystemClock.uptimeMillis();
 
         try {
-            while (index < 0 && !stopping) {
-                index = videoDecoder.dequeueInputBuffer(10000);
+            // If we don't have an input buffer index yet, fetch one now
+            while (nextInputBufferIndex < 0 && !stopping) {
+                nextInputBufferIndex = videoDecoder.dequeueInputBuffer(10000);
             }
-        } catch (Exception e) {
-            handleDecoderException(e, null, 0, true);
-            return MediaCodec.INFO_TRY_AGAIN_LATER;
+
+            // Get the backing ByteBuffer for the input buffer index
+            if (nextInputBufferIndex >= 0) {
+                // Using the new getInputBuffer() API on Lollipop allows
+                // the framework to do some performance optimizations for us
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    nextInputBuffer = videoDecoder.getInputBuffer(nextInputBufferIndex);
+                    if (nextInputBuffer == null) {
+                        // According to the Android docs, getInputBuffer() can return null "if the
+                        // index is not a dequeued input buffer". I don't think this ever should
+                        // happen but if it does, let's try to get a new input buffer next time.
+                        nextInputBufferIndex = -1;
+                    }
+                }
+                else {
+                    nextInputBuffer = legacyInputBuffers[nextInputBufferIndex];
+
+                    // Clear old input data pre-Lollipop
+                    nextInputBuffer.clear();
+                }
+            }
+        } catch (IllegalStateException e) {
+            handleDecoderException(e);
+            return false;
+        } finally {
+            codecRecovered = doCodecRecoveryIfRequired(CR_FLAG_INPUT_THREAD);
+        }
+
+        // If codec recovery is required, always return false to ensure the caller will request
+        // an IDR frame to complete the codec recovery.
+        if (codecRecovered) {
+            return false;
         }
 
         int deltaMs = (int)(SystemClock.uptimeMillis() - startTime);
@@ -703,7 +986,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
             LimeLog.warning("Dequeue input buffer ran long: " + deltaMs + " ms");
         }
 
-        if (index < 0) {
+        if (nextInputBuffer == null) {
             // We've been hung for 5 seconds and no other exception was reported,
             // so generate a decoder hung exception
             if (deltaMs >= 5000 && initialException == null) {
@@ -714,10 +997,11 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                 }
                 throw new RendererException(this, decoderHungException);
             }
-            return index;
+
+            return false;
         }
 
-        return index;
+        return true;
     }
 
     @Override
@@ -734,6 +1018,12 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         // Halt the rendering thread
         if (rendererThread != null) {
             rendererThread.interrupt();
+        }
+
+        // Stop any active codec recovery operations
+        synchronized (codecRecoveryMonitor) {
+            codecRecoveryType.set(CR_RECOVERY_TYPE_NONE);
+            codecRecoveryMonitor.notifyAll();
         }
 
         // Post a quit message to the Choreographer looper (if we have one)
@@ -793,39 +1083,48 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         // TODO: Set HDR metadata?
     }
 
-    private boolean queueInputBuffer(int inputBufferIndex, int offset, int length, long timestampUs, int codecFlags) {
+    private boolean queueNextInputBuffer(long timestampUs, int codecFlags) {
+        boolean codecRecovered;
+
         try {
-            videoDecoder.queueInputBuffer(inputBufferIndex,
-                    offset, length,
+            videoDecoder.queueInputBuffer(nextInputBufferIndex,
+                    0, nextInputBuffer.position(),
                     timestampUs, codecFlags);
-            return true;
-        } catch (Exception e) {
-            handleDecoderException(e, null, codecFlags, true);
+
+            // We need a new buffer now
+            nextInputBufferIndex = -1;
+            nextInputBuffer = null;
+        } catch (IllegalStateException e) {
+            if (handleDecoderException(e)) {
+                // We encountered a transient error. In this case, just hold onto the buffer
+                // (to avoid leaking it), clear it, and keep it for the next frame. We'll return
+                // false to trigger an IDR frame to recover.
+                nextInputBuffer.clear();
+            }
+            else {
+                // We encountered a non-transient error. In this case, we will simply leak the
+                // buffer because we cannot be sure we will ever succeed in queuing it.
+                nextInputBufferIndex = -1;
+                nextInputBuffer = null;
+            }
+            return false;
+        } finally {
+            codecRecovered = doCodecRecoveryIfRequired(CR_FLAG_INPUT_THREAD);
+        }
+
+        // If codec recovery is required, always return false to ensure the caller will request
+        // an IDR frame to complete the codec recovery.
+        if (codecRecovered) {
             return false;
         }
-    }
 
-    // Using the new getInputBuffer() API on Lollipop allows
-    // the framework to do some performance optimizations for us
-    private ByteBuffer getEmptyInputBuffer(int inputBufferIndex) {
-        ByteBuffer buf;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            try {
-                buf = videoDecoder.getInputBuffer(inputBufferIndex);
-            } catch (Exception e) {
-                handleDecoderException(e, null, 0, true);
-                return null;
-            }
-        }
-        else {
-            buf = legacyInputBuffers[inputBufferIndex];
-
-            // Clear old input data pre-Lollipop
-            buf.clear();
-        }
-
-        return buf;
+        // Fetch a new input buffer now while we have some time between frames
+        // to have it ready immediately when the next frame arrives.
+        //
+        // We must propagate the return value here in order to properly handle
+        // codec recovery happening in fetchNextInputBuffer(). If we don't, we'll
+        // never get an IDR frame to complete the recovery process.
+        return fetchNextInputBuffer();
     }
 
     private void doProfileSpecificSpsPatching(SeqParameterSet sps) {
@@ -904,19 +1203,18 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
             activeWindowVideoStats.measurementStartTimestamp = SystemClock.uptimeMillis();
         }
 
-        int inputBufferIndex;
-        ByteBuffer buf;
         long timestampUs;
         int codecFlags = 0;
 
         // H264 SPS
-        if (decodeUnitData[4] == 0x67) {
+        if (decodeUnitType == MoonBridge.BUFFER_TYPE_SPS && (videoFormat & MoonBridge.VIDEO_FORMAT_MASK_H264) != 0) {
             numSpsIn++;
 
             ByteBuffer spsBuf = ByteBuffer.wrap(decodeUnitData);
+            int startSeqLen = decodeUnitData[2] == 0x01 ? 3 : 4;
 
             // Skip to the start of the NALU data
-            spsBuf.position(5);
+            spsBuf.position(startSeqLen + 1);
 
             // The H264Utils.readSPS function safely handles
             // Annex B NALUs (including NALUs with escape sequences)
@@ -963,7 +1261,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
 
             // GFE 2.5.11 changed the SPS to add additional extensions
             // Some devices don't like these so we remove them here on old devices.
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O && sps.vuiParams != null) {
                 sps.vuiParams.videoSignalTypePresentFlag = false;
                 sps.vuiParams.colourDescriptionPresentFlag = false;
                 sps.vuiParams.chromaLocInfoPresentFlag = false;
@@ -975,11 +1273,19 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                 // The SPS that comes in the current H264 bytestream doesn't set bitstream_restriction_flag
                 // or max_dec_frame_buffering which increases decoding latency on Tegra.
 
+                // If the encoder didn't include VUI parameters in the SPS, add them now
+                if (sps.vuiParams == null) {
+                    LimeLog.info("Adding VUI parameters");
+                    sps.vuiParams = new VUIParameters();
+                }
+
                 // GFE 2.5.11 started sending bitstream restrictions
                 if (sps.vuiParams.bitstreamRestriction == null) {
                     LimeLog.info("Adding bitstream restrictions");
                     sps.vuiParams.bitstreamRestriction = new VUIParameters.BitstreamRestriction();
                     sps.vuiParams.bitstreamRestriction.motionVectorsOverPicBoundariesFlag = true;
+                    sps.vuiParams.bitstreamRestriction.maxBytesPerPicDenom = 2;
+                    sps.vuiParams.bitstreamRestriction.maxBitsPerMbDenom = 1;
                     sps.vuiParams.bitstreamRestriction.log2MaxMvLengthHorizontal = 16;
                     sps.vuiParams.bitstreamRestriction.log2MaxMvLengthVertical = 16;
                     sps.vuiParams.bitstreamRestriction.numReorderFrames = 0;
@@ -993,13 +1299,16 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
 
                 // These values are the defaults for the fields, but they are more aggressive
                 // than what GFE sends in 2.5.11, but it doesn't seem to cause picture problems.
-                sps.vuiParams.bitstreamRestriction.maxBytesPerPicDenom = 2;
-                sps.vuiParams.bitstreamRestriction.maxBitsPerMbDenom = 1;
+                // We'll leave these alone for "modern" devices just in case they care.
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    sps.vuiParams.bitstreamRestriction.maxBytesPerPicDenom = 2;
+                    sps.vuiParams.bitstreamRestriction.maxBitsPerMbDenom = 1;
+                }
 
                 // log2_max_mv_length_horizontal and log2_max_mv_length_vertical are set to more
                 // conservative values by GFE 2.5.11. We'll let those values stand.
             }
-            else {
+            else if (sps.vuiParams != null) {
                 // Devices that didn't/couldn't get bitstream restrictions before GFE 2.5.11
                 // will continue to not receive them now
                 sps.vuiParams.bitstreamRestriction = null;
@@ -1020,9 +1329,9 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
             ByteBuffer escapedNalu = H264Utils.writeSPS(sps, decodeUnitLength);
 
             // Batch this to submit together with PPS
-            spsBuffer = new byte[5 + escapedNalu.limit()];
-            System.arraycopy(decodeUnitData, 0, spsBuffer, 0, 5);
-            escapedNalu.get(spsBuffer, 5, escapedNalu.limit());
+            spsBuffer = new byte[startSeqLen + 1 + escapedNalu.limit()];
+            System.arraycopy(decodeUnitData, 0, spsBuffer, 0, startSeqLen + 1);
+            escapedNalu.get(spsBuffer, startSeqLen + 1, escapedNalu.limit());
             return MoonBridge.DR_OK;
         }
         else if (decodeUnitType == MoonBridge.BUFFER_TYPE_VPS) {
@@ -1049,25 +1358,17 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
             // fused IDR frames, we will submit the CSD blob in a
             // separate input buffer.
             if (!submittedCsd || !fusedIdrFrame) {
-                inputBufferIndex = dequeueInputBuffer();
-                if (inputBufferIndex < 0) {
-                    // We're being torn down now
-                    return MoonBridge.DR_NEED_IDR;
-                }
-
-                buf = getEmptyInputBuffer(inputBufferIndex);
-                if (buf == null) {
-                    // We're being torn down now
+                if (!fetchNextInputBuffer()) {
                     return MoonBridge.DR_NEED_IDR;
                 }
 
                 // When we get the PPS, submit the VPS and SPS together with
                 // the PPS, as required by AOSP docs on use of MediaCodec.
                 if (vpsBuffer != null) {
-                    buf.put(vpsBuffer);
+                    nextInputBuffer.put(vpsBuffer);
                 }
                 if (spsBuffer != null) {
-                    buf.put(spsBuffer);
+                    nextInputBuffer.put(spsBuffer);
                 }
 
                 // This is the CSD blob
@@ -1096,27 +1397,19 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                 activeWindowVideoStats.totalTimeMs += enqueueTimeMs - receiveTimeMs;
             }
 
-            inputBufferIndex = dequeueInputBuffer();
-            if (inputBufferIndex < 0) {
-                // We're being torn down now
-                return MoonBridge.DR_NEED_IDR;
-            }
-
-            buf = getEmptyInputBuffer(inputBufferIndex);
-            if (buf == null) {
-                // We're being torn down now
+            if (!fetchNextInputBuffer()) {
                 return MoonBridge.DR_NEED_IDR;
             }
 
             if (submitCsdNextCall) {
                 if (vpsBuffer != null) {
-                    buf.put(vpsBuffer);
+                    nextInputBuffer.put(vpsBuffer);
                 }
                 if (spsBuffer != null) {
-                    buf.put(spsBuffer);
+                    nextInputBuffer.put(spsBuffer);
                 }
                 if (ppsBuffer != null) {
-                    buf.put(ppsBuffer);
+                    nextInputBuffer.put(ppsBuffer);
                 }
 
                 submitCsdNextCall = false;
@@ -1139,9 +1432,9 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
             numFramesIn++;
         }
 
-        if (decodeUnitLength > buf.limit() - buf.position()) {
+        if (decodeUnitLength > nextInputBuffer.limit() - nextInputBuffer.position()) {
             IllegalArgumentException exception = new IllegalArgumentException(
-                    "Decode unit length "+decodeUnitLength+" too large for input buffer "+buf.limit());
+                    "Decode unit length "+decodeUnitLength+" too large for input buffer "+nextInputBuffer.limit());
             if (!reportedCrash) {
                 reportedCrash = true;
                 crashListener.notifyCrash(exception);
@@ -1150,11 +1443,9 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         }
 
         // Copy data from our buffer list into the input buffer
-        buf.put(decodeUnitData, 0, decodeUnitLength);
+        nextInputBuffer.put(decodeUnitData, 0, decodeUnitLength);
 
-        if (!queueInputBuffer(inputBufferIndex,
-                0, buf.position(),
-                timestampUs, codecFlags)) {
+        if (!queueNextInputBuffer(timestampUs, codecFlags)) {
             return MoonBridge.DR_NEED_IDR;
         }
 
@@ -1176,18 +1467,12 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
     }
 
     private boolean replaySps() {
-        int inputIndex = dequeueInputBuffer();
-        if (inputIndex < 0) {
-            return false;
-        }
-
-        ByteBuffer inputBuffer = getEmptyInputBuffer(inputIndex);
-        if (inputBuffer == null) {
+        if (!fetchNextInputBuffer()) {
             return false;
         }
 
         // Write the Annex B header
-        inputBuffer.put(new byte[]{0x00, 0x00, 0x00, 0x01, 0x67});
+        nextInputBuffer.put(new byte[]{0x00, 0x00, 0x00, 0x01, 0x67});
 
         // Switch the H264 profile back to high
         savedSps.profileIdc = 100;
@@ -1198,15 +1483,13 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         // The H264Utils.writeSPS function safely handles
         // Annex B NALUs (including NALUs with escape sequences)
         ByteBuffer escapedNalu = H264Utils.writeSPS(savedSps, 128);
-        inputBuffer.put(escapedNalu);
+        nextInputBuffer.put(escapedNalu);
 
         // No need for the SPS anymore
         savedSps = null;
 
         // Queue the new SPS
-        return queueInputBuffer(inputIndex,
-                0, inputBuffer.position(),
-                0, MediaCodec.BUFFER_FLAG_CODEC_CONFIG);
+        return queueNextInputBuffer(0, MediaCodec.BUFFER_FLAG_CODEC_CONFIG);
     }
 
     @Override
@@ -1256,7 +1539,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         public String toString() {
             String str = "";
 
-            str += "Hang time: "+hangTimeMs+" ms\n";
+            str += "Hang time: "+hangTimeMs+" ms"+ RendererException.DELIMITER;
             str += super.toString();
 
             return str;
@@ -1265,22 +1548,19 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
 
     static class RendererException extends RuntimeException {
         private static final long serialVersionUID = 8985937536997012406L;
+        protected static final String DELIMITER = BuildConfig.DEBUG ? "\n" : " | ";
 
         private String text;
 
         RendererException(MediaCodecDecoderRenderer renderer, Exception e) {
-            this.text = generateText(renderer, e, null, 0);
-        }
-
-        RendererException(MediaCodecDecoderRenderer renderer, Exception e, ByteBuffer currentBuffer, int currentCodecFlags) {
-            this.text = generateText(renderer, e, currentBuffer, currentCodecFlags);
+            this.text = generateText(renderer, e);
         }
 
         public String toString() {
             return text;
         }
 
-        private String generateText(MediaCodecDecoderRenderer renderer, Exception originalException, ByteBuffer currentBuffer, int currentCodecFlags) {
+        private String generateText(MediaCodecDecoderRenderer renderer, Exception originalException) {
             String str;
 
             if (renderer.numVpsIn == 0 && renderer.numSpsIn == 0 && renderer.numPpsIn == 0) {
@@ -1305,44 +1585,43 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                 str = "ErrorWhileStreaming";
             }
 
-            str += ": 1\n";
-            str += "Format: "+String.format("%x", renderer.videoFormat)+"\n";
-            str += "AVC Decoder: "+((renderer.avcDecoder != null) ? renderer.avcDecoder.getName():"(none)")+"\n";
-            str += "HEVC Decoder: "+((renderer.hevcDecoder != null) ? renderer.hevcDecoder.getName():"(none)")+"\n";
+            str += "Format: "+String.format("%x", renderer.videoFormat)+DELIMITER;
+            str += "AVC Decoder: "+((renderer.avcDecoder != null) ? renderer.avcDecoder.getName():"(none)")+DELIMITER;
+            str += "HEVC Decoder: "+((renderer.hevcDecoder != null) ? renderer.hevcDecoder.getName():"(none)")+DELIMITER;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && renderer.avcDecoder != null) {
                 Range<Integer> avcWidthRange = renderer.avcDecoder.getCapabilitiesForType("video/avc").getVideoCapabilities().getSupportedWidths();
-                str += "AVC supported width range: "+avcWidthRange+"\n";
+                str += "AVC supported width range: "+avcWidthRange+DELIMITER;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     try {
                         Range<Double> avcFpsRange = renderer.avcDecoder.getCapabilitiesForType("video/avc").getVideoCapabilities().getAchievableFrameRatesFor(renderer.initialWidth, renderer.initialHeight);
-                        str += "AVC achievable FPS range: "+avcFpsRange+"\n";
+                        str += "AVC achievable FPS range: "+avcFpsRange+DELIMITER;
                     } catch (IllegalArgumentException e) {
-                        str += "AVC achievable FPS range: UNSUPPORTED!\n";
+                        str += "AVC achievable FPS range: UNSUPPORTED!"+DELIMITER;
                     }
                 }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && renderer.hevcDecoder != null) {
                 Range<Integer> hevcWidthRange = renderer.hevcDecoder.getCapabilitiesForType("video/hevc").getVideoCapabilities().getSupportedWidths();
-                str += "HEVC supported width range: "+hevcWidthRange+"\n";
+                str += "HEVC supported width range: "+hevcWidthRange+DELIMITER;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     try {
                         Range<Double> hevcFpsRange = renderer.hevcDecoder.getCapabilitiesForType("video/hevc").getVideoCapabilities().getAchievableFrameRatesFor(renderer.initialWidth, renderer.initialHeight);
-                        str += "HEVC achievable FPS range: " + hevcFpsRange + "\n";
+                        str += "HEVC achievable FPS range: " + hevcFpsRange + DELIMITER;
                     } catch (IllegalArgumentException e) {
-                        str += "HEVC achievable FPS range: UNSUPPORTED!\n";
+                        str += "HEVC achievable FPS range: UNSUPPORTED!"+DELIMITER;
                     }
                 }
             }
-            str += "Configured format: "+renderer.configuredFormat+"\n";
-            str += "Input format: "+renderer.inputFormat+"\n";
-            str += "Output format: "+renderer.outputFormat+"\n";
-            str += "Adaptive playback: "+renderer.adaptivePlayback+"\n";
-            str += "GL Renderer: "+renderer.glRenderer+"\n";
-            str += "Build fingerprint: "+Build.FINGERPRINT+"\n";
+            str += "Configured format: "+renderer.configuredFormat+DELIMITER;
+            str += "Input format: "+renderer.inputFormat+DELIMITER;
+            str += "Output format: "+renderer.outputFormat+DELIMITER;
+            str += "Adaptive playback: "+renderer.adaptivePlayback+DELIMITER;
+            str += "GL Renderer: "+renderer.glRenderer+DELIMITER;
+            //str += "Build fingerprint: "+Build.FINGERPRINT+DELIMITER;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                str += "SOC: "+Build.SOC_MANUFACTURER+" - "+Build.SOC_MODEL+"\n";
-                str += "Performance class: "+Build.VERSION.MEDIA_PERFORMANCE_CLASS+"\n";
-                str += "Vendor params: ";
+                str += "SOC: "+Build.SOC_MANUFACTURER+" - "+Build.SOC_MODEL+DELIMITER;
+                str += "Performance class: "+Build.VERSION.MEDIA_PERFORMANCE_CLASS+DELIMITER;
+                /*str += "Vendor params: ";
                 List<String> params = renderer.videoDecoder.getSupportedVendorParameters();
                 if (params.isEmpty()) {
                     str += "NONE";
@@ -1352,63 +1631,36 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                         str += param + " ";
                     }
                 }
-                str += "\n";
+                str += DELIMITER;*/
             }
-            str += "Foreground: "+renderer.foreground+"\n";
-            str += "Consecutive crashes: "+renderer.consecutiveCrashCount+"\n";
-            str += "RFI active: "+renderer.refFrameInvalidationActive+"\n";
-            str += "Using modern SPS patching: "+(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)+"\n";
-            str += "Fused IDR frames: "+renderer.fusedIdrFrame+"\n";
-            str += "Video dimensions: "+renderer.initialWidth+"x"+renderer.initialHeight+"\n";
-            str += "FPS target: "+renderer.refreshRate+"\n";
-            str += "Bitrate: "+renderer.prefs.bitrate+" Kbps \n";
-            str += "CSD stats: "+renderer.numVpsIn+", "+renderer.numSpsIn+", "+renderer.numPpsIn+"\n";
-            str += "Frames in-out: "+renderer.numFramesIn+", "+renderer.numFramesOut+"\n";
-            str += "Total frames received: "+renderer.globalVideoStats.totalFramesReceived+"\n";
-            str += "Total frames rendered: "+renderer.globalVideoStats.totalFramesRendered+"\n";
-            str += "Frame losses: "+renderer.globalVideoStats.framesLost+" in "+renderer.globalVideoStats.frameLossEvents+" loss events\n";
-            str += "Average end-to-end client latency: "+renderer.getAverageEndToEndLatency()+"ms\n";
-            str += "Average hardware decoder latency: "+renderer.getAverageDecoderLatency()+"ms\n";
-            str += "Frame pacing mode: "+renderer.prefs.framePacing+"\n";
-
-            if (currentBuffer != null) {
-                str += "Current buffer: ";
-                currentBuffer.flip();
-                while (currentBuffer.hasRemaining() && currentBuffer.position() < 10) {
-                    str += String.format((Locale)null, "%02x ", currentBuffer.get());
-                }
-                str += "\n";
-                str += "Buffer codec flags: "+currentCodecFlags+"\n";
-            }
-
-            str += "Is Exynos 4: "+renderer.isExynos4+"\n";
+            str += "Consecutive crashes: "+renderer.consecutiveCrashCount+DELIMITER;
+            str += "RFI active: "+renderer.refFrameInvalidationActive+DELIMITER;
+            str += "Using modern SPS patching: "+(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)+DELIMITER;
+            str += "Fused IDR frames: "+renderer.fusedIdrFrame+DELIMITER;
+            str += "Video dimensions: "+renderer.initialWidth+"x"+renderer.initialHeight+DELIMITER;
+            str += "FPS target: "+renderer.refreshRate+DELIMITER;
+            str += "Bitrate: "+renderer.prefs.bitrate+" Kbps"+DELIMITER;
+            str += "CSD stats: "+renderer.numVpsIn+", "+renderer.numSpsIn+", "+renderer.numPpsIn+DELIMITER;
+            str += "Frames in-out: "+renderer.numFramesIn+", "+renderer.numFramesOut+DELIMITER;
+            str += "Total frames received: "+renderer.globalVideoStats.totalFramesReceived+DELIMITER;
+            str += "Total frames rendered: "+renderer.globalVideoStats.totalFramesRendered+DELIMITER;
+            str += "Frame losses: "+renderer.globalVideoStats.framesLost+" in "+renderer.globalVideoStats.frameLossEvents+" loss events"+DELIMITER;
+            str += "Average end-to-end client latency: "+renderer.getAverageEndToEndLatency()+"ms"+DELIMITER;
+            str += "Average hardware decoder latency: "+renderer.getAverageDecoderLatency()+"ms"+DELIMITER;
+            str += "Frame pacing mode: "+renderer.prefs.framePacing+DELIMITER;
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 if (originalException instanceof CodecException) {
                     CodecException ce = (CodecException) originalException;
 
-                    str += "Diagnostic Info: "+ce.getDiagnosticInfo()+"\n";
-                    str += "Recoverable: "+ce.isRecoverable()+"\n";
-                    str += "Transient: "+ce.isTransient()+"\n";
+                    str += "Diagnostic Info: "+ce.getDiagnosticInfo()+DELIMITER;
+                    str += "Recoverable: "+ce.isRecoverable()+DELIMITER;
+                    str += "Transient: "+ce.isTransient()+DELIMITER;
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        str += "Codec Error Code: "+ce.getErrorCode()+"\n";
+                        str += "Codec Error Code: "+ce.getErrorCode()+DELIMITER;
                     }
                 }
-            }
-
-            str += "/proc/cpuinfo:\n";
-            try {
-                str += MediaCodecHelper.readCpuinfo();
-            } catch (Exception e) {
-                str += e.getMessage();
-            }
-
-            str += "Full decoder dump:\n";
-            try {
-                str += MediaCodecHelper.dumpDecoders();
-            } catch (Exception e) {
-                str += e.getMessage();
             }
 
             str += originalException.toString();

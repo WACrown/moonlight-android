@@ -5,6 +5,8 @@
 package com.limelight.binding.input.virtual_controller;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
@@ -24,7 +26,6 @@ import com.limelight.nvstream.NvConnection;
 import com.limelight.utils.controller.LayoutEditHelper;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -55,10 +56,17 @@ public class VirtualController {
     private final List<VirtualControllerElement> elements = new ArrayList<>();
     private final VirtualController virtualController;
     private short[] gamePadInputContext = {0,0,0,0,0,0,0};//inputMap,leftTrigger ,rightTrigger,leftStickX,leftStickY,rightStickX,rightStickY
+    private final Handler handler;
 
+    private final Runnable delayedRetransmitRunnable = new Runnable() {
+        @Override
+        public void run() {
+            sendControllerInputContextInternal();
+        }
+    };
 
     private FrameLayout frame_layout = null;
-    private Timer retransmitTimer;
+
     ControllerMode currentMode = ControllerMode.Active;
 
 
@@ -78,12 +86,12 @@ public class VirtualController {
 
 
 
-    public VirtualController(final ControllerHandler controllerHandler, FrameLayout layout, final Context mContext, final Game game, final NvConnection conn) {
+    public VirtualController(final ControllerHandler controllerHandler, FrameLayout layout, final Context context, final Game game, final NvConnection conn) {
         this.controllerHandler = controllerHandler;
         this.game = game;
         this.conn = conn;
         this.frame_layout = layout;
-        this.context = mContext;
+        this.context = context;
         this.virtualController = this;
         VCLSelector = new VirtualControllerLayoutSelector(context,frame_layout,this);
 
@@ -113,6 +121,7 @@ public class VirtualController {
                 Toast.makeText(context,"已删除",Toast.LENGTH_SHORT).show();
             }
         });
+        this.handler = new Handler(Looper.getMainLooper());
 
 
         buttonConfigure = new Button(context);
@@ -170,13 +179,12 @@ public class VirtualController {
     }
 
 
-    public VirtualController getVirtualController(){
-        return this;
+
+    Handler getHandler() {
+        return handler;
     }
 
     public void hide() {
-        retransmitTimer.cancel();
-
         for (VirtualControllerElement element : elements) {
             element.setVisibility(View.INVISIBLE);
         }
@@ -190,18 +198,6 @@ public class VirtualController {
         }
 
         buttonConfigure.setVisibility(View.VISIBLE);
-
-        // HACK: GFE sometimes discards gamepad packets when they are received
-        // very shortly after anothaer. This can be critical if an axis zeroing packet
-        // is lost and causes an analog stick to get stuck. To avoid this, we send
-        // a gamepad input packet every 100 ms to ensure any loss can be recovered.
-        retransmitTimer = new Timer("OSC timer", true);
-        retransmitTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                //sendControllerInputContext();
-            }
-        }, 100, 100);
     }
 
     public void removeElements() {
@@ -239,6 +235,14 @@ public class VirtualController {
     public void refreshLayout() {
         removeElements();
         frame_layout.removeView(buttonConfigure);
+        frame_layout.removeView(buttonAdd);
+        frame_layout.removeView(buttonDelete);
+        frame_layout.removeView(buttonDownSelector);
+        frame_layout.removeView(buttonSelector);
+        frame_layout.removeView(buttonLeftSelector);
+        frame_layout.removeView(buttonRightSelector);
+        frame_layout.removeView(buttonUpSelector);
+        frame_layout.removeView(VCLSelector);
 
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
 
@@ -341,6 +345,7 @@ public class VirtualController {
         return gamePadInputContext;
     }
 
+
     public Map<String,KeyEvent> getKeyboardInputContext() {
         return keyEventMap;
     }
@@ -350,12 +355,13 @@ public class VirtualController {
     }
 
 
-    public void sendControllerInputContext() {
+    public void sendControllerInputContextInternal() {
         _DBG("INPUT_MAP + " + gamePadInputContext[0]);
         _DBG("LEFT_TRIGGER " + gamePadInputContext[1]);
         _DBG("RIGHT_TRIGGER " + gamePadInputContext[2]);
         _DBG("LEFT STICK X: " + gamePadInputContext[3] + " Y: " + gamePadInputContext[4]);
         _DBG("RIGHT STICK X: " + gamePadInputContext[5] + " Y: " + gamePadInputContext[6]);
+
 
         if (controllerHandler != null) {
             controllerHandler.reportOscState(
@@ -369,6 +375,7 @@ public class VirtualController {
             );
         }
     }
+
 
     public void sendKeyboardInputPadKey() {
         _DBG("KEY_EVENT_MAP + " + keyEventMap);
@@ -405,4 +412,19 @@ public class VirtualController {
         }
     }
 
+
+    void sendControllerInputContext() {
+        // Cancel retransmissions of prior gamepad inputs
+        handler.removeCallbacks(delayedRetransmitRunnable);
+
+        sendControllerInputContextInternal();
+
+        // HACK: GFE sometimes discards gamepad packets when they are received
+        // very shortly after another. This can be critical if an axis zeroing packet
+        // is lost and causes an analog stick to get stuck. To avoid this, we retransmit
+        // the gamepad state a few times unless another input event happens before then.
+        handler.postDelayed(delayedRetransmitRunnable, 25);
+        handler.postDelayed(delayedRetransmitRunnable, 50);
+        handler.postDelayed(delayedRetransmitRunnable, 75);
+    }
 }

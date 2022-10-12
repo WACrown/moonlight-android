@@ -7,9 +7,6 @@ import android.view.View;
 import com.limelight.nvstream.NvConnection;
 import com.limelight.nvstream.input.MouseButtonPacket;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 public class AbsoluteTouchContext implements TouchContext {
     private int lastTouchDownX = 0;
     private int lastTouchDownY = 0;
@@ -22,8 +19,29 @@ public class AbsoluteTouchContext implements TouchContext {
     private boolean cancelled;
     private boolean confirmedLongPress;
     private boolean confirmedTap;
-    private Timer longPressTimer;
-    private Timer tapDownTimer;
+
+    private final Runnable longPressRunnable = new Runnable() {
+        @Override
+        public void run() {
+            // This timer should have already expired, but cancel it just in case
+            cancelTapDownTimer();
+
+            // Switch from a left click to a right click after a long press
+            confirmedLongPress = true;
+            if (confirmedTap) {
+                conn.sendMouseButtonUp(MouseButtonPacket.BUTTON_LEFT);
+            }
+            conn.sendMouseButtonDown(MouseButtonPacket.BUTTON_RIGHT);
+        }
+    };
+
+    private final Runnable tapDownRunnable = new Runnable() {
+        @Override
+        public void run() {
+            // Start our tap
+            tapConfirmed();
+        }
+    };
 
     private final NvConnection conn;
     private final int actionIndex;
@@ -136,67 +154,22 @@ public class AbsoluteTouchContext implements TouchContext {
         lastTouchUpTime = eventTime;
     }
 
-    private synchronized void startLongPressTimer() {
-        longPressTimer = new Timer(true);
-        longPressTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                synchronized (AbsoluteTouchContext.this) {
-                    // Check if someone cancelled us
-                    if (longPressTimer == null) {
-                        return;
-                    }
-
-                    // Uncancellable now
-                    longPressTimer = null;
-
-                    // This timer should have already expired, but cancel it just in case
-                    cancelTapDownTimer();
-
-                    // Switch from a left click to a right click after a long press
-                    confirmedLongPress = true;
-                    if (confirmedTap) {
-                        conn.sendMouseButtonUp(MouseButtonPacket.BUTTON_LEFT);
-                    }
-                    conn.sendMouseButtonDown(MouseButtonPacket.BUTTON_RIGHT);
-                }
-            }
-        }, LONG_PRESS_TIME_THRESHOLD);
+    private void startLongPressTimer() {
+        cancelLongPressTimer();
+        handler.postDelayed(longPressRunnable, LONG_PRESS_TIME_THRESHOLD);
     }
 
-    private synchronized void cancelLongPressTimer() {
-        if (longPressTimer != null) {
-            longPressTimer.cancel();
-            longPressTimer = null;
-        }
+    private void cancelLongPressTimer() {
+        handler.removeCallbacks(longPressRunnable);
     }
 
-    private synchronized void startTapDownTimer() {
-        tapDownTimer = new Timer(true);
-        tapDownTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                synchronized (AbsoluteTouchContext.this) {
-                    // Check if someone cancelled us
-                    if (tapDownTimer == null) {
-                        return;
-                    }
-
-                    // Uncancellable now
-                    tapDownTimer = null;
-
-                    // Start our tap
-                    tapConfirmed();
-                }
-            }
-        }, TOUCH_DOWN_DEAD_ZONE_TIME_THRESHOLD);
+    private void startTapDownTimer() {
+        cancelTapDownTimer();
+        handler.postDelayed(tapDownRunnable, TOUCH_DOWN_DEAD_ZONE_TIME_THRESHOLD);
     }
 
-    private synchronized void cancelTapDownTimer() {
-        if (tapDownTimer != null) {
-            tapDownTimer.cancel();
-            tapDownTimer = null;
-        }
+    private void cancelTapDownTimer() {
+        handler.removeCallbacks(tapDownRunnable);
     }
 
     private void tapConfirmed() {

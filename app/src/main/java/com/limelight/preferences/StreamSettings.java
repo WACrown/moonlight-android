@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.media.MediaCodecInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -40,10 +41,15 @@ import java.util.Arrays;
 
 public class StreamSettings extends Activity {
     private PreferenceConfiguration previousPrefs;
+    private int previousDisplayPixelCount;
     // HACK for Android 9
     static DisplayCutout displayCutoutP;
 
     void reloadSettings() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Display.Mode mode = getWindowManager().getDefaultDisplay().getMode();
+            previousDisplayPixelCount = mode.getPhysicalWidth() * mode.getPhysicalHeight();
+        }
         getFragmentManager().beginTransaction().replace(
                 R.id.stream_settings, new SettingsFragment()
         ).commitAllowingStateLoss();
@@ -84,6 +90,24 @@ public class StreamSettings extends Activity {
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Display.Mode mode = getWindowManager().getDefaultDisplay().getMode();
+
+            // If the display's physical pixel count has changed, we consider that it's a new display
+            // and we should reload our settings (which include display-dependent values).
+            //
+            // NB: We aren't using displayId here because that stays the same (DEFAULT_DISPLAY) when
+            // switching between screens on a foldable device.
+            if (mode.getPhysicalWidth() * mode.getPhysicalHeight() != previousDisplayPixelCount) {
+                reloadSettings();
+            }
+        }
+    }
+
+    @Override
     // NOTE: This will NOT be called on Android 13+ with android:enableOnBackInvokedCallback="true"
     public void onBackPressed() {
         finish();
@@ -111,7 +135,7 @@ public class StreamSettings extends Activity {
             pref.setValue(value);
         }
 
-        private void addNativeResolutionEntry(int nativeWidth, int nativeHeight, boolean insetsRemoved) {
+        private void addNativeResolutionEntry(int nativeWidth, int nativeHeight, boolean insetsRemoved, boolean portrait) {
             ListPreference pref = (ListPreference) findPreference(PreferenceConfiguration.RESOLUTION_PREF_STRING);
 
             String newName;
@@ -121,6 +145,15 @@ public class StreamSettings extends Activity {
             }
             else {
                 newName = getResources().getString(R.string.resolution_prefix_native);
+            }
+
+            if (PreferenceConfiguration.isSquarishScreen(nativeWidth, nativeHeight)) {
+                if (portrait) {
+                    newName += " " + getResources().getString(R.string.resolution_prefix_native_portrait);
+                }
+                else {
+                    newName += " " + getResources().getString(R.string.resolution_prefix_native_landscape);
+                }
             }
 
             newName += " ("+nativeWidth+"x"+nativeHeight+")";
@@ -150,6 +183,13 @@ public class StreamSettings extends Activity {
             if (newValues.length - 1 < nativeResolutionStartIndex) {
                 nativeResolutionStartIndex = newValues.length - 1;
             }
+        }
+
+        private void addNativeResolutionEntries(int nativeWidth, int nativeHeight, boolean insetsRemoved) {
+            if (PreferenceConfiguration.isSquarishScreen(nativeWidth, nativeHeight)) {
+                addNativeResolutionEntry(nativeHeight, nativeWidth, insetsRemoved, true);
+            }
+            addNativeResolutionEntry(nativeWidth, nativeHeight, insetsRemoved, false);
         }
 
         private void removeValue(String preferenceKey, String value, Runnable onMatched) {
@@ -305,7 +345,7 @@ public class StreamSettings extends Activity {
                             int width = Math.max(metrics.widthPixels - widthInsets, metrics.heightPixels - heightInsets);
                             int height = Math.min(metrics.widthPixels - widthInsets, metrics.heightPixels - heightInsets);
 
-                            addNativeResolutionEntry(width, height, false);
+                            addNativeResolutionEntries(width, height, false);
                             hasInsets = true;
                         }
                     }
@@ -330,7 +370,7 @@ public class StreamSettings extends Activity {
                     // unless they report greater than 4K resolutions.
                     if (!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEVISION) ||
                             (width > 3840 || height > 2160)) {
-                        addNativeResolutionEntry(width, height, hasInsets);
+                        addNativeResolutionEntries(width, height, hasInsets);
                     }
 
                     if ((width >= 3840 || height >= 2160) && maxSupportedResW < 3840) {
@@ -440,7 +480,7 @@ public class StreamSettings extends Activity {
                 getActivity().getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
                 int width = Math.max(metrics.widthPixels, metrics.heightPixels);
                 int height = Math.min(metrics.widthPixels, metrics.heightPixels);
-                addNativeResolutionEntry(width, height, false);
+                addNativeResolutionEntries(width, height, false);
             }
             else {
                 // On Android 4.1, we have to resort to reflection to invoke hidden APIs
@@ -451,7 +491,7 @@ public class StreamSettings extends Activity {
                     Method getRawWidthFunc = Display.class.getMethod("getRawWidth");
                     int width = (Integer) getRawWidthFunc.invoke(display);
                     int height = (Integer) getRawHeightFunc.invoke(display);
-                    addNativeResolutionEntry(Math.max(width, height), Math.min(width, height), false);
+                    addNativeResolutionEntries(Math.max(width, height), Math.min(width, height), false);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
