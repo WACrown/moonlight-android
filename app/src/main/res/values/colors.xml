@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="game_setting_item_background_color_primary">#3A3A3A</color>
+    <color name="game_setting_item_background_color_pressed">#4A4A4A</color>
+    <color name="game_setting_item_text_color">#CCCCCC</color>
+    <color name="game_setting_menu_cut_line_color">#454545</color>
+    <color name="game_setting_list_background_color">#555555</color>
+    <color name="game_setting_title_background_color">#2B2B2B</color>
+    <color name="game_setting_title_text_color">#E3E3E3</color>
+    <color name="game_setting_list_background_color_primary">#4A4A4A</color>
+    <color name="game_setting_list_background_color_pressed">#5A5A5A</color>
+</resources>

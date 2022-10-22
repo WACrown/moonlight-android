@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.limelight.ui.MenuLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/game_setting_menu_title"
+        android:text="TextView"
+        style="@style/GameSettingTitleStyle"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#C3C3C3"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="9"
+        android:background="@color/game_setting_item_background_color_primary">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+                <TextView
+                    android:id="@+id/game_setting_menu_item_edit"
+                    android:text="edit"
+                    style="@style/GameSettingListStyle" />
+
+                <View style="@style/GameSettingCutLineStyle" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+                <TextView
+                    android:id="@+id/game_setting_menu_item_move"
+                    android:text="move"
+                    style="@style/GameSettingListStyle" />
+
+                <View style="@style/GameSettingCutLineStyle" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+                <TextView
+                    android:id="@+id/game_setting_menu_item_resize"
+                    android:text="resize"
+                    style="@style/GameSettingListStyle" />
+
+                <View style="@style/GameSettingCutLineStyle" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <LinearLayout
+                    android:id="@+id/game_setting_menu_item_selectkey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@color/game_setting_item_background_color_primary"
+                    android:clickable="true">
+                    <TextView
+                        android:text="right"
+                        style="@style/GameSettingListStyle"
+                        android:layout_width="wrap_content"
+                        android:background="#00FFFFFF"/>
+                    <TextView
+                        android:text=":"
+                        style="@style/GameSettingListStyle"
+                        android:layout_width="wrap_content"
+                        android:paddingLeft="3dp"
+                        android:background="#00FFFFFF"/>
+                    <TextView
+                        android:id="@+id/game_setting_menu_item_selectkey_textview"
+                        android:text="K-RIGHT"
+                        style="@style/GameSettingListStyle"
+                        android:layout_width="wrap_content"
+                        android:paddingLeft="3dp"
+                        android:background="#00FFFFFF"/>
+                </LinearLayout>
+
+                <View style="@style/GameSettingCutLineStyle" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/game_setting_menu_back"
+                android:text="back"
+                style="@style/GameSettingListStyle" />
+
+
+        </LinearLayout>
+    </ScrollView>
+</com.limelight.ui.MenuLinearLayout>

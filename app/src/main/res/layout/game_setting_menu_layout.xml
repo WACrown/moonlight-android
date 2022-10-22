@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.limelight.ui.MenuLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/game_setting_menu_title"
+        android:text="TextView"
+        style="@style/GameSettingTitleStyle"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#C3C3C3"/>
+
+
+
+    <ListView
+        android:id="@+id/game_setting_menu_listview"
+        android:background="@color/game_setting_item_background_color_primary"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="9"
+        android:divider="@color/game_setting_menu_cut_line_color"
+        android:dividerHeight="1dp"/>
+
+
+</com.limelight.ui.MenuLinearLayout>

@@ -34,4 +34,32 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="GameSettingListStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">35dp</item>
+        <item name="android:textColor">@color/game_setting_item_text_color</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@drawable/game_setting_bg_selector</item>
+    </style>
+
+    <style name="GameSettingCutLineStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/game_setting_menu_cut_line_color</item>
+    </style>
+
+    <style name="GameSettingTitleStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textColor">@color/game_setting_title_text_color</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@color/game_setting_title_background_color</item>
+    </style>
+
 </resources>

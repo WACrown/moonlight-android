@@ -18,6 +18,7 @@ import com.limelight.Game;
 import com.limelight.LimeLog;
 import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
+import com.limelight.binding.input.virtual_controller.game_setting.GameSetting;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerAddButton;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerFuncSelector;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerTypeSelector;
@@ -31,8 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class VirtualController {
 
@@ -83,6 +82,8 @@ public class VirtualController {
     private VirtualControllerAddButton buttonSelector = null;
     private Toast toast;
 
+    private final GameSetting gameSetting;
+
 
 
 
@@ -93,6 +94,9 @@ public class VirtualController {
         this.frame_layout = layout;
         this.context = context;
         this.virtualController = this;
+
+        gameSetting = new GameSetting(context,frame_layout);
+
         VCLSelector = new VirtualControllerLayoutSelector(context,frame_layout,this);
 
 
@@ -162,6 +166,7 @@ public class VirtualController {
                 }
 
                 if (currentMode == ControllerMode.EditLayout){
+                    gameSetting.setVisibility(View.VISIBLE);
                     VCLSelector.setVisibility(View.VISIBLE);
                     typeSelector.setVisibility(View.VISIBLE);
                     buttonAdd.setVisibility(View.VISIBLE);

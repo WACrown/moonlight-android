@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/game_setting_list_background_color_primary">
+
+    <TextView
+        android:id="@+id/game_setting_list_title1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:textColor="@color/game_setting_title_text_color"
+        android:textSize="12sp"
+        android:paddingTop="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingBottom="5dp"
+        android:background="@color/game_setting_title_background_color"
+        android:text="这是一个提示信息!"
+         />
+
+
+
+    <ListView
+        android:id="@+id/game_setting_list_listview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="9" />
+</LinearLayout>
