@@ -11,17 +11,17 @@ import java.util.List;
 public class AdapterSettingMenuListView extends BaseAdapter {
 
     private final Context context;
-    private List<View> itemList = new ArrayList<>();
+    private List<MenuItemLinearLayout> itemList = new ArrayList<>();
 
     public AdapterSettingMenuListView(Context context) {
         this.context = context;
     }
 
-    public void setItemList(List<View> itemList){
+    public void setItemList(List<MenuItemLinearLayout> itemList){
         this.itemList = itemList;
     }
 
-    public List<View> getItemList() {
+    public List<MenuItemLinearLayout> getItemList() {
         return itemList;
     }
 

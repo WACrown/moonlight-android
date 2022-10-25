@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import com.limelight.R;
 import com.limelight.ui.AdapterSettingMenuListView;
+import com.limelight.ui.MenuItemLinearLayout;
+import com.limelight.ui.MenuLinearLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,12 +41,11 @@ public class GameSetting {
     private final SettingListCreator settingListCreator;
 
     private final View settingMenuLayout;
-    private final Map<Integer, View> itemViewMap;
-    private final Map<View, TextView> textViewOfItem;
-    private final List<List<View>> allMenu = new ArrayList<>();
+    private final Map<Integer, MenuItemLinearLayout> itemViewMap;
+    private final List<List<MenuItemLinearLayout>> allMenu = new ArrayList<>();
     private final AdapterSettingMenuListView adapterSettingMenuListView;
 
-    private View currentSelectedItem;
+    private MenuItemLinearLayout currentSelectedItem;
 
 
     public GameSetting(Context context, FrameLayout frameLayout){
@@ -53,7 +54,6 @@ public class GameSetting {
         settingListCreator = new SettingListCreator(context,frameLayout,this);
         SettingMenuItems settingMenuItems = new SettingMenuItems(context, frameLayout, this);
         itemViewMap = settingMenuItems.getItemViewMap();
-        textViewOfItem = settingMenuItems.getTextViewOfItem();
         settingMenuLayout = LayoutInflater.from(context).inflate(R.layout.game_setting_menu_layout, null);
         settingMenuLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,7 +74,8 @@ public class GameSetting {
         params.topMargin = 0;
         frameLayout.addView(settingMenuLayout, params);
 
-        List<View> menu = new ArrayList<>();
+        List<MenuItemLinearLayout> menu = new ArrayList<>();
+        menu.add(itemViewMap.get(R.id.game_setting_menu_item_back_to_stream));
         menu.add(itemViewMap.get(R.id.game_setting_menu_item_edit));
         menu.add(itemViewMap.get(R.id.game_setting_menu_item_selectkey));
 
@@ -82,11 +83,11 @@ public class GameSetting {
         refreshAdapterSettingMenuListViewList();
     }
 
-    public Map<Integer, View> getItemViewMap() {
+    public Map<Integer, MenuItemLinearLayout> getItemViewMap() {
         return itemViewMap;
     }
 
-    public List<List<View>> getAllMenu() {
+    public List<List<MenuItemLinearLayout>> getAllMenu() {
         return allMenu;
     }
 
@@ -106,7 +107,7 @@ public class GameSetting {
 
 
 
-    public void displaySettingList(List<String> currentSelectList,View currentSelectedItem){
+    public void displaySettingList(List<String> currentSelectList,MenuItemLinearLayout currentSelectedItem){
         this.currentSelectedItem = currentSelectedItem;
         settingMenuLayout.setClickable(true); //上层layout拦截点击请求
         currentSelectedItem.setBackgroundColor(context.getResources().getColor(R.color.game_setting_item_background_color_pressed));
@@ -120,8 +121,9 @@ public class GameSetting {
     public void returnSettingMenu(String selected){
         settingListCreator.setSettingListVisibility(false);
         if (selected != null){
-            textViewOfItem.get(currentSelectedItem).setText(selected);
+            currentSelectedItem.setText(selected);
         }
+
         currentSelectedItem.setBackgroundColor(context.getResources().getColor(R.color.game_setting_item_background_color_primary));
         currentSelectedItem = null;
         settingMenuLayout.setClickable(false);

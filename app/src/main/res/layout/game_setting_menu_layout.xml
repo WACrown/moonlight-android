@@ -7,7 +7,15 @@
     <TextView
         android:id="@+id/game_setting_menu_title"
         android:text="TextView"
-        style="@style/GameSettingTitleStyle"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:textColor="@color/game_setting_title_text_color"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:paddingLeft="5dp"
+        android:gravity="center_vertical"
+        android:background="@color/game_setting_title_background_color"
         />
 
     <View

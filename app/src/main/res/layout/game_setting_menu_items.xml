@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.limelight.ui.MenuLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.limelight.ui.MenuItemLinearLayout
+        android:id="@+id/game_setting_menu_item_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/game_setting_item_background_color_primary"
+        android:clickable="true">
+        <TextView
+            android:text="edit"
+            style="@style/game_setting_menu_item_style" />
+    </com.limelight.ui.MenuItemLinearLayout>
+
+
+        <com.limelight.ui.MenuItemLinearLayout
+            android:id="@+id/game_setting_menu_item_edit_add"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/game_setting_item_background_color_primary"
+            android:clickable="true">
+            <TextView
+                android:text="add"
+                style="@style/game_setting_menu_item_style" />
+        </com.limelight.ui.MenuItemLinearLayout>
+
+            <com.limelight.ui.MenuItemLinearLayout
+                android:id="@+id/game_setting_menu_item_edit_add_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@color/game_setting_item_background_color_primary"
+                android:clickable="true">
+                <TextView
+                    android:text="button"
+                    style="@style/game_setting_menu_item_style" />
+            </com.limelight.ui.MenuItemLinearLayout>
+
+            <com.limelight.ui.MenuItemLinearLayout
+                android:id="@+id/game_setting_menu_item_edit_add_pad"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@color/game_setting_item_background_color_primary"
+                android:clickable="true">
+                <TextView
+                    android:text="pad"
+                    style="@style/game_setting_menu_item_style" />
+            </com.limelight.ui.MenuItemLinearLayout>
+
+            <com.limelight.ui.MenuItemLinearLayout
+                android:id="@+id/game_setting_menu_item_edit_add_stick"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@color/game_setting_item_background_color_primary"
+                android:clickable="true">
+                <TextView
+                    android:text="stick"
+                    style="@style/game_setting_menu_item_style" />
+            </com.limelight.ui.MenuItemLinearLayout>
+
+        <com.limelight.ui.MenuItemLinearLayout
+            android:id="@+id/game_setting_menu_item_edit_delete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/game_setting_item_background_color_primary"
+            android:clickable="true">
+            <TextView
+                android:text="delete"
+                style="@style/game_setting_menu_item_style" />
+        </com.limelight.ui.MenuItemLinearLayout>
+
+        <com.limelight.ui.MenuItemLinearLayout
+            android:id="@+id/game_setting_menu_item_edit_move"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/game_setting_item_background_color_primary"
+            android:clickable="true">
+            <TextView
+                android:text="move"
+                style="@style/game_setting_menu_item_style" />
+        </com.limelight.ui.MenuItemLinearLayout>
+
+        <com.limelight.ui.MenuItemLinearLayout
+            android:id="@+id/game_setting_menu_item_edit_resize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/game_setting_item_background_color_primary"
+            android:clickable="true">
+            <TextView
+                android:text="resize"
+                style="@style/game_setting_menu_item_style" />
+        </com.limelight.ui.MenuItemLinearLayout>
+
+
+    <com.limelight.ui.MenuItemLinearLayout
+        android:id="@+id/game_setting_menu_item_back"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/game_setting_item_background_color_primary"
+        android:clickable="true">
+        <TextView
+            android:text="back"
+            style="@style/game_setting_menu_item_style" />
+    </com.limelight.ui.MenuItemLinearLayout>
+
+    <com.limelight.ui.MenuItemLinearLayout
+        android:id="@+id/game_setting_menu_item_back_to_stream"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/game_setting_item_background_color_primary"
+        android:clickable="true">
+        <TextView
+            android:text="back to stream"
+            style="@style/game_setting_menu_item_style" />
+    </com.limelight.ui.MenuItemLinearLayout>
+
+
+
+
+    <com.limelight.ui.MenuItemLinearLayout
+        android:id="@+id/game_setting_menu_item_selectkey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/game_setting_item_background_color_primary"
+        android:clickable="true"
+        >
+        <TextView
+            android:text="right"
+            style="@style/game_setting_menu_item_style"
+            android:layout_width="wrap_content" />
+        <TextView
+            android:text=":"
+            style="@style/game_setting_menu_item_style"
+            android:layout_width="wrap_content"
+            android:paddingLeft="3dp" />
+        <TextView
+            android:id="@+id/game_setting_menu_item_selectkey_textview"
+            android:text="K-RIGHT"
+            style="@style/game_setting_menu_item_style"
+            android:layout_width="wrap_content"
+            android:paddingLeft="3dp" />
+    </com.limelight.ui.MenuItemLinearLayout>
+
+</com.limelight.ui.MenuLinearLayout>
