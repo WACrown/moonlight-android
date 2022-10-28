@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -64,7 +65,10 @@ public class VirtualController {
         }
     };
 
-    private FrameLayout frame_layout = null;
+    private FrameLayout frameFatherLayout = null;
+    private FrameLayout frameControllerButtonLayout = null;
+    private FrameLayout frameSettingLayout = null;
+
 
     ControllerMode currentMode = ControllerMode.Active;
 
@@ -91,13 +95,19 @@ public class VirtualController {
         this.controllerHandler = controllerHandler;
         this.game = game;
         this.conn = conn;
-        this.frame_layout = layout;
+        this.frameFatherLayout = layout;
         this.context = context;
         this.virtualController = this;
 
-        gameSetting = new GameSetting(context,frame_layout);
+        frameControllerButtonLayout = new FrameLayout(context);
+        frameSettingLayout = new FrameLayout(context);
+        frameFatherLayout.addView(frameControllerButtonLayout);
+        frameFatherLayout.addView(frameSettingLayout);
 
-        VCLSelector = new VirtualControllerLayoutSelector(context,frame_layout,this);
+
+        gameSetting = new GameSetting(context, frameSettingLayout,virtualController);
+        VCLSelector = new VirtualControllerLayoutSelector(context, frameControllerButtonLayout,this);
+
 
 
         buttonAdd = new Button(context);
@@ -118,7 +128,7 @@ public class VirtualController {
             @Override
             public void onClick(View view) {
                 for (VirtualControllerElement virtualControllerElement : virtualControllerNeedDeleteElementSet){
-                    frame_layout.removeView(virtualControllerElement);
+                    frameControllerButtonLayout.removeView(virtualControllerElement);
                     elements.remove(virtualControllerElement);
                 }
                 virtualControllerNeedDeleteElementSet.clear();
@@ -166,12 +176,13 @@ public class VirtualController {
                 }
 
                 if (currentMode == ControllerMode.EditLayout){
-                    gameSetting.setVisibility(View.VISIBLE);
+                    gameSetting.setPanelVisibility(View.VISIBLE);
                     VCLSelector.setVisibility(View.VISIBLE);
                     typeSelector.setVisibility(View.VISIBLE);
                     buttonAdd.setVisibility(View.VISIBLE);
                     buttonDelete.setVisibility(View.VISIBLE);
                 } else {
+                    gameSetting.setPanelVisibility(View.INVISIBLE);
                     VCLSelector.setVisibility(View.INVISIBLE);
                     typeSelector.setVisibility(View.INVISIBLE);
                     buttonAdd.setVisibility(View.INVISIBLE);
@@ -207,7 +218,7 @@ public class VirtualController {
 
     public void removeElements() {
         for (VirtualControllerElement element : elements) {
-            frame_layout.removeView(element);
+            frameControllerButtonLayout.removeView(element);
         }
         elements.clear();
     }
@@ -224,7 +235,7 @@ public class VirtualController {
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
         layoutParams.setMargins(x, y, 0, 0);
 
-        frame_layout.addView(element, layoutParams);
+        frameControllerButtonLayout.addView(element, layoutParams);
     }
 
     public List<VirtualControllerElement> getElements() {
@@ -239,23 +250,24 @@ public class VirtualController {
 
     public void refreshLayout() {
         removeElements();
-        frame_layout.removeView(buttonConfigure);
-        frame_layout.removeView(buttonAdd);
-        frame_layout.removeView(buttonDelete);
-        frame_layout.removeView(buttonDownSelector);
-        frame_layout.removeView(buttonSelector);
-        frame_layout.removeView(buttonLeftSelector);
-        frame_layout.removeView(buttonRightSelector);
-        frame_layout.removeView(buttonUpSelector);
-        frame_layout.removeView(VCLSelector);
+        frameControllerButtonLayout.removeView(buttonConfigure);
+        frameControllerButtonLayout.removeView(buttonAdd);
+        frameControllerButtonLayout.removeView(buttonDelete);
+        frameControllerButtonLayout.removeView(buttonDownSelector);
+        frameControllerButtonLayout.removeView(buttonSelector);
+        frameControllerButtonLayout.removeView(buttonLeftSelector);
+        frameControllerButtonLayout.removeView(buttonRightSelector);
+        frameControllerButtonLayout.removeView(buttonUpSelector);
+        frameControllerButtonLayout.removeView(VCLSelector);
 
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
+        FrameLayout.LayoutParams params;
 
         int buttonSize = (int)(screen.heightPixels*0.06f);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(buttonSize, buttonSize);
+        params = new FrameLayout.LayoutParams(buttonSize, buttonSize);
         params.leftMargin = 15;
         params.topMargin = 15;
-        frame_layout.addView(buttonConfigure, params);
+        frameControllerButtonLayout.addView(buttonConfigure, params);
 
         int ButtonHeight = (int)(screen.heightPixels*0.1f);
         int ButtonWidth = (int)(screen.widthPixels*0.2f);
@@ -263,19 +275,23 @@ public class VirtualController {
         params = new FrameLayout.LayoutParams(ButtonWidth, ButtonHeight);
         params.leftMargin = (int)(screen.widthPixels*0.275f);
         params.topMargin = (int)(screen.heightPixels*0.4f);
-        frame_layout.addView(buttonAdd, params);
+        frameControllerButtonLayout.addView(buttonAdd, params);
 
         params = new FrameLayout.LayoutParams(ButtonWidth, ButtonHeight);
         params.leftMargin = (int)(screen.widthPixels*0.525f);
         params.topMargin = (int)(screen.heightPixels*0.4f);
-        frame_layout.addView(buttonDelete, params);
+        frameControllerButtonLayout.addView(buttonDelete, params);
 
         Map<String, String> allButton = LayoutEditHelper.loadAllButton(context);
         //System.out.println("wangguan allButton" + allButton + "layoutName" + LayoutAdminHelper.getCurrentLayoutName(context));
         VirtualControllerConfigurationLoader.createButtons(this,context,allButton);
+
+
+
         VCLSelector.refreshLayout();
         buttonEditSpinner();
 
+        gameSetting.refreshLayout();
 
     }
 
@@ -283,13 +299,13 @@ public class VirtualController {
 
     private void buttonEditSpinner(){
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
-        buttonUpSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.025f),(int)(screen.heightPixels*0.25f));
-        buttonDownSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.275f),(int)(screen.heightPixels*0.25f));
-        buttonLeftSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.525f),(int)(screen.heightPixels*0.25f));
-        buttonRightSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.775f),(int)(screen.heightPixels*0.25f));
-        buttonSelector = new VirtualControllerAddButton(context,frame_layout,(int)(screen.widthPixels*0.775f),(int)(screen.heightPixels*0.1f));
-        funcSelector = new VirtualControllerFuncSelector(context,frame_layout);
-        typeSelector = new VirtualControllerTypeSelector(context,frame_layout,funcSelector,buttonSelector,buttonUpSelector,buttonDownSelector,buttonLeftSelector,buttonRightSelector);
+        buttonUpSelector = new VirtualControllerAddButton(context, frameControllerButtonLayout,(int)(screen.widthPixels*0.025f),(int)(screen.heightPixels*0.25f));
+        buttonDownSelector = new VirtualControllerAddButton(context, frameControllerButtonLayout,(int)(screen.widthPixels*0.275f),(int)(screen.heightPixels*0.25f));
+        buttonLeftSelector = new VirtualControllerAddButton(context, frameControllerButtonLayout,(int)(screen.widthPixels*0.525f),(int)(screen.heightPixels*0.25f));
+        buttonRightSelector = new VirtualControllerAddButton(context, frameControllerButtonLayout,(int)(screen.widthPixels*0.775f),(int)(screen.heightPixels*0.25f));
+        buttonSelector = new VirtualControllerAddButton(context, frameControllerButtonLayout,(int)(screen.widthPixels*0.775f),(int)(screen.heightPixels*0.1f));
+        funcSelector = new VirtualControllerFuncSelector(context, frameControllerButtonLayout);
+        typeSelector = new VirtualControllerTypeSelector(context, frameControllerButtonLayout,funcSelector,buttonSelector,buttonUpSelector,buttonDownSelector,buttonLeftSelector,buttonRightSelector);
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

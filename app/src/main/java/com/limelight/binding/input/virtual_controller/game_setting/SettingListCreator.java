@@ -19,6 +19,7 @@ public class SettingListCreator {
     private final AdapterSettingListListView adapterSettingListListView;
     private final Context context;
     private final GameSetting gameSetting;
+    private final FrameLayout frameLayout;
     private View fatherItemView;
     private TextView keyTextView;
 
@@ -26,6 +27,7 @@ public class SettingListCreator {
     public SettingListCreator(Context context, FrameLayout frameLayout, GameSetting gameSetting) {
 
         this.context = context;
+        this.frameLayout = frameLayout;
         this.gameSetting = gameSetting;
         settingList = new ListView(context);
         settingList.setBackgroundColor(context.getResources().getColor(R.color.game_setting_list_background_color_primary));
@@ -40,17 +42,8 @@ public class SettingListCreator {
             }
         });
 
-
-
-
         settingList.setVisibility(View.INVISIBLE);
-        DisplayMetrics screen = context.getResources().getDisplayMetrics();
-        int listContainerHigh = (int)(screen.widthPixels);
-        int listContainerWidth = 300;
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(listContainerWidth, listContainerHigh);
-        params.leftMargin = 400;
-        params.topMargin = 0;
-        frameLayout.addView(settingList, params);
+
 
     }
 
@@ -65,6 +58,16 @@ public class SettingListCreator {
         } else {
             settingList.setVisibility(View.INVISIBLE);
         }
+    }
+
+    public void refreshLayout() {
+        DisplayMetrics screen = context.getResources().getDisplayMetrics();
+        int listContainerHigh = (int)(screen.widthPixels);
+        int listContainerWidth = 300;
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(listContainerWidth, listContainerHigh);
+        params.leftMargin = 400;
+        params.topMargin = 0;
+        frameLayout.addView(settingList, params);
     }
 
 }

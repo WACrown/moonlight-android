@@ -71,7 +71,7 @@ public abstract class VirtualControllerElement extends View {
         this.elementId = elementId;
     }
 
-    protected void moveElement(int pressed_x, int pressed_y, int x, int y) {
+    public void moveElement(int pressed_x, int pressed_y, int x, int y) {
         int newPos_x = (int) getX() + x - pressed_x;
         int newPos_y = (int) getY() + y - pressed_y;
 
@@ -85,7 +85,7 @@ public abstract class VirtualControllerElement extends View {
         requestLayout();
     }
 
-    protected void resizeElement(int pressed_x, int pressed_y, int width, int height) {
+    public void resizeElement(int pressed_x, int pressed_y, int width, int height) {
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
 
         int newHeight = height + (startSize_y - pressed_y);
@@ -96,15 +96,20 @@ public abstract class VirtualControllerElement extends View {
         requestLayout();
     }
 
+    public void setStartSize(){
+        startSize_x = getWidth();
+        startSize_y = getHeight();
+    }
 
-    protected void deleteElement() {
+
+    public boolean switchSelectedStatus() {
 
         if (configEditColor == 0xFF03A9F4){
             setConfigEditColor(0xF0FF0000);
-            virtualController.virtualControllerNeedDeleteElementSet.add(this);
+            return true;
         } else {
             setConfigEditColor(0xFF03A9F4);
-            virtualController.virtualControllerNeedDeleteElementSet.remove(this);
+            return false;
         }
 
         //System.out.println("wangguan deleteElement" + elementId);
@@ -256,6 +261,8 @@ public abstract class VirtualControllerElement extends View {
         // NB: We can get an additional pointer down if the user touches a non-StreamView area
         // while also touching an OSC control, even if that pointer down doesn't correspond to
         // an area of the OSC control.
+        System.out.println("wangguan element touch:" + event.getAction());
+
         if (event.getActionIndex() != 0) {
             return true;
         }
@@ -268,48 +275,16 @@ public abstract class VirtualControllerElement extends View {
             case MotionEvent.ACTION_DOWN: {
                 position_pressed_x = event.getX();
                 position_pressed_y = event.getY();
-                startSize_x = getWidth();
-                startSize_y = getHeight();
-                if (virtualController.getControllerMode() == VirtualController.ControllerMode.EditLayout)
-                    actionEnableEdit();
-                else if (virtualController.getControllerMode() == VirtualController.ControllerMode.MoveButtons)
-                    actionEnableMove();
-                else if (virtualController.getControllerMode() == VirtualController.ControllerMode.ResizeButtons)
-                    actionEnableResize();
-
-                if (currentMode == Mode.Edit){
-                    deleteElement();
-                }
-
                 return true;
             }
 
             case MotionEvent.ACTION_MOVE: {
-                switch (currentMode) {
-                    case Move: {
-                        moveElement(
-                                (int) position_pressed_x,
-                                (int) position_pressed_y,
-                                (int) event.getX(),
-                                (int) event.getY());
-                        break;
-                    }
-                    case Resize: {
-                        resizeElement(
-                                (int) position_pressed_x,
-                                (int) position_pressed_y,
-                                (int) event.getX(),
-                                (int) event.getY());
-                        break;
-                    }
-                    case Normal: {
-                        break;
-                    }
-                }
-                return true;
+
+                return false;
             }
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP: {
+                switchSelectedStatus();
                 actionCancel();
                 return true;
             }

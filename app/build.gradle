@@ -6,7 +6,7 @@ android {
 
 
     defaultConfig {
-        minSdk 21
+        minSdk 23
         targetSdk 33
 
         versionName "10.9"
