@@ -20,27 +20,13 @@ import org.json.JSONObject;
 public abstract class VirtualControllerElement extends View {
     protected static boolean _PRINT_DEBUG_INFORMATION = false;
 
-    public static final String EID_DPAD = "EID_DPAD";
-    public static final String EID_LT ="EID_LT";
-    public static final String EID_RT ="EID_RT";
-    public static final String EID_LB ="EID_LB";
-    public static final String EID_RB ="EID_RB";
-    public static final String EID_A = "EID_A";
-    public static final String EID_B = "EID_B";
-    public static final String EID_X = "EID_X";
-    public static final String EID_Y = "EID_Y";
-    public static final String EID_BACK = "EID_BACK";
-    public static final String EID_START = "EID_START";
-    public static final String EID_LS = "EID_LS";
-    public static final String EID_RS = "EID_RS";
-    public static final String EID_LSB = "EID_LSB";
-    public static final String EID_RSB = "EID_RSB";
-
 
     protected VirtualController virtualController;
     protected final String elementId;
 
     private final Paint paint = new Paint();
+    private final int screenWidth;
+    private final int screenHeight;
 
     private int normalColor = 0xF0888888;
     protected int pressedColor = 0xF00000FF;
@@ -49,8 +35,6 @@ public abstract class VirtualControllerElement extends View {
     private int configEditColor = 0xFF03A9F4;
     private int configSelectedColor = 0xF000FF00;
 
-    protected int startSize_x;
-    protected int startSize_y;
 
     float position_pressed_x = 0;
     float position_pressed_y = 0;
@@ -66,39 +50,70 @@ public abstract class VirtualControllerElement extends View {
 
     protected VirtualControllerElement(VirtualController controller, Context context, String elementId) {
         super(context);
-
+        DisplayMetrics screen = context.getResources().getDisplayMetrics();
+        screenWidth = screen.widthPixels;
+        screenHeight = screen.heightPixels;
         this.virtualController = controller;
         this.elementId = elementId;
     }
 
-    public void moveElement(int pressed_x, int pressed_y, int x, int y) {
-        int newPos_x = (int) getX() + x - pressed_x;
-        int newPos_y = (int) getY() + y - pressed_y;
-
+    public void moveElement(int maxPositionX,int maxPositionY,int startPositionX, int startPositionY,int moveLengthX, int moveLengthY) {
+        int newPos_x = startPositionX + moveLengthX;
+        int newPos_y = startPositionY + moveLengthY;
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
 
-        layoutParams.leftMargin = newPos_x > 0 ? newPos_x : 0;
-        layoutParams.topMargin = newPos_y > 0 ? newPos_y : 0;
+        if (newPos_x < 0){
+            newPos_x = 0;
+        } else if (newPos_x > maxPositionX){
+            newPos_x = maxPositionX;
+        }
+
+        if (newPos_y < 0){
+            newPos_y = 0;
+        } else if (newPos_y > maxPositionY){
+            newPos_y = maxPositionY;
+        }
+
+        //System.out.println("wangguan x:" + newPos_x + " y:" + newPos_y + " screenWidth:" + screenWidth + " screenHeight:" + screenHeight);
+
+        layoutParams.leftMargin = newPos_x;
+        layoutParams.topMargin = newPos_y;
         layoutParams.rightMargin = 0;
         layoutParams.bottomMargin = 0;
 
         requestLayout();
     }
 
-    public void resizeElement(int pressed_x, int pressed_y, int width, int height) {
+    public void resizeElement(int centerPositionX, int centerPositionY,int maxElementWidth,int maxElementHeight,int startElementWidth, int startElementHeight, int changedDistanceX, int changedDistanceY) {
+
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
 
-        int newHeight = height + (startSize_y - pressed_y);
-        int newWidth = width + (startSize_x - pressed_x);
 
-        layoutParams.height = newHeight > 20 ? newHeight : 20;
-        layoutParams.width = newWidth > 20 ? newWidth : 20;
+        int newWidth = startElementWidth + changedDistanceX;
+        int newHeight = startElementHeight + changedDistanceY;
+
+        if (newWidth < 20){
+            newWidth = 20;
+        } else if (newWidth > maxElementWidth){
+            newWidth = maxElementWidth;
+        }
+
+        if (newHeight < 20){
+            newHeight = 20;
+        } else if (newHeight > maxElementHeight){
+            newHeight = maxElementHeight;
+        }
+
+        int newPos_x = centerPositionX - newWidth/2;
+        int newPos_y = centerPositionY - newHeight/2;
+
+        layoutParams.height = newHeight;
+        layoutParams.width = newWidth;
+        layoutParams.leftMargin = newPos_x;
+        layoutParams.topMargin = newPos_y;
+        layoutParams.rightMargin = 0;
+        layoutParams.bottomMargin = 0;
         requestLayout();
-    }
-
-    public void setStartSize(){
-        startSize_x = getWidth();
-        startSize_y = getHeight();
     }
 
 
@@ -132,37 +147,6 @@ public abstract class VirtualControllerElement extends View {
         super.onDraw(canvas);
     }
 
-    /*
-    protected void actionShowNormalColorChooser() {
-        AmbilWarnaDialog colorDialog = new AmbilWarnaDialog(getContext(), normalColor, true, new AmbilWarnaDialog.OnAmbilWarnaListener() {
-            @Override
-            public void onCancel(AmbilWarnaDialog dialog)
-            {}
-
-            @Override
-            public void onOk(AmbilWarnaDialog dialog, int color) {
-                normalColor = color;
-                invalidate();
-            }
-        });
-        colorDialog.show();
-    }
-
-    protected void actionShowPressedColorChooser() {
-        AmbilWarnaDialog colorDialog = new AmbilWarnaDialog(getContext(), normalColor, true, new AmbilWarnaDialog.OnAmbilWarnaListener() {
-            @Override
-            public void onCancel(AmbilWarnaDialog dialog) {
-            }
-
-            @Override
-            public void onOk(AmbilWarnaDialog dialog, int color) {
-                pressedColor = color;
-                invalidate();
-            }
-        });
-        colorDialog.show();
-    }
-    */
 
     protected void actionEnableEdit() {
         currentMode = Mode.Edit;

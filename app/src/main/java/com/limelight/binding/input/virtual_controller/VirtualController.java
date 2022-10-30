@@ -175,6 +175,13 @@ public class VirtualController {
                     element.invalidate();
                 }
 
+                if (currentMode == ControllerMode.MoveButtons){
+                    //gameSetting.setPanelVisibility(View.VISIBLE);
+                }else {
+                    //gameSetting.setPanelVisibility(View.INVISIBLE);
+                }
+
+
                 if (currentMode == ControllerMode.EditLayout){
                     gameSetting.setPanelVisibility(View.VISIBLE);
                     VCLSelector.setVisibility(View.VISIBLE);

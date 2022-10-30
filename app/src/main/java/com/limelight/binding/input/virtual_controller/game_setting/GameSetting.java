@@ -44,6 +44,8 @@ public class GameSetting {
     private final SettingListCreator settingListCreator;
     private final Button buttonConfigure;
     private final View settingMenuLayout;
+    private final int screenWidth;
+    private final int screenHeight;
 
     private final List<List<MenuItemLinearLayout>> allMenu = new ArrayList<>();
     private final AdapterSettingMenuListView adapterSettingMenuListView;
@@ -57,7 +59,9 @@ public class GameSetting {
 
         this.context = context;
         this.frameLayout = frameLayout;
-
+        DisplayMetrics screen = context.getResources().getDisplayMetrics();
+        screenWidth = screen.widthPixels;
+        screenHeight = screen.heightPixels;
 
 
         //透明编辑面板
@@ -65,29 +69,66 @@ public class GameSetting {
         glassPanelEditor.setOnTouchListener(new View.OnTouchListener() {
             private boolean isMove = false;
             private boolean isOneFinger = false;
-            private int pressedX = 0;
-            private int pressedY = 0;
-            private int distanceX = 0;
-            private int distanceY = 0;
+            private int startFingerPressedPositionX = 0;
+            private int startFingerPressedPositionY = 0;
+            private int startTwoFingerDistanceX = 0;
+            private int startTwoFingerDistanceY = 0;
+            private int startElementPositionX = 0;
+            private int startElementPositionY = 0;
+            private int startElementWidth = 0;
+            private int startElementHeight = 0;
+            private int maxElementPositionX = 0;
+            private int maxElementPositionY = 0;
+            private int maxElementWidth = 0;
+            private int maxElementHeight = 0;
+            private int elementCenterPositionX = 0;
+            private int elementCenterPositionY = 0;
+
+            private void setInitInfo(MotionEvent event){
+                startFingerPressedPositionX = (int) event.getX();
+                startFingerPressedPositionY = (int) event.getY();
+                if (editElement != null){
+                    startElementPositionX = (int) editElement.getX();
+                    startElementPositionY = (int) editElement.getY();
+                    startElementWidth = (int) editElement.getWidth();
+                    startElementHeight = (int) editElement.getHeight();
+                    maxElementPositionX = screenHeight - startElementWidth;
+                    maxElementPositionY = screenWidth - startElementHeight;
+                }
+            }
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
-                System.out.println("wangguan panel touch:" + event.getAction());
+                //System.out.println("wangguan panel touch:" + event.getAction());
 
 
-                switch (event.getAction()){
+                switch (event.getAction() & MotionEvent.ACTION_MASK){
                     case MotionEvent.ACTION_DOWN:
                         isMove = false;
                         isOneFinger = true;
-                        pressedX = (int) event.getX();
-                        pressedY = (int) event.getY();
+                        setInitInfo(event);
                         return true;
                     case MotionEvent.ACTION_POINTER_DOWN:
+                        isOneFinger = false;
+                        setInitInfo(event);
+                        startTwoFingerDistanceX = Math.abs((int) event.getX(1) - (int) event.getX(0));
+                        startTwoFingerDistanceY = Math.abs((int) event.getY(1) - (int) event.getY(0));
                         if (editElement != null){
-                            isOneFinger = false;
-                            distanceX = (int) event.getX(1) - (int) event.getX(0);
-                            distanceY = (int) event.getY(1) - (int) event.getY(0);
-                            editElement.setStartSize();
+                            elementCenterPositionX = startElementPositionX + startElementWidth/2;
+                            elementCenterPositionY = startElementPositionY + startElementHeight/2;
+                            if (screenHeight - elementCenterPositionX > elementCenterPositionX){
+                                maxElementWidth = elementCenterPositionX*2;
+                            } else {
+                                maxElementWidth = (screenHeight - elementCenterPositionX)*2;
+                            }
+
+                            if (screenWidth - elementCenterPositionY > elementCenterPositionY){
+                                maxElementHeight = elementCenterPositionY*2;
+                            } else {
+                                maxElementHeight = (screenWidth - elementCenterPositionY)*2;
+                            }
+
                         }
 
                         return true;
@@ -95,15 +136,16 @@ public class GameSetting {
                         isMove = true;
                         if (editElement != null){
                             if (isOneFinger){
-                                editElement.moveElement(pressedX, pressedY,(int) event.getX(),(int) event.getY());
+                                editElement.moveElement(maxElementPositionX,maxElementPositionY,startElementPositionX, startElementPositionY,(int) event.getX() - startFingerPressedPositionX,(int) event.getY() - startFingerPressedPositionY);
                             } else {
-                                editElement.resizeElement(distanceX,distanceY,(int) event.getX(1) - (int) event.getX(0),(int) event.getY(1) - (int) event.getY(0));
+                                editElement.resizeElement(elementCenterPositionX,elementCenterPositionY,maxElementWidth,maxElementHeight,startElementWidth,startElementHeight,Math.abs(((int) event.getX(1) - (int) event.getX(0))) - startTwoFingerDistanceX,Math.abs(((int) event.getY(1) - (int) event.getY(0))) - startTwoFingerDistanceY);
                             }
                         }
 
                         return true;
                     case MotionEvent.ACTION_POINTER_UP:
                         isOneFinger = true;
+                        setInitInfo(event);
                         return true;
                     case MotionEvent.ACTION_UP:
                         if (!isMove) {
