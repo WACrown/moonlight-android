@@ -292,4 +292,23 @@
     <string name="pacing_balanced">Balanced</string>
     <string name="pacing_balanced_alt">Balanced with FPS limit</string>
     <string name="pacing_smoothness">Prefer smoothest video (may significantly increase latency)</string>
+    <string name="game_setting_menu_item_edit">Edit Button</string>
+    <string name="game_setting_menu_item_edit_add_button">Add Button</string>
+    <string name="game_setting_menu_item_edit_add_pad">Add Pad</string>
+    <string name="game_setting_menu_item_edit_add_stick">Add Stick</string>
+    <string name="game_setting_menu_item_edit_delete">Delete Button</string>
+    <string name="game_setting_menu_item_edit_move">Move Button</string>
+    <string name="game_setting_menu_item_edit_resize">Resize Button</string>
+    <string name="game_setting_menu_item_back">Back</string>
+    <string name="game_setting_menu_item_back_to_stream">Back To Steram</string>
+    <string name="game_setting_menu_item_hide_menu">Hide Menu</string>
+    <string name="game_setting_menu_item_select_right">Right</string>
+    <string name="game_setting_menu_item_select_left">Left</string>
+    <string name="game_setting_menu_item_select_down">Down</string>
+    <string name="game_setting_menu_item_select_up">Up</string>
+    <string name="game_setting_menu_item_select_button_type">Button Type</string>
+    <string name="game_setting_menu_item_select_button">Button</string>
+    <string name="game_setting_menu_item_edit_add">Ensure Add</string>
+    <string name="game_setting_menu_item_select_button_size">Button Size</string>
+    <string name="game_setting_menu_item_edit_save_layout">Save Layout</string>
 </resources>

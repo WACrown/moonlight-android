@@ -8,34 +8,24 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.limelight.R;
 import com.limelight.binding.input.virtual_controller.VirtualController;
+import com.limelight.binding.input.virtual_controller.VirtualControllerConfigurationLoader;
 import com.limelight.binding.input.virtual_controller.VirtualControllerElement;
 import com.limelight.ui.AdapterSettingMenuListView;
 import com.limelight.ui.MenuItemLinearLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class GameSetting {
-
-
-    public final List<String> keyList = Arrays.asList("K-A", "K-B", "K-C", "K-D", "K-E", "K-F", "K-G", "K-H", "K-I", "K-J", "K-K", "K-L", "K-M", "K-N", "K-O", "K-P", "K-Q", "K-R", "K-S", "K-T", "K-U", "K-V", "K-W", "K-X", "K-Y", "K-Z",
-            "K-ESC","K-CTRLL" , "K-SHIFTL", "K-CTRLR" , "K-SHIFTR", "K-ALTL"  , "K-ALTR"  , "K-ENTER" , "K-KBACK"  , "K-SPACE" , "K-TAB"   , "K-CAPS"  , "K-WIN", "K-DEL", "K-INS", "K-HOME", "K-END", "K-PGUP", "K-PGDN", "K-BREAK", "K-SLCK", "K-PRINT", "K-UP", "K-DOWN", "K-LEFT", "K-RIGHT",
-            "K-1", "K-2", "K-3", "K-4", "K-5", "K-6", "K-7", "K-8", "K-9", "K-0", "K-F1", "K-F2", "K-F3", "K-F4", "K-F5", "K-F6", "K-F7", "K-F8", "K-F9", "K-F10", "K-F11", "K-F12",
-            "K-~", "K-_", "K-=", "K-[", "K-]", "K-\\", "K-;", "\"", "K-<", "K->", "K-/",
-            "K-NUM1", "K-NUM2", "K-NUM3", "K-NUM4", "K-NUM5", "K-NUM6", "K-NUM7", "K-NUM8", "K-NUM9", "K-NUM0", "K-NUM.", "K-NUM+", "K-NUM_", "K-NUM*", "K-NUM/", "K-NUMENT", "K-NUMLCK",
-            "G-GA", "G-GB", "G-GX", "G-GY", "G-PU","G-PD","G-PL","G-PR","G-LT", "G-RT", "G-LB", "G-RB", "G-LSB", "G-RSB", "G-START","G-BACK","G-LSU","G-LSD","G-LSL","G-LSR","G-RSU","G-RSD","G-RSL","G-RSR",
-            "M-ML", "M-MR", "M-MM", "M-M1", "M-M2");
-
-    private final List<String> typeList = Arrays.asList("BUTTON", "PAD", "STICK");
-    private final List<String> funcList = Arrays.asList("COMMON");
-
-
-
 
     private final Context context;
     private final FrameLayout frameLayout;
@@ -46,19 +36,25 @@ public class GameSetting {
     private final View settingMenuLayout;
     private final int screenWidth;
     private final int screenHeight;
+    private final VirtualController virtualController;
+
 
     private final List<List<MenuItemLinearLayout>> allMenu = new ArrayList<>();
     private final AdapterSettingMenuListView adapterSettingMenuListView;
 
     private MenuItemLinearLayout currentSelectedItem;
     private VirtualControllerElement editElement;
-    private List<VirtualControllerElement> elements;
 
 
     public GameSetting(Context context, FrameLayout frameLayout, VirtualController virtualController){
 
         this.context = context;
+
         this.frameLayout = frameLayout;
+
+        this.virtualController = virtualController;
+
+
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
         screenWidth = screen.widthPixels;
         screenHeight = screen.heightPixels;
@@ -159,13 +155,19 @@ public class GameSetting {
                                 int elementEndX = elementStartX + element.getWidth();
                                 int elementEndY = elementStartY + element.getHeight();
                                 if (((pressedX > elementStartX) && (pressedX < elementEndX)) && ((pressedY > elementStartY) && (pressedY < elementEndY))){
+
+                                    //
                                     if (editElement != element && editElement != null) {
-                                        editElement.switchSelectedStatus();
+                                        editElement.setSelectedStatus(false);
                                     }
-                                    if (element.switchSelectedStatus())
-                                        editElement = element;
-                                    else
+                                    if (element.getSelectedStatus()){
+                                        editElement.setSelectedStatus(false);
                                         editElement = null;
+                                    } else {
+                                        editElement = element;
+                                        editElement.setSelectedStatus(true);
+                                    }
+
                                     break;
 
 
@@ -202,17 +204,16 @@ public class GameSetting {
         });
         settingMenuLayout.setClickable(false);
         settingMenuLayout.setVisibility(View.INVISIBLE);
-        SettingMenuItems settingMenuItems = new SettingMenuItems(context, frameLayout, this);
+        SettingMenuItems settingMenuItems = new SettingMenuItems(context,this);
         itemViewMap = settingMenuItems.getItemViewMap();
         ListView menuListView = settingMenuLayout.findViewById(R.id.game_setting_menu_listview);
         adapterSettingMenuListView = new AdapterSettingMenuListView(context);
         menuListView.setAdapter(adapterSettingMenuListView);
         List<MenuItemLinearLayout> menu = new ArrayList<>();
+        menu.add(null);
         menu.add(itemViewMap.get(R.id.game_setting_menu_item_back_to_stream));
         menu.add(itemViewMap.get(R.id.game_setting_menu_item_edit));
-        menu.add(itemViewMap.get(R.id.game_setting_menu_item_selectkey));
-        allMenu.add(menu);
-        refreshAdapterSettingMenuListViewList();
+        refreshAdapterSettingMenuListViewList(menu,null);
 
         //列表选择副菜单
         settingListCreator = new SettingListCreator(context,frameLayout,this);
@@ -226,18 +227,56 @@ public class GameSetting {
         return allMenu;
     }
 
-    public void refreshAdapterSettingMenuListViewList(){
-        adapterSettingMenuListView.setItemList(allMenu.get(allMenu.size() - 1));
-        adapterSettingMenuListView.notifyDataSetChanged();
+
+
+    public void back(){
+        allMenu.get(allMenu.size() - 1).get(0).runCallback();
+        allMenu.remove(allMenu.size() - 1);
+    }
+
+    public void editMode(boolean isEdit){
+        if (isEdit){
+
+            glassPanelEditor.setVisibility(View.VISIBLE);
+        } else {
+            glassPanelEditor.setVisibility(View.INVISIBLE);
+            VirtualControllerConfigurationLoader.saveProfile(virtualController, context);
+        }
     }
 
 
-    public void setVisibility(int visible){
+    public void addElement(String buttonNamePre,String elementSize){
 
-        if (settingMenuLayout != null){
-            settingMenuLayout.setVisibility(visible);
+        Set<String> allButtonName = new HashSet<>();
+
+        for (VirtualControllerElement element : virtualController.getElements()){
+            allButtonName.add(element.elementId);
         }
 
+        for (int i = 0;i < 100;i ++){
+            String buttonName = buttonNamePre + i;
+            if (allButtonName.contains(buttonName)) {
+                continue;
+            }
+            Map<String, String> newButton = new HashMap<>();
+            newButton.put(buttonName,elementSize);
+            VirtualControllerConfigurationLoader.createButtons(virtualController,context,newButton);
+            //System.out.println("wangguan newButton:" + newButton);
+            break;
+
+        }
+        Toast.makeText(context,"已添加",Toast.LENGTH_SHORT).show();
+
+
+    }
+
+
+    public void deleteElement(){
+        if (editElement != null){
+            frameLayout.removeView(editElement);
+            virtualController.getElements().remove(editElement);
+            editElement = null;
+        }
     }
 
     public void setPanelVisibility(int visible){
@@ -248,9 +287,6 @@ public class GameSetting {
         this.editElement = editElement;
     }
 
-    public VirtualControllerElement getEditElement() {
-        return editElement;
-    }
 
     public void displaySettingList(List<String> currentSelectList, MenuItemLinearLayout currentSelectedItem){
         this.currentSelectedItem = currentSelectedItem;
@@ -270,10 +306,31 @@ public class GameSetting {
         }
 
         currentSelectedItem.setBackgroundColor(context.getResources().getColor(R.color.game_setting_item_background_color_primary));
-        currentSelectedItem = null;
         settingMenuLayout.setClickable(false);
+        currentSelectedItem.runCallback();
     }
 
+
+
+    public void refreshAdapterSettingMenuListViewList(List<MenuItemLinearLayout> menu,MenuItemLinearLayout fatherItem){
+        if (menu != null){
+            menu.add(0,fatherItem);
+            allMenu.add(menu);
+            adapterSettingMenuListView.setItemList(menu);
+        } else {
+            adapterSettingMenuListView.setItemList(allMenu.get(allMenu.size() - 1));
+        }
+        adapterSettingMenuListView.notifyDataSetChanged();
+    }
+
+
+    public void setVisibility(int visible){
+
+        if (settingMenuLayout != null){
+            settingMenuLayout.setVisibility(visible);
+        }
+
+    }
 
     public void refreshLayout() {
         frameLayout.removeAllViews();
@@ -289,7 +346,7 @@ public class GameSetting {
         params = new FrameLayout.LayoutParams(buttonSize, buttonSize);
         params.leftMargin = 15;
         params.topMargin = 15;
-        //frameLayout.addView(buttonConfigure, params);
+        frameLayout.addView(buttonConfigure, params);
 
 
 
@@ -298,10 +355,10 @@ public class GameSetting {
         params = new FrameLayout.LayoutParams(settingContainerWidth, settingContainerHigh);
         params.leftMargin = 0;
         params.topMargin = 0;
-        //frameLayout.addView(settingMenuLayout, params);
+        frameLayout.addView(settingMenuLayout, params);
 
 
-        //settingListCreator.refreshLayout();
+        settingListCreator.refreshLayout();
 
     }
 

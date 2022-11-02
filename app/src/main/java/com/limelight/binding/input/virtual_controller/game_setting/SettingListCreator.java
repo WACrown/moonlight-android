@@ -20,8 +20,6 @@ public class SettingListCreator {
     private final Context context;
     private final GameSetting gameSetting;
     private final FrameLayout frameLayout;
-    private View fatherItemView;
-    private TextView keyTextView;
 
 
     public SettingListCreator(Context context, FrameLayout frameLayout, GameSetting gameSetting) {

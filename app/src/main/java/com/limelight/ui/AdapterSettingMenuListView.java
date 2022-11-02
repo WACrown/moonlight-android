@@ -17,8 +17,11 @@ public class AdapterSettingMenuListView extends BaseAdapter {
         this.context = context;
     }
 
-    public void setItemList(List<MenuItemLinearLayout> itemList){
-        this.itemList = itemList;
+    public void setItemList(List<MenuItemLinearLayout> itemsAndFatherItemList){
+        this.itemList = new ArrayList<>();
+        for (int i = 1;i < itemsAndFatherItemList.size() - 1;i ++){
+            this.itemList.add(itemsAndFatherItemList.get(i));
+        }
     }
 
     public List<MenuItemLinearLayout> getItemList() {

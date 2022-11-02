@@ -282,4 +282,23 @@
     <string name="summary_checkbox_enable_audiofx">串流时允许音效工作，可能会导致音频延迟增加</string>
     <string name="title_checkbox_reduce_refresh_rate">允许降低刷新率</string>
     <string name="summary_checkbox_reduce_refresh_rate">较低的屏幕刷新率可以在增加一些视频延迟的情况下省电</string>
+    <string name="game_setting_menu_item_edit">编辑按键</string>
+    <string name="game_setting_menu_item_edit_add_button">新增按键</string>
+    <string name="game_setting_menu_item_edit_add_pad">新增十字键</string>
+    <string name="game_setting_menu_item_edit_add_stick">新增摇杆</string>
+    <string name="game_setting_menu_item_back">返回上一级</string>
+    <string name="game_setting_menu_item_back_to_stream">退出设置</string>
+    <string name="game_setting_menu_item_hide_menu">隐藏设置菜单</string>
+    <string name="game_setting_menu_item_edit_delete">删除按键</string>
+    <string name="game_setting_menu_item_edit_resize">调整按键大小</string>
+    <string name="game_setting_menu_item_edit_move">调整按键位置</string>
+    <string name="game_setting_menu_item_select_right">右</string>
+    <string name="game_setting_menu_item_select_left">左</string>
+    <string name="game_setting_menu_item_select_down">下</string>
+    <string name="game_setting_menu_item_select_up">上</string>
+    <string name="game_setting_menu_item_select_button_type">按钮触发方式</string>
+    <string name="game_setting_menu_item_select_button">按钮</string>
+    <string name="game_setting_menu_item_edit_add">确认</string>
+    <string name="game_setting_menu_item_select_button_size">按钮大小</string>
+    <string name="game_setting_menu_item_edit_save_layout">保存按键布局</string>
 </resources>

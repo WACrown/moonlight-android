@@ -163,7 +163,7 @@ public class DigitalButton extends VirtualControllerElement {
     }
 
     private void onClickCallback() {
-        _DBG("clicked");
+        _DBG("wangguan clicked");
         // notify listeners
         for (DigitalButtonListener listener : listeners) {
             listener.onClick();
@@ -174,7 +174,7 @@ public class DigitalButton extends VirtualControllerElement {
     }
 
     private void onLongClickCallback() {
-        _DBG("long click");
+        _DBG("wangguan long click");
         // notify listeners
         for (DigitalButtonListener listener : listeners) {
             listener.onLongClick();
@@ -182,7 +182,7 @@ public class DigitalButton extends VirtualControllerElement {
     }
 
     private void onReleaseCallback() {
-        _DBG("released");
+        _DBG("wangguan released");
         // notify listeners
         for (DigitalButtonListener listener : listeners) {
             listener.onRelease();

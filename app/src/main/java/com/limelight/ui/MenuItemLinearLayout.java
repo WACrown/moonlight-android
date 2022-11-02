@@ -14,6 +14,11 @@ import java.util.List;
 public class MenuItemLinearLayout extends LinearLayout {
 
     private TextView textView;
+    private OnClickAndBackListener onClickAndBackListener;
+
+    public abstract interface OnClickAndBackListener extends OnClickListener {
+        public abstract void callback();
+    }
 
     public MenuItemLinearLayout(Context context) {
         super(context);
@@ -31,15 +36,21 @@ public class MenuItemLinearLayout extends LinearLayout {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public void setMenu(List<MenuItemLinearLayout> menu, GameSetting gameSetting){
-        this.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                gameSetting.getAllMenu().add(menu);
-                gameSetting.refreshAdapterSettingMenuListViewList();
-            }
-        });
+    @Override
+    public void setOnClickListener(OnClickListener l) {
+        if (l instanceof OnClickAndBackListener){
+            this.onClickAndBackListener = (OnClickAndBackListener) l;
+        }
+        super.setOnClickListener(l);
     }
+
+    public void runCallback(){
+        if (onClickAndBackListener != null){
+            onClickAndBackListener.callback();
+        }
+
+    }
+
 
     public void setTextView(TextView textView){
         this.textView = textView;

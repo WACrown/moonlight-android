@@ -18,41 +18,75 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public abstract class VirtualControllerElement extends View {
-    protected static boolean _PRINT_DEBUG_INFORMATION = false;
+    protected static boolean _PRINT_DEBUG_INFORMATION = true;
 
 
     protected VirtualController virtualController;
-    protected final String elementId;
+    public final String elementId;
 
     private final Paint paint = new Paint();
-    private final int screenWidth;
-    private final int screenHeight;
 
     private int normalColor = 0xF0888888;
     protected int pressedColor = 0xF00000FF;
-    private int configMoveColor = 0xF0FF0000;
-    private int configResizeColor = 0xF0FF00FF;
-    private int configEditColor = 0xFF03A9F4;
+    private int configEditNormalColor = 0xFF03A9F4;
+    private int configEditSelectedColor = 0xF0FF0000;
+    private int configEditColor = configEditNormalColor;
     private int configSelectedColor = 0xF000FF00;
 
+    public boolean getSelectedStatus() {
+        return selectedStatus;
+    }
 
-    float position_pressed_x = 0;
-    float position_pressed_y = 0;
+    public void setSelectedStatus(boolean selectedStatus) {
+        if (selectedStatus){
+            configEditColor = configEditSelectedColor;
+        } else {
+            configEditColor = configEditNormalColor;
+        }
+        this.selectedStatus = selectedStatus;
+    }
 
-    private enum Mode {
+    private boolean selectedStatus = false;
+
+    public enum Mode {
         Normal,
-        Resize,
-        Move,
         Edit
     }
 
+
+
+
+
     private Mode currentMode = Mode.Normal;
+
+    public Mode getCurrentMode() {
+        return currentMode;
+    }
+
+    public void setCurrentMode(Mode currentMode) {
+        this.currentMode = currentMode;
+        actionMode();
+    }
+
+    private void actionMode(){
+//        switch (currentMode){
+//            case Normal:{
+//
+//
+//                break;
+//            }
+//            case Edit:{
+//
+//                break;
+//            }
+//
+//        }
+    }
+
 
     protected VirtualControllerElement(VirtualController controller, Context context, String elementId) {
         super(context);
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
-        screenWidth = screen.widthPixels;
-        screenHeight = screen.heightPixels;
         this.virtualController = controller;
         this.elementId = elementId;
     }
@@ -117,19 +151,7 @@ public abstract class VirtualControllerElement extends View {
     }
 
 
-    public boolean switchSelectedStatus() {
 
-        if (configEditColor == 0xFF03A9F4){
-            setConfigEditColor(0xF0FF0000);
-            return true;
-        } else {
-            setConfigEditColor(0xFF03A9F4);
-            return false;
-        }
-
-        //System.out.println("wangguan deleteElement" + elementId);
-
-    }
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -148,33 +170,15 @@ public abstract class VirtualControllerElement extends View {
     }
 
 
-    protected void actionEnableEdit() {
-        currentMode = Mode.Edit;
-    }
-
-    protected void actionEnableMove() {
-        currentMode = Mode.Move;
-    }
-
-    protected void actionEnableResize() {
-        currentMode = Mode.Resize;
-    }
-
-    protected void actionCancel() {
-        currentMode = Mode.Normal;
-        invalidate();
-    }
 
     protected int getDefaultColor() {
 
-        if (virtualController.getControllerMode() == VirtualController.ControllerMode.EditLayout)
+        if (currentMode == Mode.Edit){
             return configEditColor;
-        else if (virtualController.getControllerMode() == VirtualController.ControllerMode.MoveButtons)
-            return configMoveColor;
-        else if (virtualController.getControllerMode() == VirtualController.ControllerMode.ResizeButtons)
-            return configResizeColor;
-        else
+        } else {
             return normalColor;
+        }
+
     }
 
     protected int getDefaultStrokeWidth() {
@@ -182,61 +186,6 @@ public abstract class VirtualControllerElement extends View {
         return (int)(screen.heightPixels*0.004f);
     }
 
-    protected void showConfigurationDialog() {
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getContext());
-
-        alertBuilder.setTitle("Configuration");
-
-        CharSequence functions[] = new CharSequence[]{
-                "Move",
-                "Resize",
-                "Select",
-            /*election
-            "Set n
-            Disable color sormal color",
-            "Set pressed color",
-            */
-                "Cancel"
-        };
-
-        alertBuilder.setItems(functions, new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0: { // move
-                        actionEnableMove();
-                        break;
-                    }
-                    case 1: { // resize
-                        actionEnableResize();
-                        break;
-                    }
-                    case 2: { // select
-                        actionEnableEdit();
-                        break;
-                    }
-                /*
-                case 2: { // set default color
-                    actionShowNormalColorChooser();
-                    break;
-                }
-                case 3: { // set pressed color
-                    actionShowPressedColorChooser();
-                    break;
-                }
-                */
-                    default: { // cancel
-                        actionCancel();
-                        break;
-                    }
-                }
-            }
-        });
-        AlertDialog alert = alertBuilder.create();
-        // show menu
-        alert.show();
-    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -245,37 +194,8 @@ public abstract class VirtualControllerElement extends View {
         // NB: We can get an additional pointer down if the user touches a non-StreamView area
         // while also touching an OSC control, even if that pointer down doesn't correspond to
         // an area of the OSC control.
-        System.out.println("wangguan element touch:" + event.getAction());
 
-        if (event.getActionIndex() != 0) {
-            return true;
-        }
-
-        if (virtualController.getControllerMode() == VirtualController.ControllerMode.Active) {
-            return onElementTouchEvent(event);
-        }
-
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN: {
-                position_pressed_x = event.getX();
-                position_pressed_y = event.getY();
-                return true;
-            }
-
-            case MotionEvent.ACTION_MOVE: {
-
-                return false;
-            }
-            case MotionEvent.ACTION_CANCEL:
-            case MotionEvent.ACTION_UP: {
-                switchSelectedStatus();
-                actionCancel();
-                return true;
-            }
-            default: {
-            }
-        }
-        return true;
+        return onElementTouchEvent(event);
     }
 
     abstract protected void onElementDraw(Canvas canvas);
@@ -295,10 +215,6 @@ public abstract class VirtualControllerElement extends View {
         invalidate();
     }
 
-    public void setConfigEditColor(int deleteColor){
-        this.configEditColor = deleteColor;
-        invalidate();
-    }
 
 
     public void setOpacity(int opacity) {

@@ -9,21 +9,17 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.limelight.Game;
 import com.limelight.LimeLog;
-import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
 import com.limelight.binding.input.virtual_controller.game_setting.GameSetting;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerAddButton;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerFuncSelector;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerTypeSelector;
-import com.limelight.binding.input.virtual_controller.selector.VirtualControllerLayoutSelector;
 import com.limelight.nvstream.NvConnection;
 import com.limelight.utils.controller.LayoutEditHelper;
 
@@ -38,9 +34,7 @@ public class VirtualController {
 
     public enum ControllerMode {
         Active,
-        MoveButtons,
-        ResizeButtons,
-        EditLayout
+        EditButtons
     }
 
     public final Set<VirtualControllerElement> virtualControllerNeedDeleteElementSet = new HashSet<>();
@@ -65,26 +59,11 @@ public class VirtualController {
         }
     };
 
-    private FrameLayout frameFatherLayout = null;
-    private FrameLayout frameControllerButtonLayout = null;
-    private FrameLayout frameSettingLayout = null;
+    private final FrameLayout frameFatherLayout;
+    private final FrameLayout frameButtonLayout;
+    private final FrameLayout frameSettingLayout;
 
-
-    ControllerMode currentMode = ControllerMode.Active;
-
-
-    private Button buttonConfigure = null;
-    private Button buttonAdd = null;
-    private Button buttonDelete = null;
-    private VirtualControllerLayoutSelector VCLSelector = null;
-    private VirtualControllerTypeSelector typeSelector = null;
-    private VirtualControllerFuncSelector funcSelector = null;
-    private VirtualControllerAddButton buttonUpSelector = null;
-    private VirtualControllerAddButton buttonDownSelector = null;
-    private VirtualControllerAddButton buttonLeftSelector = null;
-    private VirtualControllerAddButton buttonRightSelector = null;
-    private VirtualControllerAddButton buttonSelector = null;
-    private Toast toast;
+    private ControllerMode currentMode = ControllerMode.Active;
 
     private final GameSetting gameSetting;
 
@@ -98,136 +77,53 @@ public class VirtualController {
         this.frameFatherLayout = layout;
         this.context = context;
         this.virtualController = this;
-
-        frameControllerButtonLayout = new FrameLayout(context);
-        frameSettingLayout = new FrameLayout(context);
-        frameFatherLayout.addView(frameControllerButtonLayout);
-        frameFatherLayout.addView(frameSettingLayout);
-
-
-        gameSetting = new GameSetting(context, frameSettingLayout,virtualController);
-        VCLSelector = new VirtualControllerLayoutSelector(context, frameControllerButtonLayout,this);
-
-
-
-        buttonAdd = new Button(context);
-        buttonAdd.setBackgroundColor(0xFF3EFF13);
-        buttonAdd.setText("ADD");
-        buttonAdd.setTextColor(0xFF505050);
-        buttonAdd.setVisibility(View.INVISIBLE);
-
-
-        buttonDelete = new Button(context);
-        buttonDelete.setBackgroundColor(0xFFF81010);
-        buttonDelete.setText("DELETE");
-        buttonDelete.setTextColor(0xFF505050);
-        buttonDelete.setVisibility(View.INVISIBLE);
-
-
-        buttonDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                for (VirtualControllerElement virtualControllerElement : virtualControllerNeedDeleteElementSet){
-                    frameControllerButtonLayout.removeView(virtualControllerElement);
-                    elements.remove(virtualControllerElement);
-                }
-                virtualControllerNeedDeleteElementSet.clear();
-                Toast.makeText(context,"已删除",Toast.LENGTH_SHORT).show();
-            }
-        });
         this.handler = new Handler(Looper.getMainLooper());
+        this.frameButtonLayout = new FrameLayout(context);
+        this.frameSettingLayout = new FrameLayout(context);
+        this.gameSetting = new GameSetting(context, frameSettingLayout,virtualController);
 
-
-        buttonConfigure = new Button(context);
-        buttonConfigure.setAlpha(0.25f);
-        buttonConfigure.setFocusable(false);
-        buttonConfigure.setBackgroundResource(R.drawable.ic_settings);
-        buttonConfigure.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String message;
-
-                if (currentMode == ControllerMode.Active){
-                    currentMode = ControllerMode.EditLayout;
-                    message = "Setting (Edit layout)";
-                } else if (currentMode == ControllerMode.EditLayout) {
-                    currentMode = ControllerMode.MoveButtons;
-                    message = "Setting (Move buttons)";
-                } else if (currentMode == ControllerMode.MoveButtons) {
-                    currentMode = ControllerMode.ResizeButtons;
-                    message = "Setting (Resize buttons)";
-                } else {
-                    currentMode = ControllerMode.Active;
-                    VirtualControllerConfigurationLoader.saveProfile(VirtualController.this, context);
-                    message = "Exiting Setting";
-                }
-
-
-                if (toast != null){
-                    toast.cancel();
-                }
-                toast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
-                toast.show();
-
-
-                buttonConfigure.invalidate();
-                for (VirtualControllerElement element : elements) {
-                    element.invalidate();
-                }
-
-                if (currentMode == ControllerMode.MoveButtons){
-                    //gameSetting.setPanelVisibility(View.VISIBLE);
-                }else {
-                    //gameSetting.setPanelVisibility(View.INVISIBLE);
-                }
-
-
-                if (currentMode == ControllerMode.EditLayout){
-                    gameSetting.setPanelVisibility(View.VISIBLE);
-                    VCLSelector.setVisibility(View.VISIBLE);
-                    typeSelector.setVisibility(View.VISIBLE);
-                    buttonAdd.setVisibility(View.VISIBLE);
-                    buttonDelete.setVisibility(View.VISIBLE);
-                } else {
-                    gameSetting.setPanelVisibility(View.INVISIBLE);
-                    VCLSelector.setVisibility(View.INVISIBLE);
-                    typeSelector.setVisibility(View.INVISIBLE);
-                    buttonAdd.setVisibility(View.INVISIBLE);
-                    buttonDelete.setVisibility(View.INVISIBLE);
-                }
-
-            }
-        });
-
+        refreshFrameButtonLayout();
+        refreshFrameSettingLayout();
     }
 
+
+    private void refreshFrameButtonLayout(){
+        Map<String, String> allButton = LayoutEditHelper.loadAllButton(context);
+        //System.out.println("wangguan allButton" + allButton + "layoutName" + LayoutAdminHelper.getCurrentLayoutName(context));
+        VirtualControllerConfigurationLoader.createButtons(this,context,allButton);
+    }
+
+    private void refreshFrameSettingLayout(){
+
+        gameSetting.refreshLayout();
+    }
 
 
     Handler getHandler() {
         return handler;
     }
 
-    public void hide() {
-        for (VirtualControllerElement element : elements) {
-            element.setVisibility(View.INVISIBLE);
-        }
+    public ControllerMode getCurrentMode() {
+        return currentMode;
+    }
 
-        buttonConfigure.setVisibility(View.INVISIBLE);
+    public void setCurrentMode(ControllerMode currentMode) {
+        this.currentMode = currentMode;
+    }
+
+    public void selectedElementToEdit(VirtualControllerElement element, boolean selected){
+        element.setSelectedStatus(selected);
+    }
+
+
+    public void hide() {
+        frameButtonLayout.setVisibility(View.INVISIBLE);
+        frameSettingLayout.setVisibility(View.INVISIBLE);
     }
 
     public void show() {
-        for (VirtualControllerElement element : elements) {
-            element.setVisibility(View.VISIBLE);
-        }
-
-        buttonConfigure.setVisibility(View.VISIBLE);
-    }
-
-    public void removeElements() {
-        for (VirtualControllerElement element : elements) {
-            frameControllerButtonLayout.removeView(element);
-        }
-        elements.clear();
+        frameButtonLayout.setVisibility(View.VISIBLE);
+        frameSettingLayout.setVisibility(View.VISIBLE);
     }
 
     public void setOpacity(int opacity) {
@@ -242,7 +138,25 @@ public class VirtualController {
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
         layoutParams.setMargins(x, y, 0, 0);
 
-        frameControllerButtonLayout.addView(element, layoutParams);
+        frameButtonLayout.addView(element, layoutParams);
+    }
+
+    public void removeElements(Set<VirtualControllerElement> elements){
+        for(VirtualControllerElement element : elements){
+            elements.remove(element);
+            frameButtonLayout.removeView(element);
+        }
+
+    }
+
+    public void moveElements(Map<VirtualControllerElement,int[]> elementsMap, ){
+
+    }
+
+    public void resizeElements(Map<VirtualControllerElement,int[]> elementsMap){
+
+
+
     }
 
     public List<VirtualControllerElement> getElements() {
@@ -256,118 +170,13 @@ public class VirtualController {
     }
 
     public void refreshLayout() {
-        removeElements();
-        frameControllerButtonLayout.removeView(buttonConfigure);
-        frameControllerButtonLayout.removeView(buttonAdd);
-        frameControllerButtonLayout.removeView(buttonDelete);
-        frameControllerButtonLayout.removeView(buttonDownSelector);
-        frameControllerButtonLayout.removeView(buttonSelector);
-        frameControllerButtonLayout.removeView(buttonLeftSelector);
-        frameControllerButtonLayout.removeView(buttonRightSelector);
-        frameControllerButtonLayout.removeView(buttonUpSelector);
-        frameControllerButtonLayout.removeView(VCLSelector);
-
-        DisplayMetrics screen = context.getResources().getDisplayMetrics();
-        FrameLayout.LayoutParams params;
-
-        int buttonSize = (int)(screen.heightPixels*0.06f);
-        params = new FrameLayout.LayoutParams(buttonSize, buttonSize);
-        params.leftMargin = 15;
-        params.topMargin = 15;
-        frameControllerButtonLayout.addView(buttonConfigure, params);
-
-        int ButtonHeight = (int)(screen.heightPixels*0.1f);
-        int ButtonWidth = (int)(screen.widthPixels*0.2f);
-
-        params = new FrameLayout.LayoutParams(ButtonWidth, ButtonHeight);
-        params.leftMargin = (int)(screen.widthPixels*0.275f);
-        params.topMargin = (int)(screen.heightPixels*0.4f);
-        frameControllerButtonLayout.addView(buttonAdd, params);
-
-        params = new FrameLayout.LayoutParams(ButtonWidth, ButtonHeight);
-        params.leftMargin = (int)(screen.widthPixels*0.525f);
-        params.topMargin = (int)(screen.heightPixels*0.4f);
-        frameControllerButtonLayout.addView(buttonDelete, params);
-
-        Map<String, String> allButton = LayoutEditHelper.loadAllButton(context);
-        //System.out.println("wangguan allButton" + allButton + "layoutName" + LayoutAdminHelper.getCurrentLayoutName(context));
-        VirtualControllerConfigurationLoader.createButtons(this,context,allButton);
-
-
-
-        VCLSelector.refreshLayout();
-        buttonEditSpinner();
-
-        gameSetting.refreshLayout();
+        frameFatherLayout.removeView(frameButtonLayout);
+        frameFatherLayout.removeView(frameSettingLayout);
+        frameFatherLayout.addView(frameButtonLayout);
+        frameFatherLayout.addView(frameSettingLayout);
 
     }
 
-
-
-    private void buttonEditSpinner(){
-        DisplayMetrics screen = context.getResources().getDisplayMetrics();
-        buttonUpSelector = new VirtualControllerAddButton(context, frameControllerButtonLayout,(int)(screen.widthPixels*0.025f),(int)(screen.heightPixels*0.25f));
-        buttonDownSelector = new VirtualControllerAddButton(context, frameControllerButtonLayout,(int)(screen.widthPixels*0.275f),(int)(screen.heightPixels*0.25f));
-        buttonLeftSelector = new VirtualControllerAddButton(context, frameControllerButtonLayout,(int)(screen.widthPixels*0.525f),(int)(screen.heightPixels*0.25f));
-        buttonRightSelector = new VirtualControllerAddButton(context, frameControllerButtonLayout,(int)(screen.widthPixels*0.775f),(int)(screen.heightPixels*0.25f));
-        buttonSelector = new VirtualControllerAddButton(context, frameControllerButtonLayout,(int)(screen.widthPixels*0.775f),(int)(screen.heightPixels*0.1f));
-        funcSelector = new VirtualControllerFuncSelector(context, frameControllerButtonLayout);
-        typeSelector = new VirtualControllerTypeSelector(context, frameControllerButtonLayout,funcSelector,buttonSelector,buttonUpSelector,buttonDownSelector,buttonLeftSelector,buttonRightSelector);
-        buttonAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Set<String> allButtonName = new HashSet<>();
-
-                for (VirtualControllerElement element : elements){
-                    allButtonName.add(element.elementId);
-                }
-
-                String buttonNamePre = "";
-                switch ((String) typeSelector.getSelectedItem()) {
-                    case "BUTTON" : {
-                        buttonNamePre = "BUTTON-" + (String) funcSelector.getSelectedItem() + "-"+ (String) buttonSelector.getSelectedItem() + "-";
-                        break;
-                    }
-                    case "PAD" : {
-                        buttonNamePre = "PAD-" + (String) buttonUpSelector.getSelectedItem() + "-" + (String) buttonDownSelector.getSelectedItem() + "-" + (String) buttonLeftSelector.getSelectedItem() + "-" + (String) buttonRightSelector.getSelectedItem() + "-";
-                        break;
-                    }
-                    case "STICK" : {
-                        buttonNamePre = "STICK-" + (String) buttonUpSelector.getSelectedItem() + "-" + (String) buttonDownSelector.getSelectedItem() + "-" + (String) buttonLeftSelector.getSelectedItem() + "-" + (String) buttonRightSelector.getSelectedItem() + "-" + (String) buttonSelector.getSelectedItem() + "-";
-                        break;
-                    }
-
-                }
-                for (int i = 0;i < 100;i ++){
-                    String buttonName = buttonNamePre + i;
-                    if (!allButtonName.contains(buttonName)){
-                        Map<String, String> newButton = new HashMap<>();
-                        newButton.put(buttonName,"{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
-                        VirtualControllerConfigurationLoader.createButtons(virtualController,context,newButton);
-                        System.out.println("wangguan newButton:" + newButton);
-                        break;
-                    }
-                }
-                Toast.makeText(context,"已添加",Toast.LENGTH_SHORT).show();
-
-            }
-        });
-
-        typeSelector.refreshLayout();
-        funcSelector.refreshLayout();
-        buttonSelector.refreshLayout();
-        buttonRightSelector.refreshLayout();
-        buttonLeftSelector.refreshLayout();
-        buttonDownSelector.refreshLayout();
-        buttonUpSelector.refreshLayout();
-    }
-
-
-
-    public ControllerMode getControllerMode() {
-        return currentMode;
-    }
 
     public short[] getGamePadInputContext() {
         return gamePadInputContext;
