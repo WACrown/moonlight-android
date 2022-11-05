@@ -148,7 +148,7 @@ public class VirtualController {
 
     public void removeElements(Set<VirtualControllerElement> elements){
         for(VirtualControllerElement element : elements){
-            elements.remove(element);
+            this.elements.remove(element);
             frameButtonLayout.removeView(element);
         }
 

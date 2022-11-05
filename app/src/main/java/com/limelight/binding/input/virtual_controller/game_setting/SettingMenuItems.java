@@ -16,6 +16,7 @@ import com.limelight.ui.MenuItemFatherMenu;
 import com.limelight.ui.MenuItemListSelect;
 import com.limelight.utils.PressedStartElementInfo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,33 +31,27 @@ public class SettingMenuItems {
     private final GameSetting gameSetting;
 
 
-    private final List<String> keyList = Arrays.asList("K-A", "K-B", "K-C", "K-D", "K-E", "K-F", "K-G", "K-H", "K-I", "K-J", "K-K", "K-L", "K-M", "K-N", "K-O", "K-P", "K-Q", "K-R", "K-S", "K-T", "K-U", "K-V", "K-W", "K-X", "K-Y", "K-Z",
-            "K-ESC","K-CTRLL" , "K-SHIFTL", "K-CTRLR" , "K-SHIFTR", "K-ALTL"  , "K-ALTR"  , "K-ENTER" , "K-KBACK"  , "K-SPACE" , "K-TAB"   , "K-CAPS"  , "K-WIN", "K-DEL", "K-INS", "K-HOME", "K-END", "K-PGUP", "K-PGDN", "K-BREAK", "K-SLCK", "K-PRINT", "K-UP", "K-DOWN", "K-LEFT", "K-RIGHT",
-            "K-1", "K-2", "K-3", "K-4", "K-5", "K-6", "K-7", "K-8", "K-9", "K-0", "K-F1", "K-F2", "K-F3", "K-F4", "K-F5", "K-F6", "K-F7", "K-F8", "K-F9", "K-F10", "K-F11", "K-F12",
-            "K-~", "K-_", "K-=", "K-[", "K-]", "K-\\", "K-;", "\"", "K-<", "K->", "K-/",
-            "K-NUM1", "K-NUM2", "K-NUM3", "K-NUM4", "K-NUM5", "K-NUM6", "K-NUM7", "K-NUM8", "K-NUM9", "K-NUM0", "K-NUM.", "K-NUM+", "K-NUM_", "K-NUM*", "K-NUM/", "K-NUMENT", "K-NUMLCK",
-            "G-GA", "G-GB", "G-GX", "G-GY", "G-PU","G-PD","G-PL","G-PR","G-LT", "G-RT", "G-LB", "G-RB", "G-LSB", "G-RSB", "G-START","G-BACK","G-LSU","G-LSD","G-LSL","G-LSR","G-RSU","G-RSD","G-RSL","G-RSR",
-            "M-ML", "M-MR", "M-MM", "M-M1", "M-M2");
+    private List<String> keyList;
+    private List<String> funcList;
+    private List<String> elementSizeList;
 
-    private final List<String> funcList = Arrays.asList("COMMON");
-    private final List<String> elementSizeList = Arrays.asList("small","middle","big");
-    private final Map<String,String> elementSizeMap;
     private final Map<String, MenuItem> itemViewMap = new HashMap<>();
     private final Map<VirtualControllerElement, PressedStartElementInfo> editElements = new HashMap<>();
-
+    private final int screenWidth;
+    private final int screenHeight;
 
 
     public SettingMenuItems(Context context, GameSetting gameSetting, VirtualController virtualController) {
 
-        this.elementSizeMap = new HashMap<>();
-        elementSizeMap.put("small","{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
-        elementSizeMap.put("middle","{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
-        elementSizeMap.put("big","{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
 
         this.gameSetting = gameSetting;
         this.virtualController = virtualController;
         this.context = context;
 
+        DisplayMetrics screen = context.getResources().getDisplayMetrics();
+        screenWidth = screen.widthPixels;
+        screenHeight = screen.heightPixels;
+        initList();
         initMenu(Arrays.asList(
                 addMenuItem("edit_controller",MenuItem.TYPE_FATHER_MENU,context.getResources().getString(R.string.game_setting_menu_item_edit),Arrays.asList(
                         addMenuItem("back",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back),null),
@@ -81,14 +76,29 @@ public class SettingMenuItems {
     }
 
 
+    private void initList(){
+        keyList = Arrays.asList("K-A", "K-B", "K-C", "K-D", "K-E", "K-F", "K-G", "K-H", "K-I", "K-J", "K-K", "K-L", "K-M", "K-N", "K-O", "K-P", "K-Q", "K-R", "K-S", "K-T", "K-U", "K-V", "K-W", "K-X", "K-Y", "K-Z",
+                "K-ESC","K-CTRLL" , "K-SHIFTL", "K-CTRLR" , "K-SHIFTR", "K-ALTL"  , "K-ALTR"  , "K-ENTER" , "K-KBACK"  , "K-SPACE" , "K-TAB"   , "K-CAPS"  , "K-WIN", "K-DEL", "K-INS", "K-HOME", "K-END", "K-PGUP", "K-PGDN", "K-BREAK", "K-SLCK", "K-PRINT", "K-UP", "K-DOWN", "K-LEFT", "K-RIGHT",
+                "K-1", "K-2", "K-3", "K-4", "K-5", "K-6", "K-7", "K-8", "K-9", "K-0", "K-F1", "K-F2", "K-F3", "K-F4", "K-F5", "K-F6", "K-F7", "K-F8", "K-F9", "K-F10", "K-F11", "K-F12",
+                "K-~", "K-_", "K-=", "K-[", "K-]", "K-\\", "K-;", "\"", "K-<", "K->", "K-/",
+                "K-NUM1", "K-NUM2", "K-NUM3", "K-NUM4", "K-NUM5", "K-NUM6", "K-NUM7", "K-NUM8", "K-NUM9", "K-NUM0", "K-NUM.", "K-NUM+", "K-NUM_", "K-NUM*", "K-NUM/", "K-NUMENT", "K-NUMLCK",
+                "G-GA", "G-GB", "G-GX", "G-GY", "G-PU","G-PD","G-PL","G-PR","G-LT", "G-RT", "G-LB", "G-RB", "G-LSB", "G-RSB", "G-START","G-BACK","G-LSU","G-LSD","G-LSL","G-LSR","G-RSU","G-RSD","G-RSL","G-RSR",
+                "M-ML", "M-MR", "M-MM", "M-M1", "M-M2");
+        funcList = Arrays.asList("COMMON");
+        elementSizeList = new ArrayList<>();
+        for (int i = 100;i > 0; i--){
+            elementSizeList.add(i + "%");
+        }
 
 
-    public void initMenu(List<MenuItem> menuItems){
+    }
+
+    private void initMenu(List<MenuItem> menuItems){
         MenuItemFatherMenu beginMenu = new MenuItemFatherMenu("beginMenu",gameSetting,"beginMenu",menuItems);
         gameSetting.goToNextMenu(beginMenu);
     }
 
-    public MenuItem addMenuItem(String name, int type, String text, List<?> items){
+    private MenuItem addMenuItem(String name, int type, String text, List<?> items){
         if (itemViewMap.containsKey(name)){
             return itemViewMap.get(name);
         }
@@ -169,9 +179,6 @@ public class SettingMenuItems {
 
             @Override
             public void onCreate() {
-                DisplayMetrics screen = context.getResources().getDisplayMetrics();
-                int screenWidth = screen.widthPixels;
-                int screenHeight = screen.heightPixels;
 
                 gameSetting.getGlassPanelEditor().setOnTouchListener(new View.OnTouchListener() {
                     private boolean isMove = false;
@@ -188,10 +195,10 @@ public class SettingMenuItems {
                     private int maxIncreaseSizeY;
 
                     private void setOneFingerStartInfo(MotionEvent event){
-                        maxMoveLengthLeft = screen.heightPixels;
-                        maxMoveLengthUp = screen.widthPixels;
-                        maxMoveLengthRight = screen.heightPixels;
-                        maxMoveLengthDown = screen.widthPixels;
+                        maxMoveLengthLeft = screenHeight;
+                        maxMoveLengthUp = screenWidth;
+                        maxMoveLengthRight = screenHeight;
+                        maxMoveLengthDown = screenWidth;
                         startFingerPressedPositionX = (int) event.getX();
                         startFingerPressedPositionY = (int) event.getY();
                         for (VirtualControllerElement editElement : editElements.keySet()){
@@ -204,10 +211,7 @@ public class SettingMenuItems {
                             maxMoveLengthUp = Math.min(startInfo.startElementPositionY, maxMoveLengthUp);
                             maxMoveLengthRight = Math.min(screenHeight - (startInfo.startElementWidth + startInfo.startElementPositionX), maxMoveLengthRight);
                             maxMoveLengthDown = Math.min(screenWidth - (startInfo.startElementHeight + startInfo.startElementPositionY), maxMoveLengthDown);
-                            System.out.println("wangguan screenHeight:" + screenHeight + "screenWidth:" + screenWidth);
-                            System.out.println("wangguan " + editElement.getElementId() + ":" + startInfo);
-                            System.out.println("wangguan left:" + maxMoveLengthLeft + "up:" + maxMoveLengthUp + "right:"+ maxMoveLengthRight + "down:" + maxMoveLengthDown);
-                        }
+                            }
 
                     }
 
@@ -216,8 +220,8 @@ public class SettingMenuItems {
                         startFingerPressedPositionY = (int) event.getY();
                         startTwoFingerDistanceX = Math.abs((int) event.getX(1) - (int) event.getX(0));
                         startTwoFingerDistanceY = Math.abs((int) event.getY(1) - (int) event.getY(0));
-                        maxIncreaseSizeX = screen.heightPixels;
-                        maxIncreaseSizeY = screen.widthPixels;
+                        maxIncreaseSizeX = screenHeight;
+                        maxIncreaseSizeY = screenWidth;
                         for (VirtualControllerElement editElement : editElements.keySet()){
                             PressedStartElementInfo startInfo = editElements.get(editElement);
                             startInfo.startElementPositionX = (int) editElement.getX();
@@ -230,10 +234,6 @@ public class SettingMenuItems {
                             maxIncreaseSizeX = Math.min(screenHeight - (startInfo.startElementPositionX + startInfo.startElementWidth),maxIncreaseSizeX);
                             maxIncreaseSizeY = Math.min(startInfo.startElementPositionY,maxIncreaseSizeY);
                             maxIncreaseSizeY = Math.min(screenWidth - (startInfo.startElementPositionY + startInfo.startElementHeight),maxIncreaseSizeY);
-                            System.out.println("wangguan screenHeight:" + screenHeight + "screenWidth:" + screenWidth);
-                            System.out.println("wangguan " + editElement.getElementId() + ":" + startInfo);
-                            System.out.println("wangguan maxInX:" + maxIncreaseSizeX + "maxIny:" + maxIncreaseSizeY);
-
                         }
 
                     }
@@ -288,13 +288,11 @@ public class SettingMenuItems {
                                         int elementEndX = elementStartX + element.getWidth();
                                         int elementEndY = elementStartY + element.getHeight();
                                         if (((pressedX > elementStartX) && (pressedX < elementEndX)) && ((pressedY > elementStartY) && (pressedY < elementEndY))){
-
-                                            if (element.getSelectedStatus()){
-                                                virtualController.setSelectedElement(element,false);
-                                                editElements.remove(element);
-                                            } else {
-                                                virtualController.setSelectedElement(element,true);
-                                                editElements.put(element,new PressedStartElementInfo());
+                                            System.out.println("wangguan " + element.getElementId());
+                                            if (true){
+                                                singleEditMode(element);
+                                            }else {
+                                                multipleEditMode(element);
                                             }
                                             break;
 
@@ -308,6 +306,32 @@ public class SettingMenuItems {
 
                         return true;
                     }
+
+                    private void singleEditMode(VirtualControllerElement element){
+                        boolean previousStatus = element.getSelectedStatus();
+                        for (VirtualControllerElement editElement : editElements.keySet()){
+                            virtualController.setSelectedElement(editElement,false);
+                        }
+                        editElements.clear();
+                        if (!previousStatus){
+                            virtualController.setSelectedElement(element,true);
+                            editElements.put(element,new PressedStartElementInfo());
+                        }
+
+                    }
+
+                    private void multipleEditMode(VirtualControllerElement element){
+
+                        if (element.getSelectedStatus()){
+                            virtualController.setSelectedElement(element,false);
+                            editElements.remove(element);
+                        } else {
+                            virtualController.setSelectedElement(element,true);
+                            editElements.put(element,new PressedStartElementInfo());
+                        }
+
+                    }
+
                 });
             }
 
@@ -389,8 +413,13 @@ public class SettingMenuItems {
                     if (allButtonName.contains(buttonName)) {
                         continue;
                     }
+                    String buttonSizeSelected = ((MenuItemListSelect) itemViewMap.get("button_size")).getDynamicText();
+                    int buttonSize = (int) ((screenWidth - 40) * Integer.parseInt(buttonSizeSelected.substring(0,buttonSizeSelected.length() - 1)) * 0.01);
+                    int left = screenHeight/2 - buttonSize/2;
+                    int top = screenWidth/2 - buttonSize/2;
+                    String buttonSizeString = "{\"LEFT\":" + left + ",\"TOP\":" + top + ",\"WIDTH\":" + buttonSize + ",\"HEIGHT\":" + buttonSize + "}";
                     Map<String, String> newButton = new HashMap<>();
-                    newButton.put(buttonName,elementSizeMap.get(((MenuItemListSelect) itemViewMap.get("button_size")).getDynamicText()));
+                    newButton.put(buttonName,buttonSizeString);
                     VirtualControllerConfigurationLoader.createButtons(virtualController,context,newButton);
                     System.out.println("wangguan newButton:" + newButton);
                     break;
