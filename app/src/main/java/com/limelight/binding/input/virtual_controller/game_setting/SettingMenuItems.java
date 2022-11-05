@@ -1,23 +1,36 @@
 package com.limelight.binding.input.virtual_controller.game_setting;
 
 import android.content.Context;
-import android.view.LayoutInflater;
+import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.limelight.R;
+import com.limelight.binding.input.virtual_controller.VirtualController;
 import com.limelight.binding.input.virtual_controller.VirtualControllerConfigurationLoader;
-import com.limelight.ui.MenuItemLinearLayout;
-import com.limelight.ui.MenuLinearLayout;
+import com.limelight.binding.input.virtual_controller.VirtualControllerElement;
+import com.limelight.ui.MenuItem;
+import com.limelight.ui.MenuItemCommonButton;
+import com.limelight.ui.MenuItemFatherMenu;
+import com.limelight.ui.MenuItemListSelect;
+import com.limelight.utils.PressedStartElementInfo;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SettingMenuItems {
 
-    public final List<String> keyList = Arrays.asList("K-A", "K-B", "K-C", "K-D", "K-E", "K-F", "K-G", "K-H", "K-I", "K-J", "K-K", "K-L", "K-M", "K-N", "K-O", "K-P", "K-Q", "K-R", "K-S", "K-T", "K-U", "K-V", "K-W", "K-X", "K-Y", "K-Z",
+    private final Context context;
+    private final VirtualController virtualController;
+    private final GameSetting gameSetting;
+
+
+    private final List<String> keyList = Arrays.asList("K-A", "K-B", "K-C", "K-D", "K-E", "K-F", "K-G", "K-H", "K-I", "K-J", "K-K", "K-L", "K-M", "K-N", "K-O", "K-P", "K-Q", "K-R", "K-S", "K-T", "K-U", "K-V", "K-W", "K-X", "K-Y", "K-Z",
             "K-ESC","K-CTRLL" , "K-SHIFTL", "K-CTRLR" , "K-SHIFTR", "K-ALTL"  , "K-ALTR"  , "K-ENTER" , "K-KBACK"  , "K-SPACE" , "K-TAB"   , "K-CAPS"  , "K-WIN", "K-DEL", "K-INS", "K-HOME", "K-END", "K-PGUP", "K-PGDN", "K-BREAK", "K-SLCK", "K-PRINT", "K-UP", "K-DOWN", "K-LEFT", "K-RIGHT",
             "K-1", "K-2", "K-3", "K-4", "K-5", "K-6", "K-7", "K-8", "K-9", "K-0", "K-F1", "K-F2", "K-F3", "K-F4", "K-F5", "K-F6", "K-F7", "K-F8", "K-F9", "K-F10", "K-F11", "K-F12",
             "K-~", "K-_", "K-=", "K-[", "K-]", "K-\\", "K-;", "\"", "K-<", "K->", "K-/",
@@ -26,15 +39,14 @@ public class SettingMenuItems {
             "M-ML", "M-MR", "M-MM", "M-M1", "M-M2");
 
     private final List<String> funcList = Arrays.asList("COMMON");
-    private final List<String> elementSize = Arrays.asList("small","middle","big");
+    private final List<String> elementSizeList = Arrays.asList("small","middle","big");
     private final Map<String,String> elementSizeMap;
+    private final Map<String, MenuItem> itemViewMap = new HashMap<>();
+    private final Map<VirtualControllerElement, PressedStartElementInfo> editElements = new HashMap<>();
 
 
-    private final Map<Integer, MenuItemLinearLayout> itemViewMap = new HashMap<>();
-    private final GameSetting gameSetting;
 
-
-    public SettingMenuItems(Context context, GameSetting gameSetting) {
+    public SettingMenuItems(Context context, GameSetting gameSetting, VirtualController virtualController) {
 
         this.elementSizeMap = new HashMap<>();
         elementSizeMap.put("small","{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
@@ -42,265 +54,354 @@ public class SettingMenuItems {
         elementSizeMap.put("big","{\"LEFT\":57,\"TOP\":589,\"WIDTH\":431,\"HEIGHT\":431}");
 
         this.gameSetting = gameSetting;
-        MenuLinearLayout settingMenu = (MenuLinearLayout) LayoutInflater.from(context).inflate(R.layout.game_setting_menu_items, null);
-        for (int i = 0;i < settingMenu.getChildCount();i ++){
-            MenuItemLinearLayout menuItemLinearLayout = (MenuItemLinearLayout) settingMenu.getChildAt(i);
-            itemViewMap.put(menuItemLinearLayout.getId(),menuItemLinearLayout);
-            if (menuItemLinearLayout.getChildCount() == 3){
-                menuItemLinearLayout.setTextView((TextView) menuItemLinearLayout.getChildAt(2));
-            }
-        }
+        this.virtualController = virtualController;
+        this.context = context;
+
+        initMenu(Arrays.asList(
+                addMenuItem("edit_controller",MenuItem.TYPE_FATHER_MENU,context.getResources().getString(R.string.game_setting_menu_item_edit),Arrays.asList(
+                        addMenuItem("back",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back),null),
+                        addMenuItem("back_to_stream",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back_to_stream),null),
+                        addMenuItem("hide_menu",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_hide_menu),null),
+                        addMenuItem("add_button",MenuItem.TYPE_FATHER_MENU,context.getResources().getString(R.string.game_setting_menu_item_edit_add_button),Arrays.asList(
+                                addMenuItem("back",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back),null),
+                                addMenuItem("back_to_stream",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back_to_stream),null),
+                                addMenuItem("hide_menu",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_hide_menu),null),
+                                addMenuItem("button_context",MenuItem.TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_button),keyList),
+                                addMenuItem("button_type",MenuItem.TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_button_type),funcList),
+                                addMenuItem("button_size",MenuItem.TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_button_type), elementSizeList),
+                                addMenuItem("ensure_add_button",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_edit_add),null),
+                                addMenuItem("ensure_delete_button",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_edit_delete),null)
+                        ))
+                )),
+                addMenuItem("edit_mouse",MenuItem.TYPE_FATHER_MENU,"edit_mouse",Arrays.asList())
+        ));
+
+
         bindOnClickListener();
     }
 
-    public Map<Integer, MenuItemLinearLayout> getItemViewMap() {
-        return itemViewMap;
+
+
+
+    public void initMenu(List<MenuItem> menuItems){
+        MenuItemFatherMenu beginMenu = new MenuItemFatherMenu("beginMenu",gameSetting,"beginMenu",menuItems);
+        gameSetting.goToNextMenu(beginMenu);
     }
 
+    public MenuItem addMenuItem(String name, int type, String text, List<?> items){
+        if (itemViewMap.containsKey(name)){
+            return itemViewMap.get(name);
+        }
+        MenuItem menuItem = null;
+        switch (type){
+            case MenuItem.TYPE_COMMON_BUTTON:
+                menuItem = new MenuItemCommonButton(name,gameSetting,text);
+                break;
+            case MenuItem.TYPE_FATHER_MENU:
+                menuItem = new MenuItemFatherMenu(name,gameSetting,text,(List<MenuItem>) items);
+                break;
+            case MenuItem.TYPE_LIST_SELECT:
+                menuItem = new MenuItemListSelect(name,gameSetting,text,(List<String>) items);
+                break;
+        }
+        itemViewMap.put(name,menuItem);
+        return menuItem;
+    }
 
     public void bindOnClickListener(){
 
-
-        itemViewMap.get(R.id.game_setting_menu_item_edit).setOnClickListener(new MenuItemLinearLayout.OnClickAndBackListener() {
-
-            List<MenuItemLinearLayout> menu = Arrays.asList(
-                    itemViewMap.get(R.id.game_setting_menu_item_back_to_stream),
-                    itemViewMap.get(R.id.game_setting_menu_item_back),
-                    itemViewMap.get(R.id.game_setting_menu_item_hide_menu),
-                    itemViewMap.get(R.id.game_setting_menu_item_edit_add_button),
-                    itemViewMap.get(R.id.game_setting_menu_item_edit_add_pad),
-                    itemViewMap.get(R.id.game_setting_menu_item_edit_add_stick),
-                    itemViewMap.get(R.id.game_setting_menu_item_edit_delete)
-            );
-
+        itemViewMap.get("back_to_stream").setOnClickAndBackListener(new MenuItem.OnClickAndBackListener() {
             @Override
-            public void callback() {
-                gameSetting.editMode(false);
-            }
-
-            @Override
-            public void onClick(View v) {
-                gameSetting.editMode(true);
-                gameSetting.refreshAdapterSettingMenuListViewList(menu,(MenuItemLinearLayout) v);
-            }
-        });
-
-        itemViewMap.get(R.id.game_setting_menu_item_edit_add_button).setOnClickListener(new MenuItemLinearLayout.OnClickAndBackListener() {
-
-            List<MenuItemLinearLayout> menu = Arrays.asList(
-                    itemViewMap.get(R.id.game_setting_menu_item_back_to_stream),
-                    itemViewMap.get(R.id.game_setting_menu_item_back),
-                    itemViewMap.get(R.id.game_setting_menu_item_hide_menu),
-                    itemViewMap.get(R.id.game_setting_menu_item_select_button),
-                    itemViewMap.get(R.id.game_setting_menu_item_select_button_type),
-                    itemViewMap.get(R.id.game_setting_menu_item_edit_add)
-            );
-
-            @Override
-            public void callback() {
+            public void onCreate() {
 
             }
 
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-        itemViewMap.get(R.id.game_setting_menu_item_edit_add_pad).setOnClickListener(new MenuItemLinearLayout.OnClickAndBackListener() {
-
-            List<MenuItemLinearLayout> menu = Arrays.asList(
-                    itemViewMap.get(R.id.game_setting_menu_item_back_to_stream),
-                    itemViewMap.get(R.id.game_setting_menu_item_back),
-                    itemViewMap.get(R.id.game_setting_menu_item_hide_menu),
-                    itemViewMap.get(R.id.game_setting_menu_item_select_up),
-                    itemViewMap.get(R.id.game_setting_menu_item_select_down),
-                    itemViewMap.get(R.id.game_setting_menu_item_select_right),
-                    itemViewMap.get(R.id.game_setting_menu_item_select_left),
-                    itemViewMap.get(R.id.game_setting_menu_item_edit_add)
-            );
-
-            @Override
-            public void callback() {
-
-            }
-
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-        itemViewMap.get(R.id.game_setting_menu_item_edit_add_stick).setOnClickListener(new MenuItemLinearLayout.OnClickAndBackListener() {
-
-            List<MenuItemLinearLayout> menu = Arrays.asList(
-                    itemViewMap.get(R.id.game_setting_menu_item_back_to_stream),
-                    itemViewMap.get(R.id.game_setting_menu_item_back),
-                    itemViewMap.get(R.id.game_setting_menu_item_hide_menu),
-                    itemViewMap.get(R.id.game_setting_menu_item_select_button),
-                    itemViewMap.get(R.id.game_setting_menu_item_select_up),
-                    itemViewMap.get(R.id.game_setting_menu_item_select_down),
-                    itemViewMap.get(R.id.game_setting_menu_item_select_right),
-                    itemViewMap.get(R.id.game_setting_menu_item_select_left),
-                    itemViewMap.get(R.id.game_setting_menu_item_edit_add)
-            );
-
-            @Override
-            public void callback() {
-
-            }
-
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-
-        itemViewMap.get(R.id.game_setting_menu_item_back_to_stream).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 gameSetting.setVisibility(View.INVISIBLE);
-                for (int i = gameSetting.getAllMenu().size() - 1;i == 0;i --){
-                    gameSetting.back();
+                for (int i = gameSetting.getMenuQueue().size() - 1; i > 0; i--) {
+                    gameSetting.backToPreviousMenu();
                 }
-                gameSetting.refreshAdapterSettingMenuListViewList(null,null);
+            }
+
+            @Override
+            public void callback() {
+
             }
         });
 
+        itemViewMap.get("back").setOnClickAndBackListener(new MenuItem.OnClickAndBackListener() {
+            @Override
+            public void onCreate() {
 
-        itemViewMap.get(R.id.game_setting_menu_item_back).setOnClickListener(new View.OnClickListener() {
+            }
+
             @Override
             public void onClick(View v) {
-                gameSetting.back();
-                gameSetting.refreshAdapterSettingMenuListViewList(null,null);
+                gameSetting.backToPreviousMenu();
+            }
+
+            @Override
+            public void callback() {
+
             }
         });
 
-        itemViewMap.get(R.id.game_setting_menu_item_hide_menu).setOnClickListener(new View.OnClickListener() {
+        itemViewMap.get("hide_menu").setOnClickAndBackListener(new MenuItem.OnClickAndBackListener() {
+            @Override
+            public void onCreate() {
+
+            }
+
             @Override
             public void onClick(View v) {
                 gameSetting.setVisibility(View.INVISIBLE);
             }
-        });
 
-
-        itemViewMap.get(R.id.game_setting_menu_item_edit_delete).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                System.out.println("wangguan delete");
-                gameSetting.deleteElement();
+            public void callback() {
+
             }
         });
 
-        itemViewMap.get(R.id.game_setting_menu_item_edit_add).setOnClickListener(new View.OnClickListener() {
+        itemViewMap.get("edit_controller").setOnClickAndBackListener(new MenuItem.OnClickAndBackListener() {
+
+
+            @Override
+            public void onCreate() {
+                DisplayMetrics screen = context.getResources().getDisplayMetrics();
+                int screenWidth = screen.widthPixels;
+                int screenHeight = screen.heightPixels;
+
+                gameSetting.getGlassPanelEditor().setOnTouchListener(new View.OnTouchListener() {
+                    private boolean isMove = false;
+                    private boolean isOneFinger = false;
+                    private int startFingerPressedPositionX = 0;
+                    private int startFingerPressedPositionY = 0;
+                    private int startTwoFingerDistanceX = 0;
+                    private int startTwoFingerDistanceY = 0;
+                    private int maxMoveLengthLeft;
+                    private int maxMoveLengthUp;
+                    private int maxMoveLengthRight;
+                    private int maxMoveLengthDown;
+                    private int maxIncreaseSizeX;
+                    private int maxIncreaseSizeY;
+
+                    private void setOneFingerStartInfo(MotionEvent event){
+                        maxMoveLengthLeft = screen.heightPixels;
+                        maxMoveLengthUp = screen.widthPixels;
+                        maxMoveLengthRight = screen.heightPixels;
+                        maxMoveLengthDown = screen.widthPixels;
+                        startFingerPressedPositionX = (int) event.getX();
+                        startFingerPressedPositionY = (int) event.getY();
+                        for (VirtualControllerElement editElement : editElements.keySet()){
+                            PressedStartElementInfo startInfo = editElements.get(editElement);
+                            startInfo.startElementPositionX = (int) editElement.getX();
+                            startInfo.startElementPositionY = (int) editElement.getY();
+                            startInfo.startElementWidth = (int) editElement.getWidth();
+                            startInfo.startElementHeight = (int) editElement.getHeight();
+                            maxMoveLengthLeft = Math.min(startInfo.startElementPositionX, maxMoveLengthLeft);
+                            maxMoveLengthUp = Math.min(startInfo.startElementPositionY, maxMoveLengthUp);
+                            maxMoveLengthRight = Math.min(screenHeight - (startInfo.startElementWidth + startInfo.startElementPositionX), maxMoveLengthRight);
+                            maxMoveLengthDown = Math.min(screenWidth - (startInfo.startElementHeight + startInfo.startElementPositionY), maxMoveLengthDown);
+                            System.out.println("wangguan screenHeight:" + screenHeight + "screenWidth:" + screenWidth);
+                            System.out.println("wangguan " + editElement.getElementId() + ":" + startInfo);
+                            System.out.println("wangguan left:" + maxMoveLengthLeft + "up:" + maxMoveLengthUp + "right:"+ maxMoveLengthRight + "down:" + maxMoveLengthDown);
+                        }
+
+                    }
+
+                    private void setTwoFingerStartInfo(MotionEvent event){
+                        startFingerPressedPositionX = (int) event.getX();
+                        startFingerPressedPositionY = (int) event.getY();
+                        startTwoFingerDistanceX = Math.abs((int) event.getX(1) - (int) event.getX(0));
+                        startTwoFingerDistanceY = Math.abs((int) event.getY(1) - (int) event.getY(0));
+                        maxIncreaseSizeX = screen.heightPixels;
+                        maxIncreaseSizeY = screen.widthPixels;
+                        for (VirtualControllerElement editElement : editElements.keySet()){
+                            PressedStartElementInfo startInfo = editElements.get(editElement);
+                            startInfo.startElementPositionX = (int) editElement.getX();
+                            startInfo.startElementPositionY = (int) editElement.getY();
+                            startInfo.startElementWidth = (int) editElement.getWidth();
+                            startInfo.startElementHeight = (int) editElement.getHeight();
+                            startInfo.elementCenterPositionX = startInfo.startElementPositionX + startInfo.startElementWidth/2;
+                            startInfo.elementCenterPositionY = startInfo.startElementPositionY + startInfo.startElementHeight/2;
+                            maxIncreaseSizeX = Math.min(startInfo.startElementPositionX,maxIncreaseSizeX);
+                            maxIncreaseSizeX = Math.min(screenHeight - (startInfo.startElementPositionX + startInfo.startElementWidth),maxIncreaseSizeX);
+                            maxIncreaseSizeY = Math.min(startInfo.startElementPositionY,maxIncreaseSizeY);
+                            maxIncreaseSizeY = Math.min(screenWidth - (startInfo.startElementPositionY + startInfo.startElementHeight),maxIncreaseSizeY);
+                            System.out.println("wangguan screenHeight:" + screenHeight + "screenWidth:" + screenWidth);
+                            System.out.println("wangguan " + editElement.getElementId() + ":" + startInfo);
+                            System.out.println("wangguan maxInX:" + maxIncreaseSizeX + "maxIny:" + maxIncreaseSizeY);
+
+                        }
+
+                    }
+
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+
+                        //System.out.println("wangguan panel touch:" + event.getAction());
+
+
+                        switch (event.getAction() & MotionEvent.ACTION_MASK){
+                            case MotionEvent.ACTION_DOWN:
+                                isMove = false;
+                                isOneFinger = true;
+                                setOneFingerStartInfo(event);
+                                return true;
+                            case MotionEvent.ACTION_POINTER_DOWN:
+                                isOneFinger = false;
+                                setTwoFingerStartInfo(event);
+                                return true;
+                            case MotionEvent.ACTION_MOVE:
+                                isMove = true;
+                                if (isOneFinger){
+                                    virtualController.moveElements(editElements,
+                                            (int) event.getX() - startFingerPressedPositionX,
+                                            (int) event.getY() - startFingerPressedPositionY,
+                                            maxMoveLengthLeft,
+                                            maxMoveLengthUp,
+                                            maxMoveLengthRight,
+                                            maxMoveLengthDown);
+                                } else {
+                                    virtualController.resizeElements(editElements,
+                                            Math.abs(((int) event.getX(1) - (int) event.getX(0))) - startTwoFingerDistanceX,
+                                            Math.abs(((int) event.getY(1) - (int) event.getY(0))) - startTwoFingerDistanceY,
+                                            maxIncreaseSizeX,
+                                            maxIncreaseSizeY);
+                                }
+                                return true;
+                            case MotionEvent.ACTION_POINTER_UP:
+                                isOneFinger = true;
+                                setOneFingerStartInfo(event);
+                                return true;
+                            case MotionEvent.ACTION_UP:
+                                if (!isMove) {
+                                    List<VirtualControllerElement> elements = virtualController.getElements();
+                                    for (int i = elements.size() - 1;i > -1;i--){
+                                        VirtualControllerElement element = elements.get(i);
+                                        int pressedX = (int) event.getX();
+                                        int pressedY = (int) event.getY();
+                                        int elementStartX = (int) element.getX();
+                                        int elementStartY = (int) element.getY();
+                                        int elementEndX = elementStartX + element.getWidth();
+                                        int elementEndY = elementStartY + element.getHeight();
+                                        if (((pressedX > elementStartX) && (pressedX < elementEndX)) && ((pressedY > elementStartY) && (pressedY < elementEndY))){
+
+                                            if (element.getSelectedStatus()){
+                                                virtualController.setSelectedElement(element,false);
+                                                editElements.remove(element);
+                                            } else {
+                                                virtualController.setSelectedElement(element,true);
+                                                editElements.put(element,new PressedStartElementInfo());
+                                            }
+                                            break;
+
+
+                                        }
+                                    }
+                                }
+                                return true;
+                        }
+
+
+                        return true;
+                    }
+                });
+            }
+
             @Override
             public void onClick(View v) {
-                System.out.println("wangguan add");
+                gameSetting.getGlassPanelEditor().setVisibility(View.VISIBLE);
+                virtualController.setCurrentMode(VirtualController.ControllerMode.EditButtons);
+            }
+
+            @Override
+            public void callback() {
+                gameSetting.getGlassPanelEditor().setVisibility(View.INVISIBLE);
+                virtualController.setCurrentMode(VirtualController.ControllerMode.Active);
+            }
+        });
+
+        itemViewMap.get("ensure_delete_button").setOnClickAndBackListener(new MenuItem.OnClickAndBackListener() {
+            @Override
+            public void onCreate() {
+
+            }
+
+            @Override
+            public void onClick(View v) {
+                virtualController.removeElements(editElements.keySet());
+                editElements.clear();
+            }
+
+            @Override
+            public void callback() {
+
+            }
+        });
+
+        itemViewMap.get("ensure_add_button").setOnClickAndBackListener(new MenuItem.OnClickAndBackListener() {
+            @Override
+            public void onCreate() {
+
+            }
+
+            @Override
+            public void onClick(View v) {
                 String buttonNamePre = "";
-                List<List<MenuItemLinearLayout>> allMenu = gameSetting.getAllMenu();
-                switch (allMenu.get(allMenu.size() - 1).get(0).getId()) {
+                List<MenuItemFatherMenu> menuQueue = gameSetting.getMenuQueue();
+                switch (menuQueue.get(menuQueue.size() - 1).getName()) {
 
-                    case R.id.game_setting_menu_item_edit_add_button:
-                        buttonNamePre = "BUTTON-" + itemViewMap.get(R.id.game_setting_menu_item_select_button_type).getText() + "-"+ itemViewMap.get(R.id.game_setting_menu_item_select_button).getText() + "-";
-
-                        break;
-                    case R.id.game_setting_menu_item_edit_add_pad:
-                        buttonNamePre = "PAD-" + itemViewMap.get(R.id.game_setting_menu_item_select_up).getText() + "-" + itemViewMap.get(R.id.game_setting_menu_item_select_down).getText() + "-" + itemViewMap.get(R.id.game_setting_menu_item_select_right).getText() + "-" + itemViewMap.get(R.id.game_setting_menu_item_select_left).getText() + "-";
+                    case "add_button":
+                        buttonNamePre = "BUTTON-" +
+                                ((MenuItemListSelect) itemViewMap.get("button_type")).getDynamicText() + "-" +
+                                ((MenuItemListSelect) itemViewMap.get("button_context")).getDynamicText() + "-";
 
                         break;
-                    case R.id.game_setting_menu_item_edit_add_stick:
-                        buttonNamePre = "STICK-" + itemViewMap.get(R.id.game_setting_menu_item_select_up).getText() + "-" + itemViewMap.get(R.id.game_setting_menu_item_select_down).getText() + "-" + itemViewMap.get(R.id.game_setting_menu_item_select_right).getText() + "-" + itemViewMap.get(R.id.game_setting_menu_item_select_left).getText() + "-" + itemViewMap.get(R.id.game_setting_menu_item_select_button).getText() + "-";
+                    case "add_pad":
+                        buttonNamePre = "PAD-" +
+                                ((MenuItemListSelect) itemViewMap.get("button_up")).getDynamicText() + "-" +
+                                ((MenuItemListSelect) itemViewMap.get("button_down")).getDynamicText() + "-" +
+                                ((MenuItemListSelect) itemViewMap.get("button_left")).getDynamicText() + "-" +
+                                ((MenuItemListSelect) itemViewMap.get("button_right")).getDynamicText() + "-";
+
+                        break;
+                    case "add_stick":
+                        buttonNamePre = "STICK-" +
+                                ((MenuItemListSelect) itemViewMap.get("button_up")).getDynamicText() + "-" +
+                                ((MenuItemListSelect) itemViewMap.get("button_down")).getDynamicText() + "-" +
+                                ((MenuItemListSelect) itemViewMap.get("button_left")).getDynamicText() + "-" +
+                                ((MenuItemListSelect) itemViewMap.get("button_right")).getDynamicText() + "-" +
+                                ((MenuItemListSelect) itemViewMap.get("button_context")).getDynamicText() + "-";
                         break;
                 }
 
-                gameSetting.addElement(buttonNamePre,elementSizeMap.get(itemViewMap.get(R.id.game_setting_menu_item_select_button_size).getText()));
+                Set<String> allButtonName = new HashSet<>();
 
+                for (VirtualControllerElement element : virtualController.getElements()){
+                    allButtonName.add(element.getElementId());
+                }
+
+                for (int i = 0;i < 100;i ++){
+                    String buttonName = buttonNamePre + i;
+                    if (allButtonName.contains(buttonName)) {
+                        continue;
+                    }
+                    Map<String, String> newButton = new HashMap<>();
+                    newButton.put(buttonName,elementSizeMap.get(((MenuItemListSelect) itemViewMap.get("button_size")).getDynamicText()));
+                    VirtualControllerConfigurationLoader.createButtons(virtualController,context,newButton);
+                    System.out.println("wangguan newButton:" + newButton);
+                    break;
+
+                }
+                Toast.makeText(context,"已添加",Toast.LENGTH_SHORT).show();
             }
 
-        });
-
-        itemViewMap.get(R.id.game_setting_menu_item_select_button).setOnClickListener(new MenuItemLinearLayout.OnClickAndBackListener() {
             @Override
             public void callback() {
 
-            }
-
-            @Override
-            public void onClick(View v) {
-                gameSetting.displaySettingList(keyList,(MenuItemLinearLayout) v);
-            }
-        });
-
-        itemViewMap.get(R.id.game_setting_menu_item_select_up).setOnClickListener(new MenuItemLinearLayout.OnClickAndBackListener() {
-            @Override
-            public void callback() {
-
-            }
-
-            @Override
-            public void onClick(View v) {
-                gameSetting.displaySettingList(keyList,(MenuItemLinearLayout) v);
-            }
-        });
-
-        itemViewMap.get(R.id.game_setting_menu_item_select_down).setOnClickListener(new MenuItemLinearLayout.OnClickAndBackListener() {
-            @Override
-            public void callback() {
-
-            }
-
-            @Override
-            public void onClick(View v) {
-                gameSetting.displaySettingList(keyList,(MenuItemLinearLayout) v);
-            }
-        });
-
-        itemViewMap.get(R.id.game_setting_menu_item_select_left).setOnClickListener(new MenuItemLinearLayout.OnClickAndBackListener() {
-            @Override
-            public void callback() {
-
-            }
-
-            @Override
-            public void onClick(View v) {
-                gameSetting.displaySettingList(keyList,(MenuItemLinearLayout) v);
-            }
-        });
-
-        itemViewMap.get(R.id.game_setting_menu_item_select_right).setOnClickListener(new MenuItemLinearLayout.OnClickAndBackListener() {
-            @Override
-            public void callback() {
-
-            }
-
-            @Override
-            public void onClick(View v) {
-                gameSetting.displaySettingList(keyList,(MenuItemLinearLayout) v);
-            }
-        });
-
-        itemViewMap.get(R.id.game_setting_menu_item_select_button_type).setOnClickListener(new MenuItemLinearLayout.OnClickAndBackListener() {
-            @Override
-            public void callback() {
-
-            }
-
-            @Override
-            public void onClick(View v) {
-                gameSetting.displaySettingList(funcList,(MenuItemLinearLayout) v);
-            }
-        });
-
-        itemViewMap.get(R.id.game_setting_menu_item_select_button_size).setOnClickListener(new MenuItemLinearLayout.OnClickAndBackListener() {
-            @Override
-            public void callback() {
-
-            }
-
-            @Override
-            public void onClick(View v) {
-                gameSetting.displaySettingList(elementSize,(MenuItemLinearLayout) v);
             }
         });
 

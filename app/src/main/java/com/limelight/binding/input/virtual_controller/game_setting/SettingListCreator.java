@@ -35,8 +35,7 @@ public class SettingListCreator {
         settingList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String selectedKey = (String) parent.getItemAtPosition(position);
-                gameSetting.returnSettingMenu(selectedKey);
+                gameSetting.returnSettingMenu(position);
             }
         });
 

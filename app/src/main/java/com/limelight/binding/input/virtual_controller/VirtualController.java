@@ -21,6 +21,7 @@ import com.limelight.binding.input.virtual_controller.selector.VirtualController
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerFuncSelector;
 import com.limelight.binding.input.virtual_controller.selector.VirtualControllerTypeSelector;
 import com.limelight.nvstream.NvConnection;
+import com.limelight.utils.PressedStartElementInfo;
 import com.limelight.utils.controller.LayoutEditHelper;
 
 import java.util.ArrayList;
@@ -103,16 +104,20 @@ public class VirtualController {
         return handler;
     }
 
+    public void setSelectedElement(VirtualControllerElement element, boolean select){
+        element.setSelectedStatus(select);
+        element.invalidate();
+    }
+
     public ControllerMode getCurrentMode() {
         return currentMode;
     }
 
     public void setCurrentMode(ControllerMode currentMode) {
         this.currentMode = currentMode;
-    }
-
-    public void selectedElementToEdit(VirtualControllerElement element, boolean selected){
-        element.setSelectedStatus(selected);
+        for (VirtualControllerElement element : elements){
+            element.invalidate();
+        }
     }
 
 
@@ -149,13 +154,42 @@ public class VirtualController {
 
     }
 
-    public void moveElements(Map<VirtualControllerElement,int[]> elementsMap, ){
-
+    public void moveElements(Map<VirtualControllerElement, PressedStartElementInfo> elementsMap,
+                             int moveLengthX,
+                             int moveLengthY,
+                             int maxMoveLengthLeft,
+                             int maxMoveLengthUp,
+                             int maxMoveLengthRight,
+                             int maxMoveLengthDown){
+        for (VirtualControllerElement editElement : elementsMap.keySet()){
+            PressedStartElementInfo pressedStartElementInfo = elementsMap.get(editElement);
+            editElement.moveElement(moveLengthX,
+                    moveLengthY,
+                    pressedStartElementInfo.startElementPositionX,
+                    pressedStartElementInfo.startElementPositionY,
+                    maxMoveLengthLeft,
+                    maxMoveLengthUp,
+                    maxMoveLengthRight,
+                    maxMoveLengthDown);
+        }
     }
 
-    public void resizeElements(Map<VirtualControllerElement,int[]> elementsMap){
-
-
+    public void resizeElements(Map<VirtualControllerElement,PressedStartElementInfo> elementsMap,
+                               int changedDistanceX,
+                               int changedDistanceY,
+                               int maxIncreaseSizeX,
+                               int maxIncreaseSizeY){
+        for (VirtualControllerElement editElement : elementsMap.keySet()){
+            PressedStartElementInfo pressedStartElementInfo = elementsMap.get(editElement);
+            editElement.resizeElement(changedDistanceX,
+                    changedDistanceY,
+                    pressedStartElementInfo.startElementWidth,
+                    pressedStartElementInfo.startElementHeight,
+                    pressedStartElementInfo.elementCenterPositionX,
+                    pressedStartElementInfo.elementCenterPositionY,
+                    maxIncreaseSizeX,
+                    maxIncreaseSizeY);
+        }
 
     }
 

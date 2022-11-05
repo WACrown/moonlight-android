@@ -11,31 +11,28 @@ import java.util.List;
 public class AdapterSettingMenuListView extends BaseAdapter {
 
     private final Context context;
-    private List<MenuItemLinearLayout> itemList = new ArrayList<>();
+    private List<MenuItem> items = new ArrayList<>();
 
     public AdapterSettingMenuListView(Context context) {
         this.context = context;
     }
 
-    public void setItemList(List<MenuItemLinearLayout> itemsAndFatherItemList){
-        this.itemList = new ArrayList<>();
-        for (int i = 1;i < itemsAndFatherItemList.size() - 1;i ++){
-            this.itemList.add(itemsAndFatherItemList.get(i));
-        }
+    public void setItemList(List<MenuItem> items){
+        this.items = items;
     }
 
-    public List<MenuItemLinearLayout> getItemList() {
-        return itemList;
+    public List<MenuItem> getItemList() {
+        return items;
     }
 
     @Override
     public int getCount() {
-        return itemList.size();
+        return items.size();
     }
 
     @Override
     public Object getItem(int i) {
-        return itemList.get(i);
+        return items.get(i);
     }
 
     @Override

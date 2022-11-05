@@ -1580,9 +1580,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             else
             {
                 if (virtualController != null &&
-                        (virtualController.getControllerMode() == VirtualController.ControllerMode.MoveButtons ||
-                         virtualController.getControllerMode() == VirtualController.ControllerMode.ResizeButtons ||
-                         virtualController.getControllerMode() == VirtualController.ControllerMode.EditLayout)) {
+                        (virtualController.getCurrentMode() == VirtualController.ControllerMode.EditButtons)) {
                     // Ignore presses when the virtual controller is being configured
                     return true;
                 }

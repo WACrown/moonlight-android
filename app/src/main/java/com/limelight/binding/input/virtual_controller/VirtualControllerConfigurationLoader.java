@@ -125,7 +125,7 @@ public class VirtualControllerConfigurationLoader {
 
         Map<String, String> elementConfigurationsMap = new HashMap<>();
         for (VirtualControllerElement element : controller.getElements()) {
-            String prefKey = ""+element.elementId;
+            String prefKey = ""+element.getElementId();
             try {
                 elementConfigurationsMap.put(prefKey, element.getConfiguration().toString());
             } catch (JSONException e) {
