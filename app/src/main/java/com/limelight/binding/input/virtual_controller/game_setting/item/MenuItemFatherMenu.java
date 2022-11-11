@@ -1,14 +1,10 @@
-package com.limelight.ui;
-
-import android.content.Context;
+package com.limelight.binding.input.virtual_controller.game_setting.item;
 
 import com.limelight.binding.input.virtual_controller.game_setting.GameSetting;
 
 import java.util.List;
 
-public class MenuItemFatherMenu extends MenuItem {
-
-
+public class MenuItemFatherMenu extends MenuItemPop {
 
 
     private final List<MenuItem> menuContext;
@@ -19,7 +15,7 @@ public class MenuItemFatherMenu extends MenuItem {
     }
 
     public MenuItemFatherMenu(String name, GameSetting gameSetting, String text, List<MenuItem> menuContext) {
-        super(name, gameSetting.getContext());
+        super(name, gameSetting);
         this.menuContext = menuContext;
         this.gameSetting = gameSetting;
         this.setText(text);
@@ -29,4 +25,6 @@ public class MenuItemFatherMenu extends MenuItem {
     public void onClickPreAction() {
         gameSetting.goToNextMenu(this);
     }
+
+
 }

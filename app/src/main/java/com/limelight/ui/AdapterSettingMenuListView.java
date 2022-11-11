@@ -5,6 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItem;
+
 import java.util.ArrayList;
 import java.util.List;
 

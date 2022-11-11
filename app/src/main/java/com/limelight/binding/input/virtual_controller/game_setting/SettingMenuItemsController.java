@@ -10,11 +10,13 @@ import com.limelight.R;
 import com.limelight.binding.input.virtual_controller.VirtualController;
 import com.limelight.binding.input.virtual_controller.VirtualControllerConfigurationLoader;
 import com.limelight.binding.input.virtual_controller.VirtualControllerElement;
-import com.limelight.ui.MenuItem;
-import com.limelight.ui.MenuItemCommonButton;
-import com.limelight.ui.MenuItemFatherMenu;
-import com.limelight.ui.MenuItemListSelect;
+import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItem;
+import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItemCommonButton;
+import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItemFatherMenu;
+import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItemListSelect;
 import com.limelight.utils.PressedStartElementInfo;
+import com.limelight.utils.controller.LayoutAdminHelper;
+import com.limelight.utils.controller.LayoutEditHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SettingMenuItems {
+public class SettingMenuItemsController {
+
+    private final static int TYPE_FATHER_MENU = 0;
+    private final static int TYPE_COMMON_BUTTON = 1;
+    private final static int TYPE_LIST_SELECT = 2;
+    private final static String CONFIGURATION = "CONF";
 
     private final Context context;
     private final VirtualController virtualController;
@@ -33,7 +40,13 @@ public class SettingMenuItems {
 
     private List<String> keyList;
     private List<String> funcList;
-    private List<String> elementSizeList;
+    private List<String> percentList;
+    private List<String> layoutList;
+    private List<String> selectedList;
+
+    public Map<String, MenuItem> getItemViewMap() {
+        return itemViewMap;
+    }
 
     private final Map<String, MenuItem> itemViewMap = new HashMap<>();
     private final Map<VirtualControllerElement, PressedStartElementInfo> editElements = new HashMap<>();
@@ -41,7 +54,7 @@ public class SettingMenuItems {
     private final int screenHeight;
 
 
-    public SettingMenuItems(Context context, GameSetting gameSetting, VirtualController virtualController) {
+    public SettingMenuItemsController(Context context, GameSetting gameSetting, VirtualController virtualController) {
 
 
         this.gameSetting = gameSetting;
@@ -53,22 +66,53 @@ public class SettingMenuItems {
         screenHeight = screen.heightPixels;
         initList();
         initMenu(Arrays.asList(
-                addMenuItem("edit_controller",MenuItem.TYPE_FATHER_MENU,context.getResources().getString(R.string.game_setting_menu_item_edit),Arrays.asList(
-                        addMenuItem("back",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back),null),
-                        addMenuItem("back_to_stream",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back_to_stream),null),
-                        addMenuItem("hide_menu",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_hide_menu),null),
-                        addMenuItem("add_button",MenuItem.TYPE_FATHER_MENU,context.getResources().getString(R.string.game_setting_menu_item_edit_add_button),Arrays.asList(
-                                addMenuItem("back",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back),null),
-                                addMenuItem("back_to_stream",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back_to_stream),null),
-                                addMenuItem("hide_menu",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_hide_menu),null),
-                                addMenuItem("button_context",MenuItem.TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_button),keyList),
-                                addMenuItem("button_type",MenuItem.TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_button_type),funcList),
-                                addMenuItem("button_size",MenuItem.TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_button_type), elementSizeList),
-                                addMenuItem("ensure_add_button",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_edit_add),null),
-                                addMenuItem("ensure_delete_button",MenuItem.TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_edit_delete),null)
-                        ))
+                addMenuItem("back_to_stream",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back_to_stream),null),
+                addMenuItem("select_layout",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_layout),layoutList),
+                addMenuItem("edit_controller",TYPE_FATHER_MENU,context.getResources().getString(R.string.game_setting_menu_item_edit),Arrays.asList(
+                        addMenuItem("back",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back),null),
+                        addMenuItem("back_to_stream",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back_to_stream),null),
+                        addMenuItem("hide_menu",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_hide_menu),null),
+                        addMenuItem("add_button",TYPE_FATHER_MENU,context.getResources().getString(R.string.game_setting_menu_item_edit_add_button),Arrays.asList(
+                                addMenuItem("back",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back),null),
+                                addMenuItem("back_to_stream",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back_to_stream),null),
+                                addMenuItem("hide_menu",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_hide_menu),null),
+                                addMenuItem("button_context",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_button),keyList),
+                                addMenuItem("button_type",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_button_type),funcList),
+                                addMenuItem("button_size",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_button_size), percentList),
+                                addMenuItem("ensure_add_button",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_edit_add),null)
+                        )),
+                        addMenuItem("add_pad",TYPE_FATHER_MENU,context.getResources().getString(R.string.game_setting_menu_item_edit_add_pad),Arrays.asList(
+                                addMenuItem("back",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back),null),
+                                addMenuItem("back_to_stream",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back_to_stream),null),
+                                addMenuItem("hide_menu",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_hide_menu),null),
+                                addMenuItem("button_up",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_up),keyList),
+                                addMenuItem("button_down",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_down),keyList),
+                                addMenuItem("button_left",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_left),keyList),
+                                addMenuItem("button_right",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_right),keyList),
+                                addMenuItem("button_size",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_button_size), percentList),
+                                addMenuItem("ensure_add_button",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_edit_add),null)
+                        )),
+                        addMenuItem("add_stick",TYPE_FATHER_MENU,context.getResources().getString(R.string.game_setting_menu_item_edit_add_stick),Arrays.asList(
+                                addMenuItem("back",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back),null),
+                                addMenuItem("back_to_stream",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back_to_stream),null),
+                                addMenuItem("hide_menu",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_hide_menu),null),
+                                addMenuItem("button_up",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_up),keyList),
+                                addMenuItem("button_down",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_down),keyList),
+                                addMenuItem("button_left",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_left),keyList),
+                                addMenuItem("button_right",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_right),keyList),
+                                addMenuItem("button_context",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_button),keyList),
+                                addMenuItem("button_size",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_select_button_size), percentList),
+                                addMenuItem("ensure_add_button",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_edit_add),null)
+                        )),
+                        addMenuItem("ensure_delete_button",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_edit_delete),null)
                 )),
-                addMenuItem("edit_mouse",MenuItem.TYPE_FATHER_MENU,"edit_mouse",Arrays.asList())
+                addMenuItem("S_button_opacity",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_button_opacity),percentList),
+//                addMenuItem("edit_mouse",TYPE_FATHER_MENU,"edit_mouse",Arrays.asList(
+//                        addMenuItem("back",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back),null),
+//                        addMenuItem("back_to_stream",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_back_to_stream),null),
+//                        addMenuItem("hide_menu",TYPE_COMMON_BUTTON,context.getResources().getString(R.string.game_setting_menu_item_hide_menu),null)
+//                )),
+                addMenuItem("hide_button",TYPE_LIST_SELECT,context.getResources().getString(R.string.game_setting_menu_item_hide_button),selectedList)
         ));
 
 
@@ -85,10 +129,12 @@ public class SettingMenuItems {
                 "G-GA", "G-GB", "G-GX", "G-GY", "G-PU","G-PD","G-PL","G-PR","G-LT", "G-RT", "G-LB", "G-RB", "G-LSB", "G-RSB", "G-START","G-BACK","G-LSU","G-LSD","G-LSL","G-LSR","G-RSU","G-RSD","G-RSL","G-RSR",
                 "M-ML", "M-MR", "M-MM", "M-M1", "M-M2");
         funcList = Arrays.asList("COMMON");
-        elementSizeList = new ArrayList<>();
+        selectedList = Arrays.asList("TRUE","FALSE");
+        percentList = new ArrayList<>();
         for (int i = 100;i > 0; i--){
-            elementSizeList.add(i + "%");
+            percentList.add(i + "%");
         }
+        layoutList = LayoutAdminHelper.getLayoutList(context);
 
 
     }
@@ -104,13 +150,13 @@ public class SettingMenuItems {
         }
         MenuItem menuItem = null;
         switch (type){
-            case MenuItem.TYPE_COMMON_BUTTON:
+            case TYPE_COMMON_BUTTON:
                 menuItem = new MenuItemCommonButton(name,gameSetting,text);
                 break;
-            case MenuItem.TYPE_FATHER_MENU:
+            case TYPE_FATHER_MENU:
                 menuItem = new MenuItemFatherMenu(name,gameSetting,text,(List<MenuItem>) items);
                 break;
-            case MenuItem.TYPE_LIST_SELECT:
+            case TYPE_LIST_SELECT:
                 menuItem = new MenuItemListSelect(name,gameSetting,text,(List<String>) items);
                 break;
         }
@@ -120,9 +166,10 @@ public class SettingMenuItems {
 
     public void bindOnClickListener(){
 
-        itemViewMap.get("back_to_stream").setOnClickAndBackListener(new MenuItem.OnClickAndBackListener() {
+        itemViewMap.get("back_to_stream").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+
             @Override
-            public void onCreate() {
+            public void onCreate(View v) {
 
             }
 
@@ -132,17 +179,18 @@ public class SettingMenuItems {
                 for (int i = gameSetting.getMenuQueue().size() - 1; i > 0; i--) {
                     gameSetting.backToPreviousMenu();
                 }
+                VirtualControllerConfigurationLoader.saveProfile(virtualController,context,itemViewMap);
             }
 
             @Override
-            public void callback() {
+            public void returnAction(View v) {
 
             }
         });
 
-        itemViewMap.get("back").setOnClickAndBackListener(new MenuItem.OnClickAndBackListener() {
+        itemViewMap.get("back").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
-            public void onCreate() {
+            public void onCreate(View v) {
 
             }
 
@@ -152,14 +200,14 @@ public class SettingMenuItems {
             }
 
             @Override
-            public void callback() {
+            public void returnAction(View v) {
 
             }
         });
 
-        itemViewMap.get("hide_menu").setOnClickAndBackListener(new MenuItem.OnClickAndBackListener() {
+        itemViewMap.get("hide_menu").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
-            public void onCreate() {
+            public void onCreate(View v) {
 
             }
 
@@ -169,16 +217,16 @@ public class SettingMenuItems {
             }
 
             @Override
-            public void callback() {
+            public void returnAction(View v) {
 
             }
         });
 
-        itemViewMap.get("edit_controller").setOnClickAndBackListener(new MenuItem.OnClickAndBackListener() {
+        itemViewMap.get("edit_controller").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
 
 
             @Override
-            public void onCreate() {
+            public void onCreate(View v) {
 
                 gameSetting.getGlassPanelEditor().setOnTouchListener(new View.OnTouchListener() {
                     private boolean isMove = false;
@@ -342,15 +390,15 @@ public class SettingMenuItems {
             }
 
             @Override
-            public void callback() {
+            public void returnAction(View v) {
                 gameSetting.getGlassPanelEditor().setVisibility(View.INVISIBLE);
                 virtualController.setCurrentMode(VirtualController.ControllerMode.Active);
             }
         });
 
-        itemViewMap.get("ensure_delete_button").setOnClickAndBackListener(new MenuItem.OnClickAndBackListener() {
+        itemViewMap.get("ensure_delete_button").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
-            public void onCreate() {
+            public void onCreate(View v) {
 
             }
 
@@ -361,14 +409,14 @@ public class SettingMenuItems {
             }
 
             @Override
-            public void callback() {
+            public void returnAction(View v) {
 
             }
         });
 
-        itemViewMap.get("ensure_add_button").setOnClickAndBackListener(new MenuItem.OnClickAndBackListener() {
+        itemViewMap.get("ensure_add_button").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
-            public void onCreate() {
+            public void onCreate(View v) {
 
             }
 
@@ -429,8 +477,63 @@ public class SettingMenuItems {
             }
 
             @Override
-            public void callback() {
+            public void returnAction(View v) {
 
+            }
+        });
+
+        itemViewMap.get("S_button_opacity").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public void onCreate(View v) {
+
+            }
+
+            @Override
+            public void onClick(View v) {
+            }
+
+            @Override
+            public void returnAction(View v) {
+                String dynamicText = ((MenuItemListSelect) v).getDynamicText();
+                int opacity = Integer.parseInt(dynamicText.substring(0, dynamicText.length() - 1));
+                virtualController.setOpacity(opacity);
+            }
+        });
+
+
+        itemViewMap.get("select_layout").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public void onCreate(View v) {
+                ((MenuItemListSelect)v).setDynamicText(LayoutAdminHelper.getCurrentLayoutName(context));
+            }
+
+            @Override
+            public void onClick(View v) {
+
+            }
+
+            @Override
+            public void returnAction(View v) {
+                virtualController.removeAllElements(); //移除旧布局
+                LayoutAdminHelper.selectLayout(context,((MenuItemListSelect)v).getDynamicText()); //选定新布局
+                VirtualControllerConfigurationLoader.loadProfile(virtualController,context,itemViewMap);  //创建新布局
+            }
+        });
+
+        itemViewMap.get("hide_button").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public void onCreate(View v) {
+
+            }
+
+            @Override
+            public void onClick(View v) {
+
+            }
+
+            @Override
+            public void returnAction(View v) {
+                virtualController.hideButton(((MenuItemListSelect)v).getDynamicText());
             }
         });
 

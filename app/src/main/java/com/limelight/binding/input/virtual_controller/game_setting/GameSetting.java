@@ -3,7 +3,6 @@ package com.limelight.binding.input.virtual_controller.game_setting;
 import android.content.Context;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -11,20 +10,15 @@ import android.widget.ListView;
 
 import com.limelight.R;
 import com.limelight.binding.input.virtual_controller.VirtualController;
-import com.limelight.binding.input.virtual_controller.VirtualControllerConfigurationLoader;
-import com.limelight.binding.input.virtual_controller.VirtualControllerElement;
 import com.limelight.ui.AdapterSettingMenuListView;
-import com.limelight.ui.MenuItem;
-import com.limelight.ui.MenuItemFatherMenu;
-import com.limelight.ui.MenuItemLinearLayout;
-import com.limelight.ui.MenuItemListSelect;
-import com.limelight.utils.PressedStartElementInfo;
+import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItem;
+import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItemFatherMenu;
+import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItemListSelect;
 
 
 import java.util.ArrayList;
 
 import java.util.List;
-import java.util.Map;
 
 public class GameSetting {
 
@@ -52,7 +46,13 @@ public class GameSetting {
     private final List<MenuItemFatherMenu> menuQueue = new ArrayList<>();
     private final AdapterSettingMenuListView adapterSettingMenuListView;
 
-    private MenuItem currentSelectedItem;
+    public SettingMenuItemsController getSettingMenuItems() {
+        return settingMenuItemsController;
+    }
+
+    private final SettingMenuItemsController settingMenuItemsController;
+
+    private MenuItemListSelect currentSelectedItem;
 
 
     public GameSetting(Context context, FrameLayout frameLayout, VirtualController virtualController){
@@ -88,7 +88,7 @@ public class GameSetting {
         settingMenuLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                returnSettingMenu(-1);
+                returnSettingMenu(null);
             }
         });
         settingMenuLayout.setClickable(false);
@@ -96,7 +96,7 @@ public class GameSetting {
         ListView menuListView = settingMenuLayout.findViewById(R.id.game_setting_menu_listview);
         adapterSettingMenuListView = new AdapterSettingMenuListView(context);
         menuListView.setAdapter(adapterSettingMenuListView);
-        SettingMenuItems settingMenuItems = new SettingMenuItems(context,this,virtualController);
+        settingMenuItemsController = new SettingMenuItemsController(context,this,virtualController);
 
     }
 
@@ -108,7 +108,6 @@ public class GameSetting {
             glassPanelEditor.setVisibility(View.VISIBLE);
         } else {
             glassPanelEditor.setVisibility(View.INVISIBLE);
-            VirtualControllerConfigurationLoader.saveProfile(virtualController, context);
         }
     }
 
@@ -119,37 +118,27 @@ public class GameSetting {
 
 
     public void displaySettingList(List<String> currentSelectList, MenuItem currentSelectedItem){
-        this.currentSelectedItem = currentSelectedItem;
+        this.currentSelectedItem = (MenuItemListSelect) currentSelectedItem;
         settingMenuLayout.setClickable(true); //上层layout拦截点击请求
-        currentSelectedItem.setBackgroundColor(context.getResources().getColor(R.color.game_setting_item_background_color_pressed));
         settingListCreator.setSettingListContext(currentSelectList);
         settingListCreator.setSettingListVisibility(true);
 
-
-
     }
 
-    public void returnSettingMenu(int selected){
+    public void returnSettingMenu(String selected){
         settingListCreator.setSettingListVisibility(false);
-        if (selected != -1){
-            ((MenuItemListSelect) currentSelectedItem).setDynamicText(selected);
-        }
-
-        currentSelectedItem.setBackgroundColor(context.getResources().getColor(R.color.game_setting_item_background_color_primary));
+        currentSelectedItem.setDynamicText(selected);
         settingMenuLayout.setClickable(false);
-        currentSelectedItem.runCallback();
     }
 
     public void goToNextMenu(MenuItemFatherMenu menu){
-        System.out.println("wangguan next menuqueue size : " + menuQueue.size());
         menuQueue.add(menu);
         refreshMenu(menu.getMenuContext());
     }
 
     public void backToPreviousMenu(){
-        System.out.println("wangguan back menuqueue size : " + menuQueue.size());
         MenuItemFatherMenu menu = menuQueue.remove(menuQueue.size() - 1);
-        menu.runCallback();
+        menu.runReturnAction();
         refreshMenu(menuQueue.get(menuQueue.size() - 1).getMenuContext());
     }
 

@@ -6,10 +6,9 @@ package com.limelight.binding.input.virtual_controller;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
-import android.view.KeyEvent;
 
-import com.limelight.nvstream.input.ControllerPacket;
-import com.limelight.nvstream.input.MouseButtonPacket;
+import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItem;
+import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItemListSelect;
 import com.limelight.utils.controller.LayoutEditHelper;
 
 import org.json.JSONException;
@@ -52,6 +51,34 @@ public class VirtualControllerConfigurationLoader {
         return generalPad;
     }
 
+
+    public static void loadProfile(final VirtualController controller, final Context context, Map<String, MenuItem> allMenuItem){
+        Map<String, String> allProfile = LayoutEditHelper.loadAllButton(context);
+        System.out.println("wangguan allProfile:" + allProfile.toString());
+        Map<String, String> allButton = new HashMap<>();
+        Map<String, String> allConfiguration = new HashMap<>();
+        for (String keyName : allProfile.keySet()) {
+
+            if (keyName.startsWith("S_")){
+                allConfiguration.put(keyName,allProfile.get(keyName));
+            } else {
+                allButton.put(keyName,allProfile.get(keyName));
+            }
+
+        }
+        createButtons(controller,context,allButton);
+        loadConfiguration(allConfiguration,allMenuItem);
+    }
+
+
+    private static void loadConfiguration(Map<String, String> allConfiguration,Map<String, MenuItem> allMenuItem){
+
+        for (String keyName : allConfiguration.keySet()) {
+            MenuItemListSelect menuItemListSelect = (MenuItemListSelect) allMenuItem.get(keyName);
+            menuItemListSelect.setDynamicText(allConfiguration.get(keyName));
+        }
+
+    }
 
 
 
@@ -121,7 +148,7 @@ public class VirtualControllerConfigurationLoader {
 
 
     public static void saveProfile(final VirtualController controller,
-                                   final Context context) {
+                                   final Context context,Map<String, MenuItem> itemViewMap) {
 
         Map<String, String> elementConfigurationsMap = new HashMap<>();
         for (VirtualControllerElement element : controller.getElements()) {
@@ -132,6 +159,12 @@ public class VirtualControllerConfigurationLoader {
                 e.printStackTrace();
             }
         }
+        for(String itemName : itemViewMap.keySet()){
+            if (itemName.startsWith("S_")){
+                elementConfigurationsMap.put(itemName,((MenuItemListSelect)itemViewMap.get(itemName)).getDynamicText());
+            }
+        }
+        System.out.println("wangguan" + elementConfigurationsMap);
         LayoutEditHelper.storeAllButton(context,elementConfigurationsMap);
 
     }

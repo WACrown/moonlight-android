@@ -301,4 +301,8 @@
     <string name="game_setting_menu_item_edit_add">确认</string>
     <string name="game_setting_menu_item_select_button_size">按钮大小</string>
     <string name="game_setting_menu_item_edit_save_layout">保存按键布局</string>
+    <string name="game_setting_menu_item_select_layout">选择布局</string>
+    <string name="game_setting_menu_item_edit_button_size">按键尺寸</string>
+    <string name="game_setting_menu_item_button_opacity">按键透明度</string>
+    <string name="game_setting_menu_item_hide_button">隐藏所有按键</string>
 </resources>

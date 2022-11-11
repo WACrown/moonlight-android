@@ -89,9 +89,8 @@ public class VirtualController {
 
 
     private void refreshFrameButtonLayout(){
-        Map<String, String> allButton = LayoutEditHelper.loadAllButton(context);
         //System.out.println("wangguan allButton" + allButton + "layoutName" + LayoutAdminHelper.getCurrentLayoutName(context));
-        VirtualControllerConfigurationLoader.createButtons(this,context,allButton);
+        VirtualControllerConfigurationLoader.loadProfile(this,context,gameSetting.getSettingMenuItems().getItemViewMap());
     }
 
     private void refreshFrameSettingLayout(){
@@ -120,9 +119,17 @@ public class VirtualController {
         }
     }
 
+    public void hideButton(String display){
+        if (display.equals("TRUE")){
+            frameButtonLayout.setVisibility(View.VISIBLE);
+        } else {
+            frameButtonLayout.setVisibility(View.INVISIBLE);
+        }
+
+    }
 
     public void hide() {
-        frameButtonLayout.setVisibility(View.INVISIBLE);
+
         frameSettingLayout.setVisibility(View.INVISIBLE);
     }
 
@@ -152,6 +159,13 @@ public class VirtualController {
             frameButtonLayout.removeView(element);
         }
 
+    }
+
+    public void removeAllElements(){
+        for(VirtualControllerElement element : elements){
+            frameButtonLayout.removeView(element);
+        }
+        elements.clear();
     }
 
     public void moveElements(Map<VirtualControllerElement, PressedStartElementInfo> elementsMap,

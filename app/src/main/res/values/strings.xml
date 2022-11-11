@@ -311,4 +311,8 @@
     <string name="game_setting_menu_item_edit_add">Ensure Add</string>
     <string name="game_setting_menu_item_select_button_size">Button Size</string>
     <string name="game_setting_menu_item_edit_save_layout">Save Layout</string>
+    <string name="game_setting_menu_item_select_layout">Select Layout</string>
+    <string name="game_setting_menu_item_edit_button_size">Button Size</string>
+    <string name="game_setting_menu_item_button_opacity">Button Opacity</string>
+    <string name="game_setting_menu_item_hide_button">Hide Button</string>
 </resources>

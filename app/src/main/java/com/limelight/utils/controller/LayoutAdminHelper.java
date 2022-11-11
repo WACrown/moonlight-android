@@ -104,7 +104,7 @@ public class LayoutAdminHelper {
     }
 
     private static boolean isInvalid(String layoutName){
-        return !Pattern.matches("^[A-Za-z0-9]{1,25}$",layoutName);
+        return !Pattern.matches("^[A-Za-z0-9\\u4e00-\\u9fa5]{1,10}$",layoutName);
     }
 
     private static boolean isExist(String layoutName){
