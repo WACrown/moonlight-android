@@ -4,9 +4,11 @@ import android.content.Context;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.limelight.R;
 import com.limelight.binding.input.virtual_controller.VirtualController;
@@ -14,6 +16,11 @@ import com.limelight.ui.AdapterSettingMenuListView;
 import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItem;
 import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItemFatherMenu;
 import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItemListSelect;
+import com.qmuiteam.qmui.util.QMUIDisplayHelper;
+import com.qmuiteam.qmui.widget.QMUISeekBar;
+import com.qmuiteam.qmui.widget.QMUISlider;
+import com.qmuiteam.qmui.widget.grouplist.QMUICommonListItemView;
+import com.qmuiteam.qmui.widget.grouplist.QMUIGroupListView;
 
 
 import java.util.ArrayList;
@@ -54,12 +61,17 @@ public class GameSetting {
 
     private MenuItemListSelect currentSelectedItem;
 
+    private final QMUIGroupListView mGroupListView;
+    private final View menuLayout;
+
 
     public GameSetting(Context context, FrameLayout frameLayout, VirtualController virtualController){
 
         this.context = context;
         this.frameLayout = frameLayout;
         this.virtualController = virtualController;
+        this.menuLayout = LayoutInflater.from(context).inflate(R.layout.inner_menu_layout, null);
+        this.mGroupListView = menuLayout.findViewById(R.id.groupListView);
 
 
 
@@ -97,6 +109,122 @@ public class GameSetting {
         adapterSettingMenuListView = new AdapterSettingMenuListView(context);
         menuListView.setAdapter(adapterSettingMenuListView);
         settingMenuItemsController = new SettingMenuItemsController(context,this,virtualController);
+        initGroupListView();
+
+
+    }
+
+    private void initGroupListView(){
+        QMUICommonListItemView exitSettingItem = mGroupListView.createItemView("Exit");
+
+        QMUICommonListItemView hideSettingMenuItem = mGroupListView.createItemView("Hide Menu");
+
+        QMUICommonListItemView selectLayoutItem = mGroupListView.createItemView(
+                null,
+                "Select Layout",
+                "layout",
+                QMUICommonListItemView.HORIZONTAL,
+                QMUICommonListItemView.ACCESSORY_TYPE_CHEVRON);
+
+        QMUICommonListItemView editModeItem = mGroupListView.createItemView(
+                null,
+                "Edit Mode",
+                null,
+                QMUICommonListItemView.HORIZONTAL,
+                QMUICommonListItemView.ACCESSORY_TYPE_SWITCH
+                );
+
+        QMUICommonListItemView adjustOpacityItem = mGroupListView.createItemView(
+                null,
+                "Adjust Opacity",
+                null,
+                QMUICommonListItemView.HORIZONTAL,
+                QMUICommonListItemView.ACCESSORY_TYPE_CUSTOM
+        );
+        QMUISlider opacity = new QMUISeekBar(context);
+        opacity.setBarHeight(100);
+        opacity.setTickCount(1);
+        opacity.setCallback(new QMUISlider.Callback() {
+            @Override
+            public void onProgressChange(QMUISlider slider, int progress, int tickCount, boolean fromUser) {
+                System.out.println("wangguan progress:" + progress + "tickCount:" + tickCount);
+            }
+
+            @Override
+            public void onTouchDown(QMUISlider slider, int progress, int tickCount, boolean hitThumb) {
+
+            }
+
+            @Override
+            public void onTouchUp(QMUISlider slider, int progress, int tickCount) {
+
+            }
+
+            @Override
+            public void onStartMoving(QMUISlider slider, int progress, int tickCount) {
+
+            }
+
+            @Override
+            public void onStopMoving(QMUISlider slider, int progress, int tickCount) {
+
+            }
+        });
+        adjustOpacityItem.addAccessoryCustomView(opacity);
+
+        QMUICommonListItemView addButtonItem = mGroupListView.createItemView(
+                null,
+                "Add Button",
+                null,
+                QMUICommonListItemView.HORIZONTAL,
+                QMUICommonListItemView.ACCESSORY_TYPE_CHEVRON
+        );
+
+        QMUICommonListItemView addPadItem = mGroupListView.createItemView(
+                null,
+                "Add Pad",
+                null,
+                QMUICommonListItemView.HORIZONTAL,
+                QMUICommonListItemView.ACCESSORY_TYPE_CHEVRON
+        );
+
+        QMUICommonListItemView addStickItem = mGroupListView.createItemView(
+                null,
+                "Add Stick",
+                null,
+                QMUICommonListItemView.HORIZONTAL,
+                QMUICommonListItemView.ACCESSORY_TYPE_CHEVRON
+        );
+
+        QMUICommonListItemView deleteElementItem = mGroupListView.createItemView("Delete Element");
+
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v instanceof QMUICommonListItemView) {
+                    CharSequence text = ((QMUICommonListItemView) v).getText();
+                    Toast.makeText(context, text + " is Clicked", Toast.LENGTH_SHORT).show();
+                    if (((QMUICommonListItemView) v).getAccessoryType() == QMUICommonListItemView.ACCESSORY_TYPE_SWITCH) {
+                        ((QMUICommonListItemView) v).getSwitch().toggle();
+                    }
+                }
+            }
+        };
+
+        QMUIGroupListView.newSection(getContext())
+                .setTitle("Section 1: 默认提供的样式")
+                .addItemView(exitSettingItem, onClickListener)
+                .addItemView(hideSettingMenuItem, onClickListener)
+                .addItemView(editModeItem, onClickListener)
+                .addItemView(adjustOpacityItem, null)
+                .addItemView(addButtonItem, onClickListener)
+                .addItemView(addPadItem, onClickListener)
+                .addItemView(addStickItem, onClickListener)
+                .addItemView(deleteElementItem, onClickListener)
+                .setMiddleSeparatorInset(QMUIDisplayHelper.dp2px(getContext(), 16), 0)
+                .addTo(mGroupListView);
+
+
 
     }
 
@@ -182,6 +310,13 @@ public class GameSetting {
         params.leftMargin = 0;
         params.topMargin = 0;
         frameLayout.addView(settingMenuLayout, params);
+
+        int settingContainer2High = (int)(screen.widthPixels);
+        int settingContainer2Width = 600;
+        params = new FrameLayout.LayoutParams(settingContainer2Width, settingContainer2High);
+        params.leftMargin = 0;
+        params.topMargin = 0;
+        frameLayout.addView(menuLayout, params);
 
 
         settingListCreator.refreshLayout();

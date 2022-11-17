@@ -6,7 +6,7 @@
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
 
     -->
-    <style name="AppBaseTheme" parent="android:Theme">
+    <style name="AppBaseTheme" parent="QMUI.Compat">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
