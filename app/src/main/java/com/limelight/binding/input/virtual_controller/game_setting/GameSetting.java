@@ -5,6 +5,8 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
@@ -186,12 +188,10 @@ public class GameSetting {
             }
         };
 
-        final QMUIDialog.CustomDialogBuilder addPadDialogBuilder = new QMUIDialog.CustomDialogBuilder(context);
-        System.out.println("wangguan:" + addPadDialogBuilder);
+        final MyCustomDialogBuilder addPadDialogBuilder = new MyCustomDialogBuilder(context);
         addPadDialogBuilder.setLayout(R.layout.add_pad_dialog);
         addPadDialogBuilder.addAction("添加",null);
         addPadDialogBuilder.addAction("返回",null);
-
         addPadDialogBuilder.create(R.style.addElementDialog);
 
         View.OnClickListener addPadOnclickListener = new View.OnClickListener() {

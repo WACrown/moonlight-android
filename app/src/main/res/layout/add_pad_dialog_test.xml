@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.qmuiteam.qmui.widget.dialog.QMUIDialogRootLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    >
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="308dp"
+        android:layout_height="wrap_content"
+        >
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="104dp"
+                android:clickable="true"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="K-SHIFTL"
+                app:qmui_radius="4dp"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp">
+            <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:clickable="true"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="K-SHIFTL"
+                app:qmui_radius="4dp"
+                />
+
+
+
+            <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="108dp"
+                android:clickable="true"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="K-SHIFTL"
+                app:qmui_radius="4dp"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp">
+
+            <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="104dp"
+                android:clickable="true"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="K-SHIFTL"
+                app:qmui_radius="4dp"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.qmuiteam.qmui.widget.QMUISeekBar
+                android:id="@+id/slider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="2dp"
+                app:qmui_slider_bar_tick_count="20"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</com.qmuiteam.qmui.widget.dialog.QMUIDialogRootLayout>
