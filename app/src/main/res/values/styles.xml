@@ -56,4 +56,10 @@
         <item name="android:background">@color/game_setting_title_background_color</item>
     </style>
 
+    <style name="addElementDialog" parent="QMUI.Dialog">
+        <item name="qmui_dialog_max_width">308dp</item>
+        <item name="qmui_dialog_min_width">308dp</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
 </resources>

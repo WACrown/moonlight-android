@@ -19,6 +19,7 @@ import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItem
 import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.qmuiteam.qmui.widget.QMUISeekBar;
 import com.qmuiteam.qmui.widget.QMUISlider;
+import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.qmuiteam.qmui.widget.grouplist.QMUICommonListItemView;
 import com.qmuiteam.qmui.widget.grouplist.QMUIGroupListView;
 
@@ -64,6 +65,8 @@ public class GameSetting {
     private final QMUIGroupListView mGroupListView;
     private final View menuLayout;
 
+    private final View addPadDialog;
+
 
     public GameSetting(Context context, FrameLayout frameLayout, VirtualController virtualController){
 
@@ -72,6 +75,7 @@ public class GameSetting {
         this.virtualController = virtualController;
         this.menuLayout = LayoutInflater.from(context).inflate(R.layout.inner_menu_layout, null);
         this.mGroupListView = menuLayout.findViewById(R.id.groupListView);
+        this.addPadDialog = LayoutInflater.from(context).inflate(R.layout.add_pad_dialog, null);
 
 
 
@@ -139,38 +143,9 @@ public class GameSetting {
                 "Adjust Opacity",
                 null,
                 QMUICommonListItemView.HORIZONTAL,
-                QMUICommonListItemView.ACCESSORY_TYPE_CUSTOM
+                QMUICommonListItemView.ACCESSORY_TYPE_CHEVRON
         );
-        QMUISlider opacity = new QMUISeekBar(context);
-        opacity.setBarHeight(100);
-        opacity.setTickCount(1);
-        opacity.setCallback(new QMUISlider.Callback() {
-            @Override
-            public void onProgressChange(QMUISlider slider, int progress, int tickCount, boolean fromUser) {
-                System.out.println("wangguan progress:" + progress + "tickCount:" + tickCount);
-            }
 
-            @Override
-            public void onTouchDown(QMUISlider slider, int progress, int tickCount, boolean hitThumb) {
-
-            }
-
-            @Override
-            public void onTouchUp(QMUISlider slider, int progress, int tickCount) {
-
-            }
-
-            @Override
-            public void onStartMoving(QMUISlider slider, int progress, int tickCount) {
-
-            }
-
-            @Override
-            public void onStopMoving(QMUISlider slider, int progress, int tickCount) {
-
-            }
-        });
-        adjustOpacityItem.addAccessoryCustomView(opacity);
 
         QMUICommonListItemView addButtonItem = mGroupListView.createItemView(
                 null,
@@ -211,6 +186,21 @@ public class GameSetting {
             }
         };
 
+        final QMUIDialog.CustomDialogBuilder addPadDialogBuilder = new QMUIDialog.CustomDialogBuilder(context);
+        System.out.println("wangguan:" + addPadDialogBuilder);
+        addPadDialogBuilder.setLayout(R.layout.add_pad_dialog);
+        addPadDialogBuilder.addAction("添加",null);
+        addPadDialogBuilder.addAction("返回",null);
+
+        addPadDialogBuilder.create(R.style.addElementDialog);
+
+        View.OnClickListener addPadOnclickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               addPadDialogBuilder.show();
+            }
+        };
+
         QMUIGroupListView.newSection(getContext())
                 .setTitle("Section 1: 默认提供的样式")
                 .addItemView(exitSettingItem, onClickListener)
@@ -218,7 +208,7 @@ public class GameSetting {
                 .addItemView(editModeItem, onClickListener)
                 .addItemView(adjustOpacityItem, null)
                 .addItemView(addButtonItem, onClickListener)
-                .addItemView(addPadItem, onClickListener)
+                .addItemView(addPadItem, addPadOnclickListener)
                 .addItemView(addStickItem, onClickListener)
                 .addItemView(deleteElementItem, onClickListener)
                 .setMiddleSeparatorInset(QMUIDisplayHelper.dp2px(getContext(), 16), 0)
@@ -317,6 +307,8 @@ public class GameSetting {
         params.leftMargin = 0;
         params.topMargin = 0;
         frameLayout.addView(menuLayout, params);
+
+
 
 
         settingListCreator.refreshLayout();
