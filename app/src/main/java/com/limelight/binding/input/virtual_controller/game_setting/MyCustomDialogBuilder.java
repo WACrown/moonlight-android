@@ -8,6 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.limelight.R;
+import com.qmuiteam.qmui.util.QMUIDisplayHelper;
+import com.qmuiteam.qmui.util.QMUIViewHelper;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialogRootLayout;
 
@@ -19,14 +21,13 @@ public class MyCustomDialogBuilder extends QMUIDialog.CustomDialogBuilder {
 
     @Override
     protected void configRootLayout(@NonNull QMUIDialogRootLayout rootLayout) {
-        System.out.println("wangguan rootlayout");
-        rootLayout.setMinWidth(1000);
-        rootLayout.setBackgroundColor(Color.RED);
+        rootLayout.setInsetHor(-200);
+        rootLayout.setMaxWidth(1000);
     }
 
     @Override
     protected ConstraintLayout.LayoutParams onCreateContentLayoutParams(@NonNull Context context) {
-        ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(20, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.leftToLeft = ConstraintLayout.LayoutParams.PARENT_ID;
         lp.rightToRight = ConstraintLayout.LayoutParams.PARENT_ID;
         lp.constrainedHeight = true;

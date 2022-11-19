@@ -18,6 +18,24 @@
             android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
+
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
             <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
@@ -45,14 +63,24 @@
                 android:text="K-SHIFTL"
                 app:qmui_radius="4dp"
                 />
-
+            <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="4dp"
+                android:clickable="true"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="K-SHIFTL"
+                app:qmui_radius="4dp"
+                />
 
 
             <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginLeft="108dp"
+                android:layout_marginLeft="4dp"
                 android:clickable="true"
                 android:gravity="center"
                 android:padding="10dp"

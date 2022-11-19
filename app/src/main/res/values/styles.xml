@@ -56,7 +56,4 @@
         <item name="android:background">@color/game_setting_title_background_color</item>
     </style>
 
-    <style name="addElementDialog" parent="QMUI.Dialog">
-    </style>
-
 </resources>

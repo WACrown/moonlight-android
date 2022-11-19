@@ -192,7 +192,7 @@ public class GameSetting {
         addPadDialogBuilder.setLayout(R.layout.add_pad_dialog);
         addPadDialogBuilder.addAction("添加",null);
         addPadDialogBuilder.addAction("返回",null);
-        addPadDialogBuilder.create(R.style.addElementDialog);
+        addPadDialogBuilder.create(R.style.QMUI_Dialog);
 
         View.OnClickListener addPadOnclickListener = new View.OnClickListener() {
             @Override
