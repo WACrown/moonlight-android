@@ -114,4 +114,12 @@
         <item>cap-fps</item>
         <item>smoothness</item>
     </string-array>
+    <string-array name="key_list" translatable="false">
+        <item>K-A</item>
+        <item>K-B</item>
+        <item>K-C</item>
+        <item>K-D</item>
+    </string-array>
+
+
 </resources>

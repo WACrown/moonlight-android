@@ -19,11 +19,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+                android:id="@+id/pad_up"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginLeft="104dp"
-                android:clickable="true"
                 android:gravity="center"
                 android:padding="10dp"
                 android:text="K-SHIFTL"
@@ -67,6 +67,7 @@
             android:layout_marginTop="4dp">
 
             <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+                android:id="@+id/pad_down"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

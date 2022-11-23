@@ -1,33 +1,45 @@
 package com.limelight.binding.input.virtual_controller.game_setting;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.limelight.R;
 import com.limelight.binding.input.virtual_controller.VirtualController;
+import com.limelight.binding.input.virtual_controller.game_setting.item.MyCheckableDialogBuilder;
 import com.limelight.ui.AdapterSettingMenuListView;
 import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItem;
 import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItemFatherMenu;
 import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItemListSelect;
+import com.qmuiteam.qmui.skin.QMUISkinManager;
 import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.qmuiteam.qmui.widget.QMUISeekBar;
 import com.qmuiteam.qmui.widget.QMUISlider;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
+import com.qmuiteam.qmui.widget.dialog.QMUIDialogBuilder;
 import com.qmuiteam.qmui.widget.grouplist.QMUICommonListItemView;
 import com.qmuiteam.qmui.widget.grouplist.QMUIGroupListView;
+import com.qmuiteam.qmui.widget.popup.QMUIPopup;
+import com.qmuiteam.qmui.widget.popup.QMUIPopups;
+import com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton;
 
 
 import java.util.ArrayList;
 
+import java.util.Collections;
 import java.util.List;
 
 public class GameSetting {
@@ -67,7 +79,12 @@ public class GameSetting {
     private final QMUIGroupListView mGroupListView;
     private final View menuLayout;
 
-    private final View addPadDialog;
+    //-----------------------------
+    private MyCustomDialogBuilder addPadDialogBuilder;
+    private MyCheckableDialogBuilder keySelect;
+
+    private QMUIPopup keyPopup;
+
 
 
     public GameSetting(Context context, FrameLayout frameLayout, VirtualController virtualController){
@@ -77,7 +94,6 @@ public class GameSetting {
         this.virtualController = virtualController;
         this.menuLayout = LayoutInflater.from(context).inflate(R.layout.inner_menu_layout, null);
         this.mGroupListView = menuLayout.findViewById(R.id.groupListView);
-        this.addPadDialog = LayoutInflater.from(context).inflate(R.layout.add_pad_dialog, null);
 
 
 
@@ -115,6 +131,8 @@ public class GameSetting {
         adapterSettingMenuListView = new AdapterSettingMenuListView(context);
         menuListView.setAdapter(adapterSettingMenuListView);
         settingMenuItemsController = new SettingMenuItemsController(context,this,virtualController);
+        initPopup();
+        initDialog();
         initGroupListView();
 
 
@@ -175,6 +193,7 @@ public class GameSetting {
 
         QMUICommonListItemView deleteElementItem = mGroupListView.createItemView("Delete Element");
 
+
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -188,11 +207,6 @@ public class GameSetting {
             }
         };
 
-        final MyCustomDialogBuilder addPadDialogBuilder = new MyCustomDialogBuilder(context);
-        addPadDialogBuilder.setLayout(R.layout.add_pad_dialog);
-        addPadDialogBuilder.addAction("添加",null);
-        addPadDialogBuilder.addAction("返回",null);
-        addPadDialogBuilder.create(R.style.QMUI_Dialog);
 
         View.OnClickListener addPadOnclickListener = new View.OnClickListener() {
             @Override
@@ -217,6 +231,97 @@ public class GameSetting {
 
 
     }
+
+    private void initDialog(){
+        addPadDialogBuilder = new MyCustomDialogBuilder(context);
+        addPadDialogBuilder.setLayout(R.layout.add_pad_dialog);
+        addPadDialogBuilder.setLayoutParamSetter(new MyCustomDialogBuilder.layoutParamSetter() {
+            @Override
+            public void operation(View layout) {
+                layout.findViewById(R.id.pad_up).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        keySelect.show((QMUIRoundButton) v);
+                    }
+                });
+                layout.findViewById(R.id.pad_down).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        keyPopup.show(v);
+                    }
+                });
+            }
+        });
+        addPadDialogBuilder.addAction("添加",null);
+        addPadDialogBuilder.addAction("返回",null);
+        addPadDialogBuilder.create(R.style.QMUI_Dialog);
+
+
+        final String[] items = new String[]{"选项1", "选项2", "选项3", "选项4", "选项5", "选项6", "选项7", "选项8", "选项9", "选项10", "选项11"};
+        final int checkedIndex = 1;
+        keySelect = new MyCheckableDialogBuilder(context);
+                keySelect.setCheckedIndex(checkedIndex)
+                .setSkinManager(QMUISkinManager.defaultInstance(getContext()))
+                .addItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        keySelect.setFatherViewText(items[which]);
+                    }
+                })
+                .create(R.style.QMUI_Dialog);
+
+    }
+
+
+    private void initPopup(){
+        String[] listItems = new String[]{
+                "Item 1",
+                "Item 2",
+                "Item 3",
+                "Item 4",
+                "Item 5",
+                "Item 6",
+                "Item 7",
+                "Item 8",
+        };
+        List<String> data = new ArrayList<>();
+
+        Collections.addAll(data, listItems);
+
+        ArrayAdapter adapter = new ArrayAdapter<>(getContext(), R.layout.popup_textview, data);
+        AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(context, "Item " + (i + 1), Toast.LENGTH_SHORT).show();
+                if (keyPopup != null) {
+                    keyPopup.dismiss();
+                }
+            }
+        };
+        keyPopup = QMUIPopups.listPopup(getContext(),
+                        QMUIDisplayHelper.dp2px(getContext(), 250),
+                        QMUIDisplayHelper.dp2px(getContext(), 300),
+                        adapter,
+                        onItemClickListener)
+                .animStyle(QMUIPopup.ANIM_GROW_FROM_LEFT)
+                .preferredDirection(QMUIPopup.DIRECTION_CENTER_IN_SCREEN)
+                .shadow(true)
+                .offsetYIfTop(QMUIDisplayHelper.dp2px(getContext(), 5))
+                .skinManager(QMUISkinManager.defaultInstance(getContext()))
+                .onDismiss(new PopupWindow.OnDismissListener() {
+                    @Override
+                    public void onDismiss() {
+                        Toast.makeText(getContext(), "onDismiss", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
+    }
+
+
+
+
 
 
 
