@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <TextView
+        android:layout_width="60dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="Size"
+        android:textSize="@dimen/qmui_btn_text_size"
+        android:textColor="@color/qmui_btn_blue_text"/>
+
+    <com.qmuiteam.qmui.widget.QMUISlider
+        android:layout_width="300dp"
+        android:layout_height="45dp"
+        android:gravity="center"
+        />
+
+    <TextView
+        android:layout_width="60dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="确认"
+        android:textSize="@dimen/qmui_btn_text_size"
+        android:textColor="@color/qmui_btn_blue_text"
+        />
+
+</LinearLayout>

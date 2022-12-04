@@ -15,11 +15,11 @@ public class LayoutEditHelper {
         SharedPreferencesHelper.store(context,layoutName,allButton);
     }
 
-    public static int storeAllButton(Context context,Map<String, String> allButton){
+    public static int storeAllConf(Context context, Map<String, String> allButton){
         return SharedPreferencesHelper.store(context,LayoutAdminHelper.getCurrentLayoutName(context),allButton);
     }
 
-    public static Map<String, String> loadAllButton(Context context){
+    public static Map<String, String> loadAllConf(Context context){
         return SharedPreferencesHelper.load(context,LayoutAdminHelper.getCurrentLayoutName(context));
     }
 

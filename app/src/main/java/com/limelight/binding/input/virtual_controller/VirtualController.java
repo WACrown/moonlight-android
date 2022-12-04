@@ -90,7 +90,7 @@ public class VirtualController {
 
     private void refreshFrameButtonLayout(){
         //System.out.println("wangguan allButton" + allButton + "layoutName" + LayoutAdminHelper.getCurrentLayoutName(context));
-        VirtualControllerConfigurationLoader.loadProfile(this,context,gameSetting.getSettingMenuItems().getItemViewMap());
+       // VirtualControllerConfigurationLoader.loadProfile(this,context,gameSetting.getSettingMenuItems().getItemViewMap());
     }
 
     private void refreshFrameSettingLayout(){

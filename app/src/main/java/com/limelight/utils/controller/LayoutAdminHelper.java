@@ -58,10 +58,10 @@ public class LayoutAdminHelper {
 
 
         //复制表中的数值到新表，删除旧表
-        Map<String, String> allButton = LayoutEditHelper.loadAllButton(context);
-        LayoutEditHelper.storeAllButton(context,new HashMap<>());
+        Map<String, String> allButton = LayoutEditHelper.loadAllConf(context);
+        LayoutEditHelper.storeAllConf(context,new HashMap<>());
         layoutList.set(currentLayoutNum,newLayoutName);
-        LayoutEditHelper.storeAllButton(context,allButton);
+        LayoutEditHelper.storeAllConf(context,allButton);
         saveAllLayoutToTable(context);
         return 0;
 

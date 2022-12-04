@@ -33,7 +33,7 @@ public class VirtualControllerLayoutSelector extends Spinner{
                 //virtualController.removeElements(); //移除旧布局
                 LayoutAdminHelper.selectLayout(context,i); //选定新布局
                 virtualControllerLayoutSelector.setSelection(i);
-                VirtualControllerConfigurationLoader.createButtons(virtualController,context, LayoutEditHelper.loadAllButton(context));  //创建新布局
+                VirtualControllerConfigurationLoader.createButtons(virtualController,context, LayoutEditHelper.loadAllConf(context));  //创建新布局
             }
 
             @Override

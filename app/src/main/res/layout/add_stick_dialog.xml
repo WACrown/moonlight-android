@@ -19,6 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+                android:id="@+id/stick_up"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -36,6 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp">
             <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+                android:id="@+id/stick_left"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -46,6 +48,7 @@
                 app:qmui_radius="4dp"
                 />
             <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+                android:id="@+id/stick_middle"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -59,6 +62,7 @@
 
 
             <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+                android:id="@+id/stick_right"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -77,6 +81,7 @@
             android:layout_marginTop="4dp">
 
             <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+                android:id="@+id/stick_down"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -105,7 +110,7 @@
                 android:textColor="@color/qmui_btn_blue_text"/>
 
             <com.qmuiteam.qmui.widget.QMUISeekBar
-                android:id="@+id/slider"
+                android:id="@+id/stick_size"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"

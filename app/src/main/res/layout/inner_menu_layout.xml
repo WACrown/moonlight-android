@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:background="@color/qmui_config_color_background">
 
-        <com.qmuiteam.qmui.widget.grouplist.QMUIGroupListView
+        <com.limelight.binding.input.virtual_controller.game_setting.MyGroupListView
             android:id="@+id/groupListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />

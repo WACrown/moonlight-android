@@ -7,13 +7,15 @@ package com.limelight.binding.input.virtual_controller;
 import android.content.Context;
 import android.util.DisplayMetrics;
 
-import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItem;
-import com.limelight.binding.input.virtual_controller.game_setting.item.MenuItemListSelect;
+import com.limelight.binding.input.virtual_controller.game_setting.MyCommonListItemView;
+import com.limelight.binding.input.virtual_controller.game_setting.MySection;
 import com.limelight.utils.controller.LayoutEditHelper;
+import com.qmuiteam.qmui.widget.grouplist.QMUIGroupListView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,30 +54,33 @@ public class VirtualControllerConfigurationLoader {
     }
 
 
-    public static void loadProfile(final VirtualController controller, final Context context, Map<String, MenuItem> allMenuItem){
-        Map<String, String> allProfile = LayoutEditHelper.loadAllButton(context);
+    public static void loadProfile(final VirtualController controller, final Context context, QMUIGroupListView groupListView){
+        Map<String, String> allProfile = LayoutEditHelper.loadAllConf(context);
         System.out.println("wangguan allProfile:" + allProfile.toString());
         Map<String, String> allButton = new HashMap<>();
         Map<String, String> allConfiguration = new HashMap<>();
         for (String keyName : allProfile.keySet()) {
 
             if (keyName.startsWith("S_")){
-                allConfiguration.put(keyName,allProfile.get(keyName));
+                allConfiguration.put(keyName.substring(0,2),allProfile.get(keyName));
             } else {
                 allButton.put(keyName,allProfile.get(keyName));
             }
 
         }
         createButtons(controller,context,allButton);
-        loadConfiguration(allConfiguration,allMenuItem);
+        loadConfiguration(allConfiguration,groupListView);
     }
 
 
-    private static void loadConfiguration(Map<String, String> allConfiguration,Map<String, MenuItem> allMenuItem){
+    private static void loadConfiguration(Map<String, String> allConfiguration,QMUIGroupListView groupListView){
+        for (String keyName : allConfiguration.keySet()){
+            String[] indexes = keyName.split("-");
+            //获取item对象
+            ArrayList<MyCommonListItemView> myCommonListItemViews = ((MySection) groupListView.getSection(Integer.parseInt(indexes[0]))).getMyCommonListItemViews();
+            MyCommonListItemView myCommonListItemView = myCommonListItemViews.get(Integer.parseInt(indexes[1]));
 
-        for (String keyName : allConfiguration.keySet()) {
-            MenuItemListSelect menuItemListSelect = (MenuItemListSelect) allMenuItem.get(keyName);
-            menuItemListSelect.setDynamicText(allConfiguration.get(keyName));
+            myCommonListItemView.setStatus(allConfiguration.get(keyName));
         }
 
     }
@@ -83,6 +88,7 @@ public class VirtualControllerConfigurationLoader {
 
 
     public static void createButtons(final VirtualController controller, final Context context,Map<String, String> keyInfoMap){
+
         DisplayMetrics screen = context.getResources().getDisplayMetrics();
 
         // Displace controls on the right by this amount of pixels to account for different aspect ratios
@@ -148,7 +154,7 @@ public class VirtualControllerConfigurationLoader {
 
 
     public static void saveProfile(final VirtualController controller,
-                                   final Context context,Map<String, MenuItem> itemViewMap) {
+                                   final Context context, QMUIGroupListView groupListView) {
 
         Map<String, String> elementConfigurationsMap = new HashMap<>();
         for (VirtualControllerElement element : controller.getElements()) {
@@ -159,13 +165,22 @@ public class VirtualControllerConfigurationLoader {
                 e.printStackTrace();
             }
         }
-        for(String itemName : itemViewMap.keySet()){
-            if (itemName.startsWith("S_")){
-                elementConfigurationsMap.put(itemName,((MenuItemListSelect)itemViewMap.get(itemName)).getDynamicText());
+        //S_1-1  :  2-50;3-true;
+        //section-item  :  childView-value;childView-value
+        for (int i = 0;i < groupListView.getSectionCount(); i++){
+            ArrayList<MyCommonListItemView> myCommonListItemViews = ((MySection) groupListView.getSection(i)).getMyCommonListItemViews();
+            for (int j = 0; j < myCommonListItemViews.size(); j ++){
+                String key = "S_" + i + "-" + j;
+                String value = myCommonListItemViews.get(j).getStatus();
+                if (value == null){
+                    continue;
+                }
+                elementConfigurationsMap.put(key,value);
             }
         }
+
         System.out.println("wangguan" + elementConfigurationsMap);
-        LayoutEditHelper.storeAllButton(context,elementConfigurationsMap);
+        LayoutEditHelper.storeAllConf(context,elementConfigurationsMap);
 
     }
 
