@@ -2,6 +2,10 @@ package com.limelight.binding.input.virtual_controller.game_setting;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.TextView;
+
+import com.limelight.R;
+import com.qmuiteam.qmui.skin.QMUISkinManager;
 import com.qmuiteam.qmui.widget.grouplist.QMUICommonListItemView;
 
 public class MyCommonListItemView extends QMUICommonListItemView {
@@ -42,5 +46,18 @@ public class MyCommonListItemView extends QMUICommonListItemView {
 
     public void setChildViews(View[] childViews) {
         this.childViews = childViews;
+    }
+
+    @Override
+    public void setClickable(boolean clickable) {
+        if (clickable){
+            ((TextView)this.getChildAt(3)).setTextColor(getResources().getColor(com.qmuiteam.qmui.R.color.qmui_config_color_pure_black));
+            ((TextView)this.getChildAt(4)).setTextColor(getResources().getColor(com.qmuiteam.qmui.R.color.qmui_config_color_50_pure_black));
+        } else {
+            ((TextView)this.getChildAt(3)).setTextColor(getResources().getColor(com.qmuiteam.qmui.R.color.qmui_config_color_25_pure_black));
+            ((TextView)this.getChildAt(4)).setTextColor(getResources().getColor(com.qmuiteam.qmui.R.color.qmui_config_color_25_pure_black));
+        }
+
+        super.setClickable(clickable);
     }
 }

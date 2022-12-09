@@ -17,9 +17,6 @@ import com.limelight.Game;
 import com.limelight.LimeLog;
 import com.limelight.binding.input.ControllerHandler;
 import com.limelight.binding.input.virtual_controller.game_setting.GameSetting;
-import com.limelight.binding.input.virtual_controller.selector.VirtualControllerAddButton;
-import com.limelight.binding.input.virtual_controller.selector.VirtualControllerFuncSelector;
-import com.limelight.binding.input.virtual_controller.selector.VirtualControllerTypeSelector;
 import com.limelight.nvstream.NvConnection;
 import com.limelight.utils.PressedStartElementInfo;
 import com.limelight.utils.controller.LayoutEditHelper;
@@ -80,8 +77,10 @@ public class VirtualController {
         this.virtualController = this;
         this.handler = new Handler(Looper.getMainLooper());
         this.frameButtonLayout = new FrameLayout(context);
+
         this.frameSettingLayout = new FrameLayout(context);
         this.gameSetting = new GameSetting(context, frameSettingLayout,virtualController);
+
 
         refreshFrameButtonLayout();
         refreshFrameSettingLayout();
@@ -119,14 +118,20 @@ public class VirtualController {
         }
     }
 
-    public void hideButton(String display){
-        if (display.equals("TRUE")){
+    public void hideButton(boolean display){
+        if (!display){
             frameButtonLayout.setVisibility(View.VISIBLE);
         } else {
             frameButtonLayout.setVisibility(View.INVISIBLE);
         }
 
     }
+
+    public void disableMouse(boolean disableMouse){
+        game.disableMouse(disableMouse);
+    }
+
+
 
     public void hide() {
 
@@ -166,6 +171,10 @@ public class VirtualController {
             frameButtonLayout.removeView(element);
         }
         elements.clear();
+    }
+
+    public void isTouchMode(boolean b){
+        game.isTouchscreenTrackpad(b);
     }
 
     public void moveElements(Map<VirtualControllerElement, PressedStartElementInfo> elementsMap,

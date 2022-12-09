@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/qmui_config_color_25_pure_black"
+        android:alpha="0.7"
+        />
+
+    <com.qmuiteam.qmui.layout.QMUIFrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/qmui_config_color_white"
+        app:qmui_radius="2dp"
+        app:qmui_borderColor="@color/qmui_config_color_50_pure_black">
+
+    </com.qmuiteam.qmui.layout.QMUIFrameLayout>
+
+</FrameLayout>

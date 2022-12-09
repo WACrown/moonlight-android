@@ -20,6 +20,9 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
+        <item name="android:background">#2b2b2b</item>
+        <item name="android:textColor">#e3e3e3</item>
+        <item name="android:textColorHint">#555555</item>
     </style>
 
     <style name="StreamBaseTheme" parent="AppBaseTheme">

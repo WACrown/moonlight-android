@@ -26,7 +26,7 @@
                 android:layout_marginLeft="104dp"
                 android:gravity="center"
                 android:padding="10dp"
-                android:text="K-UP"
+                android:text="K-W"
                 app:qmui_radius="4dp"
                 />
         </LinearLayout>
@@ -43,7 +43,7 @@
                 android:clickable="true"
                 android:gravity="center"
                 android:padding="10dp"
-                android:text="K-LEFT"
+                android:text="K-A"
                 app:qmui_radius="4dp"
                 />
 
@@ -58,7 +58,7 @@
                 android:clickable="true"
                 android:gravity="center"
                 android:padding="10dp"
-                android:text="K-RIGHT"
+                android:text="K-D"
                 app:qmui_radius="4dp"
                 />
         </LinearLayout>
@@ -77,7 +77,7 @@
                 android:clickable="true"
                 android:gravity="center"
                 android:padding="10dp"
-                android:text="K-DOWN"
+                android:text="K-S"
                 app:qmui_radius="4dp"
                 />
         </LinearLayout>
@@ -102,7 +102,40 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
-                app:qmui_slider_bar_tick_count="6" />
+                app:qmui_slider_bar_tick_count="4" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
+            android:gravity="right">
+
+            <TextView
+                android:id="@+id/add"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="添加"
+                android:textSize="@dimen/qmui_btn_text_size"
+                android:textColor="@color/qmui_btn_blue_text"
+                />
+            <TextView
+                android:id="@+id/back"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="返回"
+                android:textSize="@dimen/qmui_btn_text_size"
+                android:textColor="@color/qmui_btn_blue_text"
+                />
+
         </LinearLayout>
     </LinearLayout>
 

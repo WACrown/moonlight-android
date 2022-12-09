@@ -55,6 +55,7 @@ public class VirtualControllerConfigurationLoader {
 
 
     public static void loadProfile(final VirtualController controller, final Context context, QMUIGroupListView groupListView){
+        controller.removeAllElements();
         Map<String, String> allProfile = LayoutEditHelper.loadAllConf(context);
         System.out.println("wangguan allProfile:" + allProfile.toString());
         Map<String, String> allButton = new HashMap<>();
@@ -62,7 +63,7 @@ public class VirtualControllerConfigurationLoader {
         for (String keyName : allProfile.keySet()) {
 
             if (keyName.startsWith("S_")){
-                allConfiguration.put(keyName.substring(0,2),allProfile.get(keyName));
+                allConfiguration.put(keyName.substring(2),allProfile.get(keyName));
             } else {
                 allButton.put(keyName,allProfile.get(keyName));
             }

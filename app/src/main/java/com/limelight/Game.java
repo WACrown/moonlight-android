@@ -150,6 +150,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private WifiManager.WifiLock lowLatencyWifiLock;
 
     private boolean connectedToUsbDriverService = false;
+    private boolean disableMouse = false;
     private ServiceConnection usbDriverServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -533,6 +534,19 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
         // The connection will be started when the surface gets created
         streamView.getHolder().addCallback(this);
+    }
+
+    public void isTouchscreenTrackpad(boolean b){
+        for (int i = 0; i < touchContextMap.length; i++) {
+            if (!b) {
+                touchContextMap[i] = new AbsoluteTouchContext(conn, i, streamView);
+            }
+            else {
+                touchContextMap[i] = new RelativeTouchContext(conn, i,
+                        REFERENCE_HORIZ_RES, REFERENCE_VERT_RES,
+                        streamView, prefConfig);
+            }
+        }
     }
 
     private void setPreferredOrientationForCurrentDisplay() {
@@ -1377,6 +1391,10 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         inputManager.toggleSoftInput(0, 0);
     }
 
+    public void disableMouse(boolean disableMouse){
+        this.disableMouse = disableMouse;
+    }
+
     // Returns true if the event was consumed
     // NB: View is only present if called from a view callback
     private boolean handleMotionEvent(View view, MotionEvent event) {
@@ -1580,7 +1598,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             else
             {
                 if (virtualController != null &&
-                        (virtualController.getCurrentMode() == VirtualController.ControllerMode.EditButtons)) {
+                        ((virtualController.getCurrentMode() == VirtualController.ControllerMode.EditButtons) || disableMouse)) {
                     // Ignore presses when the virtual controller is being configured
                     return true;
                 }
