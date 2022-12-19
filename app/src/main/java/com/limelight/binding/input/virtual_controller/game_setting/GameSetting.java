@@ -67,6 +67,7 @@ public class GameSetting {
     private ArrayList<View.OnClickListener> onClickListeners = new ArrayList<>();
     private final Map<VirtualControllerElement, PressedStartElementInfo> editElements = new HashMap<>();
     private MyCheckableDialogBuilder keySelect;
+    private MyCheckableDialogBuilder typeSelect;
     private MyCheckableDialogBuilder layoutSelect;
     private MyCommonListItemView hideSettingItem;
     private MyCommonListItemView exitSettingItem;
@@ -221,10 +222,10 @@ public class GameSetting {
 
     private void initGroupListView(){
 
-        final String[] keyItems = new String[]{"K-A", "K-B", "K-C", "K-D", "K-E", "K-F", "K-G", "K-H", "K-I", "K-J", "K-K", "K-L", "K-M", "K-N", "K-O", "K-P", "K-Q", "K-R", "K-S", "K-T", "K-U", "K-V", "K-W", "K-X", "K-Y", "K-Z",
-                "K-ESC","K-CTRLL" , "K-SHIFTL", "K-CTRLR" , "K-SHIFTR", "K-ALTL"  , "K-ALTR"  , "K-ENTER" , "K-KBACK"  , "K-SPACE" , "K-TAB"   , "K-CAPS"  , "K-WIN", "K-DEL", "K-INS", "K-HOME", "K-END", "K-PGUP", "K-PGDN", "K-BREAK", "K-SLCK", "K-PRINT", "K-UP", "K-DOWN", "K-LEFT", "K-RIGHT",
+        String[] keyItems = new String[]{"K-A", "K-B", "K-C", "K-D", "K-E", "K-F", "K-G", "K-H", "K-I", "K-J", "K-K", "K-L", "K-M", "K-N", "K-O", "K-P", "K-Q", "K-R", "K-S", "K-T", "K-U", "K-V", "K-W", "K-X", "K-Y", "K-Z",
+                "K-ESC","K-CTRLL" , "K-SHIFTL", "K-CTRLR" , "K-SHIFTR", "K-ALTL"  , "K-ALTR"  , "K-ENTER" , "K-BACK"  , "K-SPACE" , "K-TAB"   , "K-CAPS"  , "K-WIN", "K-DEL", "K-INS", "K-HOME", "K-END", "K-PGUP", "K-PGDN", "K-BREAK", "K-SLCK", "K-PRINT", "K-UP", "K-DOWN", "K-LEFT", "K-RIGHT",
                 "K-1", "K-2", "K-3", "K-4", "K-5", "K-6", "K-7", "K-8", "K-9", "K-0", "K-F1", "K-F2", "K-F3", "K-F4", "K-F5", "K-F6", "K-F7", "K-F8", "K-F9", "K-F10", "K-F11", "K-F12",
-                "K-~", "K-_", "K-=", "K-[", "K-]", "K-\\", "K-;", "\"", "K-<", "K->", "K-/",
+                "K-~", "K-_", "K-=", "K-[", "K-]", "K-\\", "K-;", "K-\"", "K-<", "K->", "K-/",
                 "K-NUM1", "K-NUM2", "K-NUM3", "K-NUM4", "K-NUM5", "K-NUM6", "K-NUM7", "K-NUM8", "K-NUM9", "K-NUM0", "K-NUM.", "K-NUM+", "K-NUM_", "K-NUM*", "K-NUM/", "K-NUMENT", "K-NUMLCK",
                 "G-GA", "G-GB", "G-GX", "G-GY", "G-PU","G-PD","G-PL","G-PR","G-LT", "G-RT", "G-LB", "G-RB", "G-LSB", "G-RSB", "G-START","G-BACK","G-LSU","G-LSD","G-LSL","G-LSR","G-RSU","G-RSD","G-RSL","G-RSR",
                 "M-ML", "M-MR", "M-MM", "M-M1", "M-M2"};
@@ -236,6 +237,20 @@ public class GameSetting {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         keySelect.setFatherViewText(keyItems[which]);
+                    }
+                })
+                .create(R.style.QMUI_Dialog);
+
+
+        String[] type = new String[]{"COMMON"};
+        typeSelect = new MyCheckableDialogBuilder(context);
+        typeSelect.setCheckedIndex(0)
+                .setSkinManager(QMUISkinManager.defaultInstance(getContext()))
+                .addItems(type, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        typeSelect.setFatherViewText(type[which]);
                     }
                 })
                 .create(R.style.QMUI_Dialog);
@@ -624,7 +639,7 @@ public class GameSetting {
         childViews[0].setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                keySelect.show((QMUIRoundButton) v);
+                typeSelect.show((QMUIRoundButton) v);
             }
         });
         childViews[1] = dialog.findViewById(R.id.button_key);
