@@ -135,6 +135,7 @@ public abstract class VirtualControllerElement extends View {
         if (virtualController.getCurrentMode() == VirtualController.ControllerMode.EditButtons){
             return configEditColor;
         } else {
+            adjustOpacity();
             return normalColor;
         }
 
@@ -176,8 +177,8 @@ public abstract class VirtualControllerElement extends View {
 
 
 
-    public void setOpacity(int opacity) {
-        int hexOpacity = opacity * 255 / 100;
+    public void adjustOpacity() {
+        int hexOpacity = virtualController.getElementsOpacity() * 255 / 100;
         this.normalColor = (hexOpacity << 24) | (normalColor & 0x00FFFFFF);
         this.pressedColor = (hexOpacity << 24) | (pressedColor & 0x00FFFFFF);
 

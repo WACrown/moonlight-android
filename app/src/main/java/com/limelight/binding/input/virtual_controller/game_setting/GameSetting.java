@@ -2,18 +2,15 @@ package com.limelight.binding.input.virtual_controller.game_setting;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +19,7 @@ import com.limelight.binding.input.virtual_controller.VirtualController;
 import com.limelight.binding.input.virtual_controller.VirtualControllerConfigurationLoader;
 import com.limelight.binding.input.virtual_controller.VirtualControllerElement;
 import com.limelight.ui.SettingDialogBuilder;
+import com.limelight.utils.DBG;
 import com.limelight.utils.PressedStartElementInfo;
 import com.limelight.utils.controller.LayoutAdminHelper;
 import com.limelight.utils.controller.LayoutList;
@@ -29,8 +27,6 @@ import com.qmuiteam.qmui.skin.QMUISkinManager;
 import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.qmuiteam.qmui.widget.QMUISeekBar;
 import com.qmuiteam.qmui.widget.QMUISlider;
-import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
-import com.qmuiteam.qmui.widget.dialog.QMUIDialogAction;
 import com.qmuiteam.qmui.widget.grouplist.QMUICommonListItemView;
 import com.qmuiteam.qmui.widget.grouplist.QMUIGroupListView;
 import com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton;
@@ -55,14 +51,13 @@ public class GameSetting {
 
     private final Context context;
     private final FrameLayout frameLayout;
-    private final FrameLayout dialogFrame;
     private int screenWidth;
     private int screenHeight;
     private final View glassPanelEditor;
     private final Button buttonConfigure;
     private final VirtualController virtualController;
     private final QMUIGroupListView mGroupListView;
-    private final View menuLayout;
+    private final ScrollView groupListScrollView;
     private final SettingDialogBuilder settingDialogBuilder;
     private ArrayList<View.OnClickListener> onClickListeners = new ArrayList<>();
     private final Map<VirtualControllerElement, PressedStartElementInfo> editElements = new HashMap<>();
@@ -90,27 +85,23 @@ public class GameSetting {
     public GameSetting(Context context, FrameLayout frameLayout, VirtualController virtualController){
 
         this.context = context;
-        this.frameLayout = frameLayout;
         this.virtualController = virtualController;
-        this.menuLayout = LayoutInflater.from(context).inflate(R.layout.inner_menu_layout, null);
-        this.mGroupListView = menuLayout.findViewById(R.id.groupListView);
-        this.dialogFrame = new FrameLayout(context);
-        this.settingDialogBuilder = new SettingDialogBuilder(context,dialogFrame);
+        this.frameLayout = frameLayout;
+        this.groupListScrollView = frameLayout.findViewById(R.id.group_list_scroll_view);
+        this.mGroupListView = frameLayout.findViewById(R.id.group_list_view);
+        this.glassPanelEditor = frameLayout.findViewById(R.id.glass_panel_editor);
+        this.buttonConfigure = frameLayout.findViewById(R.id.setting_button);
+
+
+
+        this.settingDialogBuilder = new SettingDialogBuilder(context, frameLayout);
+
         screenWidth = QMUIDisplayHelper.getScreenWidth(context);
         screenHeight = QMUIDisplayHelper.getScreenHeight(context);
 //        testView = new View(context);
 //        testView.setBackgroundColor(Color.RED);
 
-
-
-        //透明编辑面板
-        glassPanelEditor = new View(context);
-
         //设置按钮
-        buttonConfigure = new Button(context);
-        buttonConfigure.setAlpha(0.25f);
-        buttonConfigure.setFocusable(false);
-        buttonConfigure.setBackgroundResource(R.drawable.ic_settings);
         buttonConfigure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,21 +110,20 @@ public class GameSetting {
         });
 
         initGroupListView();
-        VirtualControllerConfigurationLoader.loadProfile(virtualController,context,mGroupListView);
     }
 
     public void show(){
-        menuLayout.setVisibility(View.VISIBLE);
+        groupListScrollView.setVisibility(View.VISIBLE);
         buttonConfigure.setVisibility(View.INVISIBLE);
     }
 
     public void dismiss(){
-        menuLayout.setVisibility(View.INVISIBLE);
+        groupListScrollView.setVisibility(View.INVISIBLE);
         buttonConfigure.setVisibility(View.VISIBLE);
     }
 
     private void exit(){
-        menuLayout.setVisibility(View.INVISIBLE);
+        groupListScrollView.setVisibility(View.INVISIBLE);
         VirtualControllerConfigurationLoader.saveProfile(virtualController,context,mGroupListView);
         buttonConfigure.setVisibility(View.VISIBLE);
     }
@@ -202,14 +192,14 @@ public class GameSetting {
             if (allButtonName.contains(buttonName)) {
                 continue;
             }
-            int buttonSize = (int) ((screenWidth - 40) * (((QMUISeekBar)childViews[childViews.length - 3]).getCurrentProgress() + 1) * 0.05);
+            int buttonSize = 70 * (((QMUISeekBar)childViews[childViews.length - 3]).getCurrentProgress() + 1);
             int left = frameLayout.getWidth()/2 - buttonSize/2;
             int top = frameLayout.getHeight()/2 - buttonSize/2;
             String buttonSizeString = "{\"LEFT\":" + left + ",\"TOP\":" + top + ",\"WIDTH\":" + buttonSize + ",\"HEIGHT\":" + buttonSize + "}";
             Map<String, String> newButton = new HashMap<>();
             newButton.put(buttonName,buttonSizeString);
-            VirtualControllerConfigurationLoader.createButtons(virtualController,context,newButton);
-            //System.out.println("wangguan newButton:" + newButton);
+            VirtualControllerConfigurationLoader.createButton(virtualController,context,newButton);
+            DBG.print("newButton:" + newButton);
             break;
 
         }
@@ -266,7 +256,8 @@ public class GameSetting {
                         dialog.dismiss();
                         selectLayoutItem.setDetailText(layoutItems[which]);
                         LayoutAdminHelper.selectLayout(context,which);
-                        VirtualControllerConfigurationLoader.loadProfile(virtualController,context,mGroupListView);
+                        VirtualControllerConfigurationLoader.loadButtons(virtualController,context);
+                        VirtualControllerConfigurationLoader.loadConfiguration(context,mGroupListView);
                     }
                 })
                 .create(R.style.QMUI_Dialog);
@@ -542,7 +533,7 @@ public class GameSetting {
 
         final View[] adjustOpacityChildViews = new View[3];
         //自定义dialog根view
-        View adjustOpacityDialogRoot = settingDialogBuilder.createDialog(R.layout.top_slider);
+        View adjustOpacityDialogRoot = settingDialogBuilder.createDialog(R.layout.stream_setting_top_slider);
         //dialog 黑色背景
         ((ViewGroup) adjustOpacityDialogRoot).getChildAt(0).setAlpha(0.7f);
         ((ViewGroup) adjustOpacityDialogRoot).getChildAt(0).setClickable(true);
@@ -558,12 +549,12 @@ public class GameSetting {
         }
         ((QMUISlider) adjustOpacityChildViews[1]).setCurrentProgress(100);
         ((TextView) adjustOpacityChildViews[0]).setText("100");
-        virtualController.setOpacity(100);
+        virtualController.setElementsOpacity(100);
         ((QMUISlider) adjustOpacityChildViews[1]).setCallback(new QMUISlider.Callback() {
             @Override
             public void onProgressChange(QMUISlider slider, int progress, int tickCount, boolean fromUser) {
                 ((TextView) adjustOpacityChildViews[0]).setText("" + progress);
-                virtualController.setOpacity(progress);
+                virtualController.setElementsOpacity(progress);
             }
 
             @Override
@@ -591,7 +582,7 @@ public class GameSetting {
             @Override
             public void onClick(View view) {
                 adjustOpacityDialogRoot.setVisibility(View.INVISIBLE);
-                menuLayout.setVisibility(View.VISIBLE);
+                groupListScrollView.setVisibility(View.VISIBLE);
             }
         });
         ((MyCommonListItemView) adjustOpacityItem).setChildViews(adjustOpacityChildViews);
@@ -600,7 +591,7 @@ public class GameSetting {
             public void set(View[] childViews, String status) {
                 String[] allConf = status.split(";");
                 int progress = Integer.parseInt(allConf[0]);
-                virtualController.setOpacity(progress);
+                virtualController.setElementsOpacity(progress);
                 ((QMUISlider) childViews[1]).setCurrentProgress(progress);
                 ((TextView) adjustOpacityChildViews[0]).setText("" + progress);
             }
@@ -614,7 +605,7 @@ public class GameSetting {
             @Override
             public void onClick(View view) {
                 adjustOpacityDialogRoot.setVisibility(View.VISIBLE);
-                menuLayout.setVisibility(View.INVISIBLE);
+                groupListScrollView.setVisibility(View.INVISIBLE);
             }
         });
         this.adjustOpacityItem = (MyCommonListItemView) adjustOpacityItem;
@@ -833,7 +824,7 @@ public class GameSetting {
         onClickListeners.add(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                virtualController.removeElements(editElements.keySet());
+                virtualController.removeElement(editElements.keySet());
                 editElements.clear();
             }
         });
@@ -920,7 +911,7 @@ public class GameSetting {
         selectMouseModeItem.getSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                virtualController.isTouchMode(b);
+                virtualController.isAbsoluteTouchMode(b);
             }
         });
         onClickListeners.add(new View.OnClickListener() {
@@ -935,7 +926,7 @@ public class GameSetting {
                 String[] statuses = status.split(";");
                 boolean isChecked = Boolean.parseBoolean(statuses[0]);
                 selectMouseModeItem.getSwitch().setChecked(isChecked);
-                virtualController.isTouchMode(isChecked);
+                virtualController.isAbsoluteTouchMode(isChecked);
             }
 
             @Override
@@ -961,41 +952,9 @@ public class GameSetting {
 
 
     public void refreshLayout() {
-        frameLayout.removeAllViews();
-        DisplayMetrics screen = context.getResources().getDisplayMetrics();
-
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        params.leftMargin = 0;
-        params.topMargin = 0;
-        frameLayout.addView(glassPanelEditor);
+        VirtualControllerConfigurationLoader.loadConfiguration(context,mGroupListView);
         glassPanelEditor.setVisibility(View.INVISIBLE);
-
-//        params = new FrameLayout.LayoutParams(20, 20);
-//        params.leftMargin = 0;
-//        params.topMargin = 0;
-//        frameLayout.addView(testView);
-//        testView.setVisibility(View.INVISIBLE);
-
-        int buttonSize = (int)(screen.heightPixels*0.03f);
-        params = new FrameLayout.LayoutParams(buttonSize, buttonSize);
-        params.leftMargin = 15;
-        params.topMargin = 15;
-        frameLayout.addView(buttonConfigure, params);
-
-
-        int settingContainer2High = (int)(screen.widthPixels);
-        int settingContainer2Width = 600;
-        params = new FrameLayout.LayoutParams(settingContainer2Width, settingContainer2High);
-        params.leftMargin = 0;
-        params.topMargin = 0;
-        menuLayout.setVisibility(View.INVISIBLE);
-        frameLayout.addView(menuLayout, params);
-
-        params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        params.leftMargin = 0;
-        params.topMargin = 0;
-        frameLayout.addView(dialogFrame,params);
-
+        groupListScrollView.setVisibility(View.INVISIBLE);
     }
 
 }

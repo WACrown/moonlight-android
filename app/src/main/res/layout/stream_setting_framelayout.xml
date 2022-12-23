@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/setting_button"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:alpha="0.25"
+        android:background="@drawable/ic_settings"/>
+
+    <View
+        android:id="@+id/glass_panel_editor"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <ScrollView
+        android:id="@+id/group_list_scroll_view"
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
+        android:background="@color/qmui_config_color_background">
+
+        <com.limelight.binding.input.virtual_controller.game_setting.MyGroupListView
+            android:id="@+id/group_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </ScrollView>
+
+
+</FrameLayout>

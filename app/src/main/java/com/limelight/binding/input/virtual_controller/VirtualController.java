@@ -7,19 +7,19 @@ package com.limelight.binding.input.virtual_controller;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.DisplayMetrics;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import com.limelight.Game;
 import com.limelight.LimeLog;
+import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
 import com.limelight.binding.input.virtual_controller.game_setting.GameSetting;
 import com.limelight.nvstream.NvConnection;
+import com.limelight.utils.DBG;
 import com.limelight.utils.PressedStartElementInfo;
-import com.limelight.utils.controller.LayoutEditHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,9 +35,11 @@ public class VirtualController {
         EditButtons
     }
 
-    public final Set<VirtualControllerElement> virtualControllerNeedDeleteElementSet = new HashSet<>();
 
     private static final boolean _PRINT_DEBUG_INFORMATION = false;
+
+    private ControllerMode currentMode = ControllerMode.Active;
+    private int elementsOpacity = 100;
 
     private final ControllerHandler controllerHandler;
     private final Game game;
@@ -60,9 +62,6 @@ public class VirtualController {
     private final FrameLayout frameFatherLayout;
     private final FrameLayout frameButtonLayout;
     private final FrameLayout frameSettingLayout;
-
-    private ControllerMode currentMode = ControllerMode.Active;
-
     private final GameSetting gameSetting;
 
 
@@ -76,24 +75,24 @@ public class VirtualController {
         this.context = context;
         this.virtualController = this;
         this.handler = new Handler(Looper.getMainLooper());
-        this.frameButtonLayout = new FrameLayout(context);
-
-        this.frameSettingLayout = new FrameLayout(context);
+        this.frameButtonLayout = (FrameLayout) LayoutInflater.from(context).inflate(R.layout.stream_button_framelayout,null);
+        this.frameSettingLayout = (FrameLayout) LayoutInflater.from(context).inflate(R.layout.stream_setting_framelayout,null);;
         this.gameSetting = new GameSetting(context, frameSettingLayout,virtualController);
 
 
-        refreshFrameButtonLayout();
-        refreshFrameSettingLayout();
+
+        initFrameButtonLayout();
+        initFrameSettingLayout();
     }
 
 
-    private void refreshFrameButtonLayout(){
-        //System.out.println("wangguan allButton" + allButton + "layoutName" + LayoutAdminHelper.getCurrentLayoutName(context));
-       // VirtualControllerConfigurationLoader.loadProfile(this,context,gameSetting.getSettingMenuItems().getItemViewMap());
+    private void initFrameButtonLayout(){
+        View backgroundTouchView = frameButtonLayout.findViewById(R.id.backgroundTouchView);
+        backgroundTouchView.setOnTouchListener(game);
+        VirtualControllerConfigurationLoader.loadButtons(this,context);
     }
 
-    private void refreshFrameSettingLayout(){
-
+    private void initFrameSettingLayout(){
         gameSetting.refreshLayout();
     }
 
@@ -118,11 +117,22 @@ public class VirtualController {
         }
     }
 
-    public void hideButton(boolean display){
-        if (!display){
-            frameButtonLayout.setVisibility(View.VISIBLE);
-        } else {
+    public int getElementsOpacity() {
+        return elementsOpacity;
+    }
+
+    public void setElementsOpacity(int elementsOpacity) {
+        this.elementsOpacity = elementsOpacity;
+        for (VirtualControllerElement element : elements) {
+            element.invalidate();
+        }
+    }
+
+    public void hideButton(boolean hide){
+        if (hide){
             frameButtonLayout.setVisibility(View.INVISIBLE);
+        } else {
+            frameButtonLayout.setVisibility(View.VISIBLE);
         }
 
     }
@@ -134,7 +144,7 @@ public class VirtualController {
 
 
     public void hide() {
-
+        frameButtonLayout.setVisibility(View.INVISIBLE);
         frameSettingLayout.setVisibility(View.INVISIBLE);
     }
 
@@ -143,22 +153,16 @@ public class VirtualController {
         frameSettingLayout.setVisibility(View.VISIBLE);
     }
 
-    public void setOpacity(int opacity) {
-        for (VirtualControllerElement element : elements) {
-            element.setOpacity(opacity);
-        }
-    }
 
 
     public void addElement(VirtualControllerElement element, int x, int y, int width, int height) {
         elements.add(element);
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
         layoutParams.setMargins(x, y, 0, 0);
-
         frameButtonLayout.addView(element, layoutParams);
     }
 
-    public void removeElements(Set<VirtualControllerElement> elements){
+    public void removeElement(Set<VirtualControllerElement> elements){
         for(VirtualControllerElement element : elements){
             this.elements.remove(element);
             frameButtonLayout.removeView(element);
@@ -173,8 +177,8 @@ public class VirtualController {
         elements.clear();
     }
 
-    public void isTouchMode(boolean b){
-        game.isTouchscreenTrackpad(b);
+    public void isAbsoluteTouchMode(boolean b){
+        game.isAbsoluteTouchMode(b);
     }
 
     public void moveElements(Map<VirtualControllerElement, PressedStartElementInfo> elementsMap,

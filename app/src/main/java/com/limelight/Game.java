@@ -489,14 +489,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
         // Initialize touch contexts
         for (int i = 0; i < touchContextMap.length; i++) {
-            if (!prefConfig.touchscreenTrackpad) {
-                touchContextMap[i] = new AbsoluteTouchContext(conn, i, streamView);
-            }
-            else {
-                touchContextMap[i] = new RelativeTouchContext(conn, i,
-                        REFERENCE_HORIZ_RES, REFERENCE_VERT_RES,
-                        streamView, prefConfig);
-            }
+            touchContextMap[i] = new RelativeTouchContext(conn, i,
+                    REFERENCE_HORIZ_RES, REFERENCE_VERT_RES,
+                    streamView, prefConfig);
         }
 
         // Use sustained performance mode on N+ to ensure consistent
@@ -536,9 +531,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         streamView.getHolder().addCallback(this);
     }
 
-    public void isTouchscreenTrackpad(boolean b){
+    public void isAbsoluteTouchMode(boolean b){
         for (int i = 0; i < touchContextMap.length; i++) {
-            if (!b) {
+            if (b) {
                 touchContextMap[i] = new AbsoluteTouchContext(conn, i, streamView);
             }
             else {

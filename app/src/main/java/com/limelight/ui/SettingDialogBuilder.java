@@ -9,8 +9,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.LayoutRes;
 
 import com.limelight.R;
-import com.qmuiteam.qmui.layout.QMUIFrameLayout;
-import com.qmuiteam.qmui.layout.QMUILinearLayout;
 
 public class SettingDialogBuilder {
 
@@ -23,7 +21,7 @@ public class SettingDialogBuilder {
     }
 
     public View createDialog(@LayoutRes int resID){
-        FrameLayout dialogRoot = (FrameLayout) LayoutInflater.from(context).inflate(R.layout.setting_dialog,null);
+        FrameLayout dialogRoot = (FrameLayout) LayoutInflater.from(context).inflate(R.layout.stream_setting_dialog,null);
         dialogRoot.setVisibility(View.INVISIBLE);
         frameLayout.addView(dialogRoot);
         ViewGroup dialog = (ViewGroup) dialogRoot.getChildAt(1);

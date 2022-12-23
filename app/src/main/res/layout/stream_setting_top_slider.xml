@@ -16,8 +16,9 @@
 
     <com.qmuiteam.qmui.widget.QMUISlider
         android:layout_width="300dp"
-        android:layout_height="45dp"
+        android:layout_height="50dp"
         android:gravity="center"
+        app:qmui_slider_bar_thumb_size="30dp"
         />
 
     <TextView
