@@ -192,7 +192,7 @@ public class GameSetting {
             if (allButtonName.contains(buttonName)) {
                 continue;
             }
-            int buttonSize = 70 * (((QMUISeekBar)childViews[childViews.length - 3]).getCurrentProgress() + 1);
+            int buttonSize = 70 * (((QMUISeekBar)childViews[childViews.length - 4]).getCurrentProgress() + 1);
             int left = frameLayout.getWidth()/2 - buttonSize/2;
             int top = frameLayout.getHeight()/2 - buttonSize/2;
             String buttonSizeString = "{\"LEFT\":" + left + ",\"TOP\":" + top + ",\"WIDTH\":" + buttonSize + ",\"HEIGHT\":" + buttonSize + "}";
@@ -220,7 +220,7 @@ public class GameSetting {
                 "G-GA", "G-GB", "G-GX", "G-GY", "G-PU","G-PD","G-PL","G-PR","G-LT", "G-RT", "G-LB", "G-RB", "G-LSB", "G-RSB", "G-START","G-BACK","G-LSU","G-LSD","G-LSL","G-LSR","G-RSU","G-RSD","G-RSL","G-RSR",
                 "M-ML", "M-MR", "M-MM", "M-M1", "M-M2"};
         keySelect = new MyCheckableDialogBuilder(context);
-        keySelect.setCheckedIndex(1)
+        keySelect.setCheckedIndex(0)
                 .setSkinManager(QMUISkinManager.defaultInstance(getContext()))
                 .addItems(keyItems, new DialogInterface.OnClickListener() {
                     @Override
@@ -621,7 +621,7 @@ public class GameSetting {
                 QMUICommonListItemView.ACCESSORY_TYPE_CHEVRON
         );
 
-        View[] childViews = new View[5];
+        View[] childViews = new View[6];
         View addButtonDialogRoot = settingDialogBuilder.createDialog(R.layout.add_button_dialog);
         View dialogBackground = ((ViewGroup) addButtonDialogRoot).getChildAt(0);
         dialogBackground.setClickable(true);
@@ -640,8 +640,34 @@ public class GameSetting {
                 keySelect.show((QMUIRoundButton) v);
             }
         });
-        childViews[2] = dialog.findViewById(R.id.slider);
+        childViews[2] = dialog.findViewById(R.id.button_size);
         ((QMUISeekBar)childViews[2]).setCurrentProgress(2);
+        ((QMUISeekBar)childViews[2]).setCallback(new QMUISlider.Callback() {
+            @Override
+            public void onProgressChange(QMUISlider slider, int progress, int tickCount, boolean fromUser) {
+                ((TextView)childViews[5]).setText("" + (progress + 1));
+            }
+
+            @Override
+            public void onTouchDown(QMUISlider slider, int progress, int tickCount, boolean hitThumb) {
+
+            }
+
+            @Override
+            public void onTouchUp(QMUISlider slider, int progress, int tickCount) {
+
+            }
+
+            @Override
+            public void onStartMoving(QMUISlider slider, int progress, int tickCount) {
+
+            }
+
+            @Override
+            public void onStopMoving(QMUISlider slider, int progress, int tickCount) {
+
+            }
+        });
         childViews[3] = dialog.findViewById(R.id.back);
         childViews[3].setOnClickListener(new View.OnClickListener() {
             @Override
@@ -658,6 +684,8 @@ public class GameSetting {
                 addButtonDialogRoot.setVisibility(View.INVISIBLE);
             }
         });
+
+        childViews[5] = dialog.findViewById(R.id.button_size_text);
 
         onClickListeners.add(new View.OnClickListener() {
             @Override
@@ -679,7 +707,7 @@ public class GameSetting {
                 QMUICommonListItemView.ACCESSORY_TYPE_CHEVRON
         );
         //addPadDialogBuilder
-        View[] childViews = new View[7];
+        View[] childViews = new View[8];
         View addPadDialogRoot = settingDialogBuilder.createDialog(R.layout.add_pad_dialog);
         View dialogBackground = ((ViewGroup) addPadDialogRoot).getChildAt(0);
         dialogBackground.setClickable(true);
@@ -713,7 +741,33 @@ public class GameSetting {
             }
         });
         childViews[4] = dialog.findViewById(R.id.pad_size);
-        ((QMUISeekBar)childViews[4]).setCurrentProgress(2);
+        ((QMUISeekBar)childViews[4]).setCurrentProgress(5);
+        ((QMUISeekBar)childViews[4]).setCallback(new QMUISlider.Callback() {
+            @Override
+            public void onProgressChange(QMUISlider slider, int progress, int tickCount, boolean fromUser) {
+                ((TextView)childViews[7]).setText("" + (progress + 1));
+            }
+
+            @Override
+            public void onTouchDown(QMUISlider slider, int progress, int tickCount, boolean hitThumb) {
+
+            }
+
+            @Override
+            public void onTouchUp(QMUISlider slider, int progress, int tickCount) {
+
+            }
+
+            @Override
+            public void onStartMoving(QMUISlider slider, int progress, int tickCount) {
+
+            }
+
+            @Override
+            public void onStopMoving(QMUISlider slider, int progress, int tickCount) {
+
+            }
+        });
         childViews[5] = dialog.findViewById(R.id.back);
         childViews[5].setOnClickListener(new View.OnClickListener() {
             @Override
@@ -730,6 +784,7 @@ public class GameSetting {
                 addPadDialogRoot.setVisibility(View.INVISIBLE);
             }
         });
+        childViews[7] = dialog.findViewById(R.id.pad_size_text);
 
         onClickListeners.add(new View.OnClickListener() {
             @Override
@@ -750,7 +805,7 @@ public class GameSetting {
                 QMUICommonListItemView.ACCESSORY_TYPE_CHEVRON
         );
         //addPadDialogBuilder
-        View[] childViews = new View[8];
+        View[] childViews = new View[9];
         View addStickDialogRoot = settingDialogBuilder.createDialog(R.layout.add_stick_dialog);
         View dialogBackground = ((ViewGroup) addStickDialogRoot).getChildAt(0);
         dialogBackground.setClickable(true);
@@ -791,7 +846,33 @@ public class GameSetting {
             }
         });
         childViews[5] = dialog.findViewById(R.id.stick_size);
-        ((QMUISeekBar)childViews[5]).setCurrentProgress(2);
+        ((QMUISeekBar)childViews[5]).setCurrentProgress(5);
+        ((QMUISeekBar)childViews[5]).setCallback(new QMUISlider.Callback() {
+            @Override
+            public void onProgressChange(QMUISlider slider, int progress, int tickCount, boolean fromUser) {
+                ((TextView)childViews[8]).setText("" + (progress + 1));
+            }
+
+            @Override
+            public void onTouchDown(QMUISlider slider, int progress, int tickCount, boolean hitThumb) {
+
+            }
+
+            @Override
+            public void onTouchUp(QMUISlider slider, int progress, int tickCount) {
+
+            }
+
+            @Override
+            public void onStartMoving(QMUISlider slider, int progress, int tickCount) {
+
+            }
+
+            @Override
+            public void onStopMoving(QMUISlider slider, int progress, int tickCount) {
+
+            }
+        });
         childViews[6] = dialog.findViewById(R.id.back);
         childViews[6].setOnClickListener(new View.OnClickListener() {
             @Override
@@ -808,6 +889,8 @@ public class GameSetting {
                 addStickDialogRoot.setVisibility(View.INVISIBLE);
             }
         });
+        childViews[8] = dialog.findViewById(R.id.stick_size_text);
+
         ((MyCommonListItemView) addStickItem).setChildViews(childViews);
         onClickListeners.add(new View.OnClickListener() {
             @Override

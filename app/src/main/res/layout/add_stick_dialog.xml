@@ -98,14 +98,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:paddingLeft="10dp"
+                android:text="尺寸 : "
+                android:textSize="@dimen/qmui_btn_text_size"
+                android:textColor="@color/qmui_btn_blue_text"/>
+
+            <TextView
+                android:id="@+id/stick_size_text"
+                android:layout_width="20dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
                 android:paddingRight="10dp"
-                android:text="Size"
+                android:text="6"
                 android:textSize="@dimen/qmui_btn_text_size"
                 android:textColor="@color/qmui_btn_blue_text"/>
 
@@ -114,7 +122,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
-                app:qmui_slider_bar_tick_count="4"/>
+                app:qmui_slider_bar_tick_count="8"
+                app:qmui_slider_bar_thumb_size="25dp"/>
         </LinearLayout>
 
         <LinearLayout

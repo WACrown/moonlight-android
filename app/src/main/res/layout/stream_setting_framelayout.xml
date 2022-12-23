@@ -10,10 +10,14 @@
         android:alpha="0.25"
         android:background="@drawable/ic_settings"/>
 
-    <View
+    <TextView
         android:id="@+id/glass_panel_editor"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:text="EDIT MODE"
+        android:gravity="center"
+        android:textColor="#6603A9F4"
+        android:textSize="100sp"/>
 
     <ScrollView
         android:id="@+id/group_list_scroll_view"
