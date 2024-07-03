@@ -4,9 +4,13 @@ import android.app.AlertDialog;
 import android.os.Handler;
 import android.widget.ArrayAdapter;
 
+import com.limelight.binding.input.GameInputDevice;
 import com.limelight.binding.input.KeyboardTranslator;
 import com.limelight.nvstream.NvConnection;
 import com.limelight.nvstream.input.KeyboardPacket;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provide options for ongoing Game Stream.
@@ -17,11 +21,11 @@ public class GameMenu {
 
     private static final long KEY_UP_DELAY = 25;
 
-    private static class MenuOption {
+    public static class MenuOption {
         private final String label;
         private final Runnable runnable;
 
-        MenuOption(String label, Runnable runnable) {
+        public MenuOption(String label, Runnable runnable) {
             this.label = label;
             this.runnable = runnable;
         }
@@ -29,10 +33,12 @@ public class GameMenu {
 
     private final Game game;
     private final NvConnection conn;
+    private final GameInputDevice device;
 
-    public GameMenu(Game game, NvConnection conn) {
+    public GameMenu(Game game, NvConnection conn, GameInputDevice device) {
         this.game = game;
         this.conn = conn;
+        this.device = device;
 
         showMenu();
     }
@@ -59,7 +65,7 @@ public class GameMenu {
         final byte[] modifier = {(byte) 0};
 
         for (short key : keys) {
-            conn.sendKeyboardInput(key, KeyboardPacket.KEY_DOWN, modifier[0]);
+            conn.sendKeyboardInput(key, KeyboardPacket.KEY_DOWN, modifier[0], (byte) 0);
 
             // Apply the modifier of the pressed key, e.g. CTRL first issues a CTRL event (without
             // modifier) and then sends the following keys with the CTRL modifier applied
@@ -74,7 +80,7 @@ public class GameMenu {
                 // Remove the keys modifier before releasing the key
                 modifier[0] &= ~getModifier(key);
 
-                conn.sendKeyboardInput(key, KeyboardPacket.KEY_UP, modifier[0]);
+                conn.sendKeyboardInput(key, KeyboardPacket.KEY_UP, modifier[0], (byte) 0);
             }
         }), KEY_UP_DELAY);
     }
@@ -128,10 +134,19 @@ public class GameMenu {
     }
 
     private void showMenu() {
-        showMenuDialog("Game Menu", new MenuOption[]{
-                new MenuOption(getString(R.string.game_menu_send_keys), () -> showSpecialKeysMenu()),
-                new MenuOption(getString(R.string.game_menu_disconnect), () -> game.onBackPressed()),
-                new MenuOption(getString(R.string.game_menu_cancel), null),
-        });
+        List<MenuOption> options = new ArrayList<>();
+
+        options.add(new MenuOption(getString(R.string.game_menu_toggle_keyboard),
+                () -> game.toggleKeyboard()));
+
+        if (device != null) {
+            options.addAll(device.getGameMenuOptions());
+        }
+
+        options.add(new MenuOption(getString(R.string.game_menu_send_keys), () -> showSpecialKeysMenu()));
+        options.add(new MenuOption(getString(R.string.game_menu_disconnect), () -> game.onBackPressed()));
+        options.add(new MenuOption(getString(R.string.game_menu_cancel), null));
+
+        showMenuDialog("Game Menu", options.toArray(new MenuOption[options.size()]));
     }
 }
