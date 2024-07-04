@@ -14,12 +14,6 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="37dp">
-            <Button
-                android:id="@+id/float_keyboard_display_button"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:text="↑"
-                android:alpha="1" />
             <SeekBar
                 android:id="@+id/float_keyboard_seekbar"
                 android:alpha="1"
@@ -28,8 +22,7 @@
                 android:layout_weight="1"
                 android:progress="10"
                 android:min="1"
-                android:max="10"
-                android:visibility="gone"/>
+                android:max="10" />
         </LinearLayout>
 
         <LinearLayout
@@ -37,8 +30,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:alpha="1"
-            android:visibility="gone">
+            android:alpha="1">
             <include layout="@layout/layout_keyboard"/>
         </LinearLayout>
     </LinearLayout>

@@ -162,6 +162,7 @@ public class GameMenu {
 
         }
         showMenuDialog("删除指令",menuOptions.toArray(new MenuOption[0]));
+        menuOptions.add(new MenuOption(getString(R.string.game_menu_cancel), null));
     }
 
     private void showSpecialKeysMenu() {
@@ -209,7 +210,7 @@ public class GameMenu {
         if (device != null) {
             options.addAll(device.getGameMenuOptions());
         }
-
+        options.add(new MenuOption(getString(R.string.game_menu_toggle_all_keyboard), () -> controllerManager.getGameMenuController().ToggleKeyboard()));
         options.add(new MenuOption(getString(R.string.game_menu_toggle_performance_overlay), () -> game.togglePerformanceOverlay()));
         options.add(new MenuOption(getString(R.string.game_menu_send_keys), () -> showSpecialKeysMenu()));
         options.add(new MenuOption(getString(R.string.game_menu_disconnect), () -> game.disconnect()));

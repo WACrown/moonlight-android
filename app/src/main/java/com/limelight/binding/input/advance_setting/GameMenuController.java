@@ -1,10 +1,12 @@
 package com.limelight.binding.input.advance_setting;
 
 import android.content.Context;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,20 +19,79 @@ import java.util.List;
 public class GameMenuController {
 
     private Context context;
-    private FrameLayout frameLayout;
     private LinearLayout addCombineKeyBox;
+    private LinearLayout floatKeyboardBox;
     private ControllerManager controllerManager;
     private KeyboardTranslator keyboardTranslator;
     private GameMenuPreference gameMenuPreference;
 
     public GameMenuController(FrameLayout frameLayout,ControllerManager controllerManager,Context context) {
         this.context = context;
-        this.frameLayout = frameLayout;
+        this.floatKeyboardBox = frameLayout.findViewById(R.id.float_keyboard_box);
         this.addCombineKeyBox = frameLayout.findViewById(R.id.add_combine_box);
         this.controllerManager = controllerManager;
         this.keyboardTranslator = new KeyboardTranslator();
 
+        initFloatKeyboard();
         initAddCombineKey();
+    }
+
+    private void initFloatKeyboard(){
+
+        SeekBar opacitySeekbar = floatKeyboardBox.findViewById(R.id.float_keyboard_seekbar);
+        LinearLayout keyboardLayout = floatKeyboardBox.findViewById(R.id.float_keyboard);
+        LinearLayout keyboard = floatKeyboardBox.findViewById(R.id.keyboard_drawing);
+
+
+        opacitySeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                float alpha = (float) (progress * 0.1);
+                keyboardLayout.setAlpha(alpha);
+                opacitySeekbar.setAlpha(alpha);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        View.OnTouchListener touchListener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                String keyString = (String) v.getTag();
+                int keyCode = Integer.parseInt(keyString.substring(1));
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        // 处理按下事件
+                        controllerManager.getElementController().sendKeyEvent(true,(short) keyCode);
+                        v.setBackgroundResource(R.drawable.confirm_square_border);
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        // 处理释放事件
+                        controllerManager.getElementController().sendKeyEvent(false,(short) keyCode);
+                        v.setBackgroundResource(R.drawable.square_border);
+                        return true;
+                }
+                return false;
+            }
+        };
+        for (int i = 0; i < keyboard.getChildCount(); i++){
+            LinearLayout keyboardRow = (LinearLayout) keyboard.getChildAt(i);
+            for (int j = 0; j < keyboardRow.getChildCount(); j++){
+                keyboardRow.getChildAt(j).setOnTouchListener(touchListener);
+            }
+        }
+
+
+
+
     }
 
     private void initAddCombineKey(){
@@ -118,6 +179,16 @@ public class GameMenuController {
 
     public void showAddGameMenuSpecialKey(){
         addCombineKeyBox.setVisibility(View.VISIBLE);
+    }
+
+    public void ToggleKeyboard(){
+        if (floatKeyboardBox.getVisibility() == View.VISIBLE){
+            System.out.println("wg_debug keyboard close");
+            floatKeyboardBox.setVisibility(View.GONE);
+        } else {
+            System.out.println("wg_debug keyboard open");
+            floatKeyboardBox.setVisibility(View.VISIBLE);
+        }
     }
 
     public void deleteSpecialKey(GameMenuSpecialKeyBean bean){
