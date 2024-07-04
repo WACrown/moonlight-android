@@ -1,6 +1,7 @@
 package com.limelight.binding.input.advance_setting;
 
 import android.content.Context;
+import android.preference.Preference;
 import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.limelight.R;
+import com.limelight.preferences.PreferenceConfiguration;
 
 import java.util.Map;
 
@@ -122,6 +124,7 @@ public class SettingController {
     }
 
     private void initMouseMode(){
+        doSetting(MOUSE_MODE,String.valueOf(true));
         mouseModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
