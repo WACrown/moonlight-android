@@ -60,8 +60,7 @@ public class GameMenuController {
                     return;
                 }
 
-                String configId = controllerManager.getConfigController().getCurrentConfigId();
-                GameMenuPreference gameMenuPreference = new GameMenuPreference(configId,context);
+                GameMenuPreference gameMenuPreference = new GameMenuPreference(context);
                 Long birthTime = System.currentTimeMillis();
                 List<Short> keysValueList = new ArrayList<>();
                 List<String> keysNameList = new ArrayList<>();
@@ -128,7 +127,7 @@ public class GameMenuController {
 
 
     public List<GameMenuSpecialKeyBean> loadGameMenuConfig(String configId){
-        gameMenuPreference = new GameMenuPreference(configId,context);
+        gameMenuPreference = new GameMenuPreference(context);
         return gameMenuPreference.loadGameMenuSpecialKeys();
     }
 }

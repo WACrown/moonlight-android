@@ -2,6 +2,7 @@ package com.limelight.binding.input.advance_setting;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 
@@ -20,8 +21,8 @@ public class GameMenuPreference {
     private SharedPreferences gameMenuPreference;
     private SharedPreferences.Editor gameMenuPreferenceEditor;
 
-    public GameMenuPreference(String configId,Context context){
-        gameMenuPreference = context.getSharedPreferences(getGameMenuPreferenceName(configId),Context.MODE_PRIVATE);
+    public GameMenuPreference(Context context){
+        gameMenuPreference =  PreferenceManager.getDefaultSharedPreferences(context);
         gameMenuPreferenceEditor = gameMenuPreference.edit();
 
 
@@ -52,9 +53,11 @@ public class GameMenuPreference {
         Map<String, String> gameMenuSpecialKeyStrings = (Map<String, String>) gameMenuPreference.getAll();
         // 将Map<String, String>格式转换为Map<String, KeyboardBean>
         for (Map.Entry<String, String> entry: gameMenuSpecialKeyStrings.entrySet()){
-            GameMenuSpecialKeyBean gameMenuSpecialKey = new Gson().fromJson(entry.getValue(),GameMenuSpecialKeyBean.class);
-            // 转换完成后放到List<ElementBean>中
-            list.add(gameMenuSpecialKey);
+            if (entry.getKey().matches("^special_key_.*")){
+                GameMenuSpecialKeyBean gameMenuSpecialKey = new Gson().fromJson(entry.getValue(),GameMenuSpecialKeyBean.class);
+                // 转换完成后放到List<ElementBean>中
+                list.add(gameMenuSpecialKey);
+            }
         }
 
         //对element根据创建时间进行排序
