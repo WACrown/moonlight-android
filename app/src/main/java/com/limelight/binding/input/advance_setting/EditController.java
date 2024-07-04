@@ -441,8 +441,15 @@ public class EditController {
                 valueTextView.setTag(tag);
                 valueTextView.setText(text);
             }
+
+            @Override
+            public void onResetClick() {
+                elementName.setText("A");
+                valueTextView.setTag("k29");
+                valueTextView.setText("A");
+            }
         };
-        controllerManager.getWindowsController().openDeviceWindow(keySelectListener);
+        controllerManager.getWindowsController().openDeviceWindow(keySelectListener,true,true,true);
 
 
     }

@@ -19,6 +19,7 @@ public class ControllerManager {
     private ElementController elementController;
     private TouchController touchController;
     private WindowsController windowsController;
+    private GameMenuController gameMenuController;
     private Context context;
 
     public ControllerManager(FrameLayout layout, Context context){
@@ -35,6 +36,8 @@ public class ControllerManager {
         View touchView = layerElement.findViewById(R.id.element_touch_view);
         touchController = new TouchController((Game) context,this,touchView);
 
+
+
         //Edit controller
         FrameLayout layerEdit = advanceSettingView.findViewById(R.id.layer_edit);
         editController = new EditController(this,layerEdit,context);
@@ -43,6 +46,9 @@ public class ControllerManager {
         FrameLayout layerFloat = advanceSettingView.findViewById(R.id.layer_float);
         FrameLayout layerSetting = advanceSettingView.findViewById(R.id.layer_setting);
         settingController = new SettingController(this,layerSetting,layerFloat,context);
+
+        //GameMenu controller
+        gameMenuController = new GameMenuController(layerFloat,this,context);
 
         //configController
         FrameLayout layerConfig = advanceSettingView.findViewById(R.id.layer_config);
@@ -82,6 +88,10 @@ public class ControllerManager {
 
     public TouchController getTouchController() {
         return touchController;
+    }
+
+    public GameMenuController getGameMenuController() {
+        return gameMenuController;
     }
 
     public void refreshLayout(){

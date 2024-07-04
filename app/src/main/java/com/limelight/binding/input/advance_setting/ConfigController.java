@@ -67,6 +67,9 @@ public class ConfigController {
         return configItem;
     }
 
+    public String getCurrentConfigId(){
+        return configListPreference.getCurrentConfigId();
+    }
 
 
     public void loadCurrentConfig(){

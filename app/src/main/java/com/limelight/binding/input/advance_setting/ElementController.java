@@ -47,7 +47,7 @@ public class ElementController {
 
 
     private final List<Element> elements = new ArrayList<>();
-    private Map<Integer, Runnable> keyEventRunnableMap = new HashMap<>();
+    private Map<Short, Runnable> keyEventRunnableMap = new HashMap<>();
     private Map<Integer, Runnable> mouseEventRunnableMap = new HashMap<>();
     private FrameLayout elementsLayout;
     public ElementController(ControllerManager controllerManager, FrameLayout layout, final Context context) {
@@ -193,11 +193,7 @@ public class ElementController {
             return new SendEventHandler() {
                 @Override
                 public void sendEvent(boolean down) {
-                    if (down){
-                        sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN,keyCode));
-                    } else {
-                        sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP,keyCode));
-                    }
+                    sendKeyEvent(down,(short) keyCode);
                 }
 
                 @Override
@@ -307,20 +303,20 @@ public class ElementController {
 
 
 
-    public void sendKeyEvent(KeyEvent keyEvent) {
-        game.onKey(null,keyEvent.getKeyCode(),keyEvent);
+    public void sendKeyEvent(boolean buttonDown, short keyCode) {
+        game.keyboardEvent(buttonDown,keyCode);
         //如果map中有对应按键的runnable，则删除该按键的runnable。
-        if (keyEventRunnableMap.containsKey(keyEvent.getKeyCode())){
-            handler.removeCallbacks(keyEventRunnableMap.get(keyEvent.getKeyCode()));
+        if (keyEventRunnableMap.containsKey(keyCode)){
+            handler.removeCallbacks(keyEventRunnableMap.get(keyCode));
         }
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                game.onKey(null,keyEvent.getKeyCode(),keyEvent);
+                game.keyboardEvent(buttonDown,keyCode);
             }
         };
         //把这个按键的runnable放到map中，以便这个按键重新发送的时候，重置runnable。
-        keyEventRunnableMap.put(keyEvent.getKeyCode(),runnable);
+        keyEventRunnableMap.put(keyCode,runnable);
 
 
         handler.postDelayed(runnable, 50);

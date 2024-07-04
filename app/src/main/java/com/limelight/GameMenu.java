@@ -6,6 +6,8 @@ import android.widget.ArrayAdapter;
 
 import com.limelight.binding.input.GameInputDevice;
 import com.limelight.binding.input.KeyboardTranslator;
+import com.limelight.binding.input.advance_setting.ControllerManager;
+import com.limelight.binding.input.advance_setting.GameMenuSpecialKeyBean;
 import com.limelight.nvstream.NvConnection;
 import com.limelight.nvstream.input.KeyboardPacket;
 
@@ -21,6 +23,7 @@ public class GameMenu {
 
     private static final long TEST_GAME_FOCUS_DELAY = 10;
     private static final long KEY_UP_DELAY = 25;
+    private static final long KEY_INTERVAL_TIME = 3;
 
     public static class MenuOption {
         private final String label;
@@ -41,11 +44,13 @@ public class GameMenu {
     private final Game game;
     private final NvConnection conn;
     private final GameInputDevice device;
+    private final ControllerManager controllerManager;
 
-    public GameMenu(Game game, NvConnection conn, GameInputDevice device) {
+    public GameMenu(Game game, NvConnection conn, GameInputDevice device, ControllerManager controllerManager) {
         this.game = game;
         this.conn = conn;
         this.device = device;
+        this.controllerManager = controllerManager;
 
         showMenu();
     }
@@ -144,24 +149,55 @@ public class GameMenu {
         builder.show();
     }
 
+    private void showDeleteSpecialKeys(){
+        String configId = controllerManager.getConfigController().getCurrentConfigId();
+        List<GameMenuSpecialKeyBean> specialKeyBeans = controllerManager.getGameMenuController().loadGameMenuConfig(configId);
+        List<MenuOption> menuOptions = new ArrayList<>();
+
+        for (int specialKeyNum = 0;specialKeyNum < specialKeyBeans.size();specialKeyNum ++){
+            GameMenuSpecialKeyBean gameMenuSpecialKeyBean = specialKeyBeans.get(specialKeyNum);
+
+            menuOptions.add(new MenuOption("删除:" + gameMenuSpecialKeyBean.getName(),
+                    () -> controllerManager.getGameMenuController().deleteSpecialKey(gameMenuSpecialKeyBean) ));
+
+        }
+        showMenuDialog("删除指令",menuOptions.toArray(new MenuOption[0]));
+    }
+
     private void showSpecialKeysMenu() {
-        showMenuDialog(getString(R.string.game_menu_send_keys), new MenuOption[]{
-                new MenuOption(getString(R.string.game_menu_send_keys_esc),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_ESCAPE})),
-                new MenuOption(getString(R.string.game_menu_send_keys_f11),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_F11})),
-                new MenuOption(getString(R.string.game_menu_send_keys_ctrl_v),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LCONTROL, KeyboardTranslator.VK_V})),
-                new MenuOption(getString(R.string.game_menu_send_keys_win),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN})),
-                new MenuOption(getString(R.string.game_menu_send_keys_win_d),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_D})),
-                new MenuOption(getString(R.string.game_menu_send_keys_win_g),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_G})),
-                new MenuOption(getString(R.string.game_menu_send_keys_shift_tab),
-                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LSHIFT, KeyboardTranslator.VK_TAB})),
-                new MenuOption(getString(R.string.game_menu_cancel), null),
-        });
+        if (controllerManager != null){
+            String configId = controllerManager.getConfigController().getCurrentConfigId();
+            List<GameMenuSpecialKeyBean> specialKeyBeans = controllerManager.getGameMenuController().loadGameMenuConfig(configId);
+            List<MenuOption> menuOptions = new ArrayList<>();
+            for (GameMenuSpecialKeyBean bean : specialKeyBeans){
+                menuOptions.add(new MenuOption(bean.getName(), () -> sendKeys(bean.getKeyValue())));
+            }
+            menuOptions.add(new MenuOption("增加指令", () -> controllerManager.getGameMenuController().showAddGameMenuSpecialKey()));
+            menuOptions.add(new MenuOption("删除指令", () -> showDeleteSpecialKeys()));
+            menuOptions.add(new MenuOption(getString(R.string.game_menu_cancel), null));
+
+            showMenuDialog(getString(R.string.game_menu_send_keys), menuOptions.toArray(new MenuOption[0]));
+        } else {
+            showMenuDialog(getString(R.string.game_menu_send_keys), new MenuOption[]{
+                    new MenuOption(getString(R.string.game_menu_send_keys_esc),
+                            () -> sendKeys(new short[]{KeyboardTranslator.VK_ESCAPE})),
+                    new MenuOption(getString(R.string.game_menu_send_keys_f11),
+                            () -> sendKeys(new short[]{KeyboardTranslator.VK_F11})),
+                    new MenuOption(getString(R.string.game_menu_send_keys_ctrl_v),
+                            () -> sendKeys(new short[]{KeyboardTranslator.VK_LCONTROL, KeyboardTranslator.VK_V})),
+                    new MenuOption(getString(R.string.game_menu_send_keys_win),
+                            () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN})),
+                    new MenuOption(getString(R.string.game_menu_send_keys_win_d),
+                            () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_D})),
+                    new MenuOption(getString(R.string.game_menu_send_keys_win_g),
+                            () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_G})),
+                    new MenuOption(getString(R.string.game_menu_send_keys_shift_tab),
+                            () -> sendKeys(new short[]{KeyboardTranslator.VK_LSHIFT, KeyboardTranslator.VK_TAB})),
+                    new MenuOption(getString(R.string.game_menu_cancel), null),
+            });
+        }
+
+
     }
 
     private void showMenu() {
