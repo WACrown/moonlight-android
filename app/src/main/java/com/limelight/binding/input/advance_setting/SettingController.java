@@ -25,6 +25,7 @@ public class SettingController {
     private static final String MOUSE_ENABLE = "mouse_enable";
     private static final String MOUSE_MODE = "mouse_mode";
     private static final String SIMPLIFY_PERFORMANCE = "simplify_performance";
+    private static final String SIMPLIFY_PERFORMANCE_OPACITY = "simplify_performance_opacity";
 
     private SettingPreference settingPreference;
     private ControllerManager controllerManager;
@@ -43,6 +44,7 @@ public class SettingController {
     private Switch mouseEnableSwitch;
     private Switch mouseModeSwitch;
     private Switch simplifyPerformanceSwitch;
+    private SeekBar simplifyPerformanceSeekBar;
 
 
     private Context context;
@@ -57,6 +59,7 @@ public class SettingController {
         mouseEnableSwitch = settingLayout.findViewById(R.id.mouse_enable_switch);
         mouseModeSwitch = settingLayout.findViewById(R.id.trackpad_enable_switch);
         simplifyPerformanceSwitch = settingLayout.findViewById(R.id.simplify_performance_display);
+        simplifyPerformanceSeekBar = settingLayout.findViewById(R.id.simplify_performance_opacity_seekbar);
 
         initMouseSense();
         initElementOpacity();
@@ -159,6 +162,22 @@ public class SettingController {
                 settingPreference.saveSetting(SIMPLIFY_PERFORMANCE, isCheckedString);
             }
         });
+        simplifyPerformanceSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                doSetting(SIMPLIFY_PERFORMANCE_OPACITY,String.valueOf(progress));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                settingPreference.saveSetting(SIMPLIFY_PERFORMANCE_OPACITY,String.valueOf(seekBar.getProgress()));
+            }
+        });
     }
 
     public void refreshSimplifyPerformance(PerformanceInfo performanceInfo){
@@ -199,6 +218,9 @@ public class SettingController {
             case SIMPLIFY_PERFORMANCE:
                 simplifyPerformanceSwitch.setChecked(Boolean.valueOf(settingValue));
                 break;
+            case SIMPLIFY_PERFORMANCE_OPACITY:
+                simplifyPerformanceSeekBar.setProgress(Integer.parseInt(settingValue));
+                break;
         }
     }
     private void doSetting(String settingName, String settingValue){
@@ -224,6 +246,9 @@ public class SettingController {
                 Boolean simplifyPerformanceIsChecked = Boolean.valueOf(settingValue);
                 simplifyPerformanceBox.setVisibility(simplifyPerformanceIsChecked ? View.VISIBLE : View.GONE);
                 ((Game)context).getPrefConfig().enableSimplifyPerfOverlay = simplifyPerformanceIsChecked;
+                break;
+            case SIMPLIFY_PERFORMANCE_OPACITY:
+                simplifyPerformanceBox.setAlpha(Integer.parseInt(settingValue) * (float)0.1);
                 break;
         }
     }
