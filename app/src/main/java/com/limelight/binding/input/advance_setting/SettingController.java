@@ -1,12 +1,8 @@
 package com.limelight.binding.input.advance_setting;
 
 import android.content.Context;
-import android.preference.Preference;
 import android.text.InputType;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -15,7 +11,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.limelight.Game;
 import com.limelight.R;
+import com.limelight.binding.video.PerformanceInfo;
 import com.limelight.preferences.PreferenceConfiguration;
 
 import java.util.Map;
@@ -26,16 +24,25 @@ public class SettingController {
     private static final String ELEMENT_OPACITY = "element_opacity";
     private static final String MOUSE_ENABLE = "mouse_enable";
     private static final String MOUSE_MODE = "mouse_mode";
+    private static final String SIMPLIFY_PERFORMANCE = "simplify_performance";
 
     private SettingPreference settingPreference;
     private ControllerManager controllerManager;
     private FrameLayout settingLayout;
     private FrameLayout floatLayout;
+    //simplifyPerformance
+    private LinearLayout simplifyPerformanceBox;
+    private TextView bandWidthInfo;
+    private TextView delayInfo;
+    private TextView frameInfo;
+    private TextView lostInfo;
+
 
     private TextView msenseTextView;
     private SeekBar elementOpacitySeekbar;
     private Switch mouseEnableSwitch;
     private Switch mouseModeSwitch;
+    private Switch simplifyPerformanceSwitch;
 
 
     private Context context;
@@ -49,11 +56,13 @@ public class SettingController {
         elementOpacitySeekbar = settingLayout.findViewById(R.id.element_opacity_seekbar);
         mouseEnableSwitch = settingLayout.findViewById(R.id.mouse_enable_switch);
         mouseModeSwitch = settingLayout.findViewById(R.id.trackpad_enable_switch);
+        simplifyPerformanceSwitch = settingLayout.findViewById(R.id.simplify_performance_display);
 
         initMouseSense();
         initElementOpacity();
         initMouseEnable();
         initMouseMode();
+        initSimplifyPerformance();
     }
 
 
@@ -117,8 +126,9 @@ public class SettingController {
         mouseEnableSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                doSetting(MOUSE_ENABLE,String.valueOf(isChecked));
-                settingPreference.saveSetting(MOUSE_ENABLE, String.valueOf(isChecked));
+                String isCheckedString = String.valueOf(isChecked);
+                doSetting(MOUSE_ENABLE,isCheckedString);
+                settingPreference.saveSetting(MOUSE_ENABLE, isCheckedString);
             }
         });
     }
@@ -128,10 +138,37 @@ public class SettingController {
         mouseModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                doSetting(MOUSE_MODE,String.valueOf(isChecked));
-                settingPreference.saveSetting(MOUSE_MODE, String.valueOf(isChecked));
+                String isCheckedString = String.valueOf(isChecked);
+                doSetting(MOUSE_MODE,isCheckedString);
+                settingPreference.saveSetting(MOUSE_MODE, isCheckedString);
             }
         });
+    }
+
+    private void initSimplifyPerformance(){
+        simplifyPerformanceBox = floatLayout.findViewById(R.id.simplify_performance_box);
+        bandWidthInfo = simplifyPerformanceBox.findViewById(R.id.simplify_performance_bandwidth);
+        delayInfo = simplifyPerformanceBox.findViewById(R.id.simplify_performance_delay);
+        frameInfo = simplifyPerformanceBox.findViewById(R.id.simplify_performance_frame);
+        lostInfo = simplifyPerformanceBox.findViewById(R.id.simplify_performance_lost);
+        simplifyPerformanceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                String isCheckedString = String.valueOf(isChecked);
+                doSetting(SIMPLIFY_PERFORMANCE,isCheckedString);
+                settingPreference.saveSetting(SIMPLIFY_PERFORMANCE, isCheckedString);
+            }
+        });
+    }
+
+    public void refreshSimplifyPerformance(PerformanceInfo performanceInfo){
+        bandWidthInfo.setText("带宽: " + performanceInfo.bandWidth);
+        delayInfo.setText("主机/网络/解码: " + String.format("%.0f", performanceInfo.aveHostProcessingLatency)
+                + "/" + String.format("%d",(int)(performanceInfo.rttInfo >> 32))
+                + "/" + String.format("%.0f",performanceInfo.decodeTimeMs)
+                + " ms");
+        frameInfo.setText("帧率: " + String.format("%.0f",performanceInfo.totalFps));
+        lostInfo.setText("丢包: " + String.format("%.1f",performanceInfo.lostFrameRate) + " %");
     }
 
 
@@ -159,6 +196,8 @@ public class SettingController {
                 break;
             case MOUSE_MODE:
                 mouseModeSwitch.setChecked(Boolean.valueOf(settingValue));
+            case SIMPLIFY_PERFORMANCE:
+                simplifyPerformanceSwitch.setChecked(Boolean.valueOf(settingValue));
                 break;
         }
     }
@@ -180,6 +219,11 @@ public class SettingController {
                 if (touchMode){
                     doSetting(MOUSE_SENSE,msenseTextView.getText().toString());
                 }
+                break;
+            case SIMPLIFY_PERFORMANCE:
+                Boolean simplifyPerformanceIsChecked = Boolean.valueOf(settingValue);
+                simplifyPerformanceBox.setVisibility(simplifyPerformanceIsChecked ? View.VISIBLE : View.GONE);
+                ((Game)context).getPrefConfig().enableSimplifyPerfOverlay = simplifyPerformanceIsChecked;
                 break;
         }
     }

@@ -1424,7 +1424,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
 
         // Flip stats windows roughly every second
         if (SystemClock.uptimeMillis() >= activeWindowVideoStats.measurementStartTimestamp + 1000) {
-            if (prefs.enablePerfOverlay) {
+            if (prefs.enablePerfOverlay || prefs.enableSimplifyPerfOverlay) {
                 VideoStats lastTwo = new VideoStats();
                 lastTwo.add(lastWindowVideoStats);
                 lastTwo.add(activeWindowVideoStats);
@@ -1440,26 +1440,31 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                 } else {
                     decoder = "(unknown)";
                 }
-
                 float decodeTimeMs = (float)lastTwo.decoderTimeMs / lastTwo.totalFramesReceived;
                 long rttInfo = MoonBridge.getEstimatedRttInfo();
-                StringBuilder sb = new StringBuilder();
-                sb.append(context.getString(R.string.perf_overlay_streamdetails, initialWidth + "x" + initialHeight, fps.totalFps)).append('\n');
-                sb.append(context.getString(R.string.perf_overlay_decoder, decoder)).append('\n');
-                sb.append(context.getString(R.string.perf_overlay_incomingfps, fps.receivedFps)).append('\n');
-                sb.append(context.getString(R.string.perf_overlay_renderingfps, fps.renderedFps)).append('\n');
-                sb.append(context.getString(R.string.perf_overlay_netdrops,
-                        (float)lastTwo.framesLost / lastTwo.totalFrames * 100)).append('\n');
-                sb.append(context.getString(R.string.perf_overlay_netlatency,
-                        (int)(rttInfo >> 32), (int)rttInfo)).append('\n');
-                if (lastTwo.framesWithHostProcessingLatency > 0) {
-                    sb.append(context.getString(R.string.perf_overlay_hostprocessinglatency,
-                            (float)lastTwo.minHostProcessingLatency / 10,
-                            (float)lastTwo.maxHostProcessingLatency / 10,
-                            (float)lastTwo.totalHostProcessingLatency / 10 / lastTwo.framesWithHostProcessingLatency)).append('\n');
-                }
-                sb.append(context.getString(R.string.perf_overlay_dectime, decodeTimeMs));
-                perfListener.onPerfUpdate(sb.toString());
+                float lostFrameRate = (float)lastTwo.framesLost / lastTwo.totalFrames * 100;
+                float minHostProcessingLatency = (float)lastTwo.minHostProcessingLatency / 10;
+                float maxHostProcessingLatency = (float)lastTwo.minHostProcessingLatency / 10;
+                float aveHostProcessingLatency = (float)lastTwo.totalHostProcessingLatency / 10 / lastTwo.framesWithHostProcessingLatency;
+
+                PerformanceInfo performanceInfo = new PerformanceInfo();
+                performanceInfo.context = context;
+                performanceInfo.initialWidth = initialWidth;
+                performanceInfo.initialHeight = initialHeight;
+                performanceInfo.decoder = decoder;
+                performanceInfo.totalFps = fps.totalFps;
+                performanceInfo.receivedFps = fps.receivedFps;
+                performanceInfo.renderedFps = fps.renderedFps;
+                performanceInfo.lostFrameRate = lostFrameRate;
+                performanceInfo.rttInfo = rttInfo;
+                performanceInfo.framesWithHostProcessingLatency = frameHostProcessingLatency;
+                performanceInfo.minHostProcessingLatency = minHostProcessingLatency;
+                performanceInfo.maxHostProcessingLatency = maxHostProcessingLatency;
+                performanceInfo.aveHostProcessingLatency = aveHostProcessingLatency;
+                performanceInfo.decodeTimeMs = decodeTimeMs;
+
+
+                perfListener.onPerfUpdate(performanceInfo);
             }
 
             globalVideoStats.add(activeWindowVideoStats);

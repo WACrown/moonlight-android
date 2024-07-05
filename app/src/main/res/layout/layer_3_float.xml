@@ -4,6 +4,45 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <LinearLayout
+        android:id="@+id/simplify_performance_box"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/simplify_performance_background"
+        android:visibility="gone"
+        >
+        <TextView
+            android:id="@+id/simplify_performance_bandwidth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginBottom="1dp"
+            android:textSize="10dp"/>
+        <TextView
+            android:id="@+id/simplify_performance_delay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginBottom="1dp"
+            android:textSize="10dp"/>
+        <TextView
+            android:id="@+id/simplify_performance_frame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginBottom="1dp"
+            android:textSize="10dp"/>
+        <TextView
+            android:id="@+id/simplify_performance_lost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginBottom="1dp"
+            android:textSize="10dp"/>
+    </LinearLayout>
+    <LinearLayout
         android:id="@+id/float_keyboard_box"
         android:orientation="vertical"
         android:layout_width="match_parent"

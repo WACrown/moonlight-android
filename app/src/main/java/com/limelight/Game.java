@@ -19,6 +19,7 @@ import com.limelight.binding.video.CrashListener;
 import com.limelight.binding.video.MediaCodecDecoderRenderer;
 import com.limelight.binding.video.MediaCodecHelper;
 import com.limelight.binding.video.PerfOverlayListener;
+import com.limelight.binding.video.PerformanceInfo;
 import com.limelight.nvstream.NvConnection;
 import com.limelight.nvstream.NvConnectionListener;
 import com.limelight.nvstream.StreamConfiguration;
@@ -56,6 +57,7 @@ import android.graphics.Rect;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
+import android.net.TrafficStats;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -147,6 +149,8 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private long lastAbsTouchDownTime = 0;
     private float lastAbsTouchUpX, lastAbsTouchUpY;
     private float lastAbsTouchDownX, lastAbsTouchDownY;
+    private long previousTimeMillis = 0;
+    private long previousRxBytes = 0;
 
     private boolean isHidingOverlays;
     private TextView notificationOverlayView;
@@ -2721,11 +2725,56 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     }
 
     @Override
-    public void onPerfUpdate(final String text) {
+    public void onPerfUpdate(final PerformanceInfo performanceInfo) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                performanceOverlayView.setText(text);
+                long currentRxBytes = TrafficStats.getTotalRxBytes();
+                long timeMillis = System.currentTimeMillis();
+                long timeMillisInterval = timeMillis - previousTimeMillis;
+                System.out.println("timeMillisInterval = " + timeMillisInterval);
+                if (timeMillisInterval < 3000){
+                    long rxBytesPerDifference = (currentRxBytes - previousRxBytes) / 1024;
+                    double speedKBps = rxBytesPerDifference / ((double)timeMillisInterval / 1000);
+                    System.out.println("speedKBps = " + speedKBps);
+                    if (speedKBps < 1024) {
+                        performanceInfo.bandWidth = String.format("%.0f KB/s", speedKBps);
+                    } else {
+                        double speedMBps = speedKBps / 1024;
+                        performanceInfo.bandWidth = String.format("%.2f MB/s", speedMBps);
+                    }
+                }
+                previousTimeMillis = timeMillis;
+                previousRxBytes = currentRxBytes;
+
+
+                if (prefConfig.enablePerfOverlay){
+                    Context context = performanceInfo.context;
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(context.getString(R.string.perf_overlay_streamdetails, performanceInfo.initialWidth + "x" + performanceInfo.initialHeight, performanceInfo.totalFps)).append('\n');
+                    sb.append(context.getString(R.string.perf_overlay_decoder, performanceInfo.decoder)).append('\n');
+                    sb.append(context.getString(R.string.perf_overlay_incomingfps, performanceInfo.receivedFps)).append('\n');
+                    sb.append(context.getString(R.string.perf_overlay_renderingfps, performanceInfo.renderedFps)).append('\n');
+                    sb.append(context.getString(R.string.perf_overlay_netdrops,
+                            performanceInfo.lostFrameRate)).append('\n');
+                    sb.append(context.getString(R.string.perf_overlay_netlatency,
+                            (int)(performanceInfo.rttInfo >> 32), (int)performanceInfo.rttInfo)).append('\n');
+                    if (performanceInfo.framesWithHostProcessingLatency > 0) {
+                        sb.append(context.getString(R.string.perf_overlay_hostprocessinglatency,
+                                performanceInfo.minHostProcessingLatency,
+                                performanceInfo.maxHostProcessingLatency,
+                                performanceInfo.aveHostProcessingLatency)).append('\n');
+                    }
+                    sb.append(context.getString(R.string.perf_overlay_dectime, performanceInfo.decodeTimeMs)).append('\n');
+                    sb.append("带宽:").append(performanceInfo.bandWidth).append('\n');
+
+                    performanceOverlayView.setText(sb.toString());
+                }
+
+                if (controllerManager != null && prefConfig.enableSimplifyPerfOverlay){
+                    controllerManager.getSettingController().refreshSimplifyPerformance(performanceInfo);
+                }
+
             }
         });
     }
@@ -2785,13 +2834,17 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         showGameMenu(null);
     }
 
-        public void togglePerformanceOverlay() {
-            if (prefConfig.enablePerfOverlay) {
-                    prefConfig.enablePerfOverlay = false;
-                    performanceOverlayView.setVisibility(View.GONE);
-                } else {
-                    prefConfig.enablePerfOverlay = true;
-                    performanceOverlayView.setVisibility(View.VISIBLE);
-                }
-        }
+    public void togglePerformanceOverlay() {
+        if (prefConfig.enablePerfOverlay) {
+                prefConfig.enablePerfOverlay = false;
+                performanceOverlayView.setVisibility(View.GONE);
+            } else {
+                prefConfig.enablePerfOverlay = true;
+                performanceOverlayView.setVisibility(View.VISIBLE);
+            }
+    }
+
+    public PreferenceConfiguration getPrefConfig() {
+        return prefConfig;
+    }
 }

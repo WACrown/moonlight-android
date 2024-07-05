@@ -101,6 +101,26 @@
                     android:min="1"
                     android:progress="10"/>
             </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:layout_weight="100"
+                    android:text="精简性能显示"/>
+                <Switch
+                    android:id="@+id/simplify_performance_display"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="40"
+                    android:checked="false"/>
+            </LinearLayout>
         </LinearLayout>
 
     </ScrollView>
