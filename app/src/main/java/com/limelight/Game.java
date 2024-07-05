@@ -2784,4 +2784,14 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         // menu when the activity would be closed.
         showGameMenu(null);
     }
+
+        public void togglePerformanceOverlay() {
+            if (prefConfig.enablePerfOverlay) {
+                    prefConfig.enablePerfOverlay = false;
+                    performanceOverlayView.setVisibility(View.GONE);
+                } else {
+                    prefConfig.enablePerfOverlay = true;
+                    performanceOverlayView.setVisibility(View.VISIBLE);
+                }
+        }
 }
