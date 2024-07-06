@@ -223,11 +223,11 @@ public class GameMenu {
                 controllerManager.getSettingController().open();
                 openedController = controllerManager.getSettingController();
             }));
+            options.add(new MenuOption(getString(R.string.game_menu_toggle_all_keyboard), () -> {
+                controllerManager.getKeyboardController().open();
+                openedController = controllerManager.getKeyboardController();
+            }));
         }
-        options.add(new MenuOption(getString(R.string.game_menu_toggle_all_keyboard), () -> {
-            controllerManager.getKeyboardController().open();
-            openedController = controllerManager.getKeyboardController();
-        }));
         options.add(new MenuOption(getString(R.string.game_menu_send_keys), () -> showSpecialKeysMenu()));
         options.add(new MenuOption(getString(R.string.game_menu_toggle_keyboard), true,
                 () -> game.toggleKeyboard()));
