@@ -255,8 +255,8 @@ public class ElementController {
 
                 @Override
                 public void sendEvent(int analog1, int analog2) {
-                    gamepadInputContext.rightStickX = (short) (analog1 * 0x7FFE);
-                    gamepadInputContext.rightStickY = (short) (analog2 * 0x7FFE);
+                    gamepadInputContext.rightStickX = (short) analog1;
+                    gamepadInputContext.rightStickY = (short) analog2;
                     sendGamepadEvent();
                 }
             };
