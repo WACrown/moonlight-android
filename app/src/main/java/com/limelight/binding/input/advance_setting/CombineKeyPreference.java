@@ -12,7 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-public class GameMenuPreference {
+public class CombineKeyPreference {
 
     private static final String GAME_MENU_PREFERENCE_PREFIX = "game_menu_";
     private static final String GAME_MENU_SPECIAL_KEY_NAME_PREFIX = "special_key_";
@@ -21,7 +21,7 @@ public class GameMenuPreference {
     private SharedPreferences gameMenuPreference;
     private SharedPreferences.Editor gameMenuPreferenceEditor;
 
-    public GameMenuPreference(Context context){
+    public CombineKeyPreference(Context context){
         gameMenuPreference =  PreferenceManager.getDefaultSharedPreferences(context);
         gameMenuPreferenceEditor = gameMenuPreference.edit();
 
@@ -29,41 +29,41 @@ public class GameMenuPreference {
 
     }
 
-    public void addGameMenuSpecialKey(GameMenuSpecialKeyBean gameMenuSpecialKey){
-        gameMenuPreferenceEditor.putString(GAME_MENU_SPECIAL_KEY_NAME_PREFIX + gameMenuSpecialKey.getId(),new Gson().toJson(gameMenuSpecialKey));
+    public void addCombineKey(CombineKeyBean combineKey){
+        gameMenuPreferenceEditor.putString(GAME_MENU_SPECIAL_KEY_NAME_PREFIX + combineKey.getId(),new Gson().toJson(combineKey));
         gameMenuPreferenceEditor.apply();
     }
 
-    public void deleteGameMenuSpecialKey(GameMenuSpecialKeyBean gameMenuSpecialKey){
-        gameMenuPreferenceEditor.remove(GAME_MENU_SPECIAL_KEY_NAME_PREFIX + gameMenuSpecialKey.getId());
+    public void deleteCombineKey(CombineKeyBean combineKey){
+        gameMenuPreferenceEditor.remove(GAME_MENU_SPECIAL_KEY_NAME_PREFIX + combineKey.getId());
         gameMenuPreferenceEditor.apply();
     }
 
-    public List<GameMenuSpecialKeyBean> loadGameMenuSpecialKeys(){
-        new GameMenuSpecialKeyBean(
+    public List<CombineKeyBean> loadCombineKeys(){
+        new CombineKeyBean(
                 null,
                 null,
                 null,
                 null,
                 0L
         );
-        List<GameMenuSpecialKeyBean> list = new ArrayList<>();
+        List<CombineKeyBean> list = new ArrayList<>();
 
         // 从SharePreference中获取Map<String, String>格式的Element信息
-        Map<String, String> gameMenuSpecialKeyStrings = (Map<String, String>) gameMenuPreference.getAll();
+        Map<String, String> combineKeyStrings = (Map<String, String>) gameMenuPreference.getAll();
         // 将Map<String, String>格式转换为Map<String, KeyboardBean>
-        for (Map.Entry<String, String> entry: gameMenuSpecialKeyStrings.entrySet()){
+        for (Map.Entry<String, String> entry: combineKeyStrings.entrySet()){
             if (entry.getKey().matches("^special_key_.*")){
-                GameMenuSpecialKeyBean gameMenuSpecialKey = new Gson().fromJson(entry.getValue(),GameMenuSpecialKeyBean.class);
+                CombineKeyBean combineKey = new Gson().fromJson(entry.getValue(), CombineKeyBean.class);
                 // 转换完成后放到List<ElementBean>中
-                list.add(gameMenuSpecialKey);
+                list.add(combineKey);
             }
         }
 
         //对element根据创建时间进行排序
-        Collections.sort(list, new Comparator<GameMenuSpecialKeyBean>() {
+        Collections.sort(list, new Comparator<CombineKeyBean>() {
             @Override
-            public int compare(GameMenuSpecialKeyBean o1, GameMenuSpecialKeyBean o2) {
+            public int compare(CombineKeyBean o1, CombineKeyBean o2) {
                 return Long.compare(o1.getCreateTime(), o2.getCreateTime());
             }
         });

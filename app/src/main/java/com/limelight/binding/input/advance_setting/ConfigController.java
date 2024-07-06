@@ -9,9 +9,11 @@ import android.widget.Toast;
 
 import com.limelight.R;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-public class ConfigController {
+public class ConfigController extends Controller{
 
 
 
@@ -19,6 +21,7 @@ public class ConfigController {
     private ConfigListPreference configListPreference;
     private Context context;
     private ConfigItem currentSelectItem;
+    private List<ConfigItem> configItemList = new ArrayList<>();
 
     private ControllerManager controllerManager;
 
@@ -38,56 +41,102 @@ public class ConfigController {
                 jumpAddWindow();
             }
         });
-        loadConfigs();
+        loadAllConfigToList();
     }
 
-    private void loadConfigs(){
-        String currentConfigId = configListPreference.getCurrentConfigId();
-
+    private void loadAllConfigToList(){
         for (Map.Entry<String,String> entry: configListPreference.getSortedConfigurationMap().entrySet()){
             String configId = entry.getKey();
-            ConfigItem item = addDispalyConfigItem(configId,entry.getValue());
-            if (configId.equals(currentConfigId)){
-                selectItem(item);
-            }
+            configItemList.add(addConfigItemToList(configId,entry.getValue()));
         }
 
     }
 
-    private void addConfig(String configName){
+    private void addConfigItem(String configName){
         String configId = String.valueOf(System.currentTimeMillis());
-        configListPreference.addConfiguration(configId,configName);
-        addDispalyConfigItem(configId,configName);
+        addConfigItemToPreference(configId, configName);
+        addConfigItemToList(configId, configName);
     }
 
-    private ConfigItem addDispalyConfigItem(String layoutId, String layoutName){
-        ConfigItem configItem = new ConfigItem(this,layoutName,layoutId,context);
-
+    private ConfigItem addConfigItemToList(String configId, String configName){
+        ConfigItem configItem = new ConfigItem(this,configName,configId,context);
         configItemContainer.addView(configItem.getView(), (configItemContainer.getChildCount() - 1));
         return configItem;
+    }
+    private void addConfigItemToPreference(String configId, String configName){
+        configListPreference.addConfiguration(configId,configName);
+    }
+
+    private void deleteConfigItem(ConfigItem configItem){
+        deleteConfigItemFromList(configItem);
+        deleteConfigItemFromPreference(configItem);
+    }
+
+    private void deleteConfigItemFromList(ConfigItem configItem){
+        configItemContainer.removeView(configItem.getView());
+        configItemList.remove(configItem);
+    }
+
+    private void deleteConfigItemFromPreference(ConfigItem configItem){
+        String configId = configItem.getId();
+        //1.先把element的preference删除
+        new ElementPreference(configId, context).delete();
+        //2.再把setting的preference删除
+        new SettingPreference(configId,context).delete();
+        //3.删除配置列表中的名字
+        configListPreference.deleteConfig(configId);
+    }
+
+    private void renameConfigItem(ConfigItem configItem, String nowName){
+        renameConfigToList(configItem, nowName);
+        renameConfigToPreference(configItem, nowName);
+    }
+
+    private void renameConfigToList(ConfigItem configItem, String nowName){
+        configItem.setName(nowName);
+    }
+
+    private void renameConfigToPreference(ConfigItem configItem, String nowName){
+        configListPreference.renameConfiguration(configItem.getId(),nowName);
     }
 
     public String getCurrentConfigId(){
         return configListPreference.getCurrentConfigId();
     }
 
+    private ConfigItem getCurrentConfigItem(){
+        for (ConfigItem configItem : configItemList){
+            if (configItem.getId().equals(getCurrentConfigId())){
+                return configItem;
+            }
+        }
+        ConfigItem configItem = configItemList.get(0);
+        configListPreference.setCurrentConfigId(configItem.getId());
+        return configItem;
+    }
 
-    public void loadCurrentConfig(){
-        String configId = configListPreference.getCurrentConfigId();
+
+    private void loadConfig(String configId){
         controllerManager.getElementController().loadElementConfig(configId);
         controllerManager.getSettingController().loadSettingConfig(configId);
     }
 
+    public void initLoadCurrentConfig(){
+        selectItem(getCurrentConfigItem());
+    }
+
 
     public void selectItem(ConfigItem configItem){
+        if (currentSelectItem == configItem){
+            return;
+        }
         if (currentSelectItem != null){
             currentSelectItem.unselected();
         }
         currentSelectItem = configItem;
         currentSelectItem.selected();
+        loadConfig(configItem.getId());
         configListPreference.setCurrentConfigId(configItem.getId());
-        loadCurrentConfig();
-
     }
 
     public void jumpAddWindow(){
@@ -102,7 +151,7 @@ public class ConfigController {
                     Toast.makeText(context,"名称不能有符号，且长度为1-15个字符",Toast.LENGTH_SHORT).show();
                     return false;
                 }
-                addConfig(text);
+                addConfigItem(text);
                 return true;
             }
 
@@ -133,8 +182,7 @@ public class ConfigController {
                     Toast.makeText(context,"名称不能有符号，且长度为1-15个字符",Toast.LENGTH_SHORT).show();
                     return false;
                 }
-                configListPreference.renameConfiguration(configItem.getId(),nowName);
-                configItem.setName(nowName);
+                renameConfigItem(configItem, nowName);
                 return true;
             }
 
@@ -151,15 +199,7 @@ public class ConfigController {
         WindowsController.TextWindowListener deleteListener = new WindowsController.TextWindowListener() {
             @Override
             public boolean onConfirmCLick() {
-                String configId = configItem.getId();
-                //1.先把element的preference删除
-                new ElementPreference(configId, context).delete();
-                //2.再把setting的preference删除
-                new SettingPreference(configId,context).delete();
-                //3.删除配置列表中的名字
-                configListPreference.deleteConfig(configId);
-                configItemContainer.removeView(configItem.getView());
-
+                deleteConfigItem(configItem);
                 return true;
             }
 

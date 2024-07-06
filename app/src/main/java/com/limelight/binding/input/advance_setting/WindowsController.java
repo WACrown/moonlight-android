@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WindowsController {
+public class WindowsController extends Controller{
 
     public interface TextWindowListener{
         boolean onConfirmCLick();
@@ -255,6 +255,11 @@ public class WindowsController {
         }
         deviceWindow.setVisibility(View.VISIBLE);
 
+
+    }
+
+    @Override
+    public void close() {
 
     }
 }

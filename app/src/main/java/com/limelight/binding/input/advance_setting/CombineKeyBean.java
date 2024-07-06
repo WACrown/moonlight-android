@@ -1,13 +1,13 @@
 package com.limelight.binding.input.advance_setting;
 
-public class GameMenuSpecialKeyBean {
+public class CombineKeyBean {
     private String Id;
     private String name;
     private short[] keyValue;
     private String[] keyName;
     private Long createTime;
 
-    public GameMenuSpecialKeyBean(String id, String name, short[] keyValue, String[] keyName, Long createTime) {
+    public CombineKeyBean(String id, String name, short[] keyValue, String[] keyName, Long createTime) {
         Id = id;
         this.name = name;
         this.keyValue = keyValue;

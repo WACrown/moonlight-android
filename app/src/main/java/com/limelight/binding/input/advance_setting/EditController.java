@@ -21,7 +21,7 @@ import com.limelight.binding.input.advance_setting.element_card.PadCard;
 import com.limelight.binding.input.advance_setting.element_card.KStickCard;
 import com.limelight.binding.input.advance_setting.element_card.SwitchCard;
 
-public class EditController {
+public class EditController extends Controller{
     private int editColor = 0xF0FF0000;
     private int normalColor = 0xF0888888;
     private int elementMiniSize = 50;
@@ -257,10 +257,8 @@ public class EditController {
                         } else if (isHideAction){
                             if (editUi.getVisibility() == View.GONE){
                                 editUi.setVisibility(View.VISIBLE);
-                                controllerManager.getMenuController().showMenu();
                             } else {
                                 editUi.setVisibility(View.GONE);
-                                controllerManager.getMenuController().hideMenu();
                             }
                         } else {
                             if (editElement != null){
@@ -420,12 +418,10 @@ public class EditController {
 
     public void open(){
         layerEdit.setVisibility(View.VISIBLE);
-        controllerManager.getSettingController().hideFloat();
     }
 
     public void close(){
         layerEdit.setVisibility(View.GONE);
-        controllerManager.getSettingController().displayFloat();
         if (editElement != null){
             editElement.setNormalColor(normalColor);
         }

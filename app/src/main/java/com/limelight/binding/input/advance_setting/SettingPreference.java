@@ -38,6 +38,8 @@ public class SettingPreference {
     public void delete(){
         editor.clear();
         editor.apply();
+        //不加commit无法删除文件
+        editor.commit();
         new File(context.getFilesDir().getParent() + "/shared_prefs/" + settingPreferenceName + ".xml").delete();
     }
 

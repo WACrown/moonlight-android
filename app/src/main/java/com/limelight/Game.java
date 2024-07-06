@@ -2732,11 +2732,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 long currentRxBytes = TrafficStats.getTotalRxBytes();
                 long timeMillis = System.currentTimeMillis();
                 long timeMillisInterval = timeMillis - previousTimeMillis;
-                System.out.println("timeMillisInterval = " + timeMillisInterval);
                 if (timeMillisInterval < 3000){
                     long rxBytesPerDifference = (currentRxBytes - previousRxBytes) / 1024;
                     double speedKBps = rxBytesPerDifference / ((double)timeMillisInterval / 1000);
-                    System.out.println("speedKBps = " + speedKBps);
                     if (speedKBps < 1024) {
                         performanceInfo.bandWidth = String.format("%.0f KB/s", speedKBps);
                     } else {
@@ -2772,7 +2770,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 }
 
                 if (controllerManager != null && prefConfig.enableSimplifyPerfOverlay){
-                    controllerManager.getSettingController().refreshSimplifyPerformance(performanceInfo);
+                    controllerManager.getSimplifyPerformanceController().refreshSimplifyPerformance(performanceInfo);
                 }
 
             }

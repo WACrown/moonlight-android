@@ -7,7 +7,7 @@ import com.limelight.Game;
 import com.limelight.binding.input.touch.RelativeTouchContext;
 import com.limelight.binding.input.touch.TouchContext;
 
-public class TouchController {
+public class TouchController extends Controller{
 
     final private Game game;
     final private ControllerManager controllerManager;
@@ -53,7 +53,8 @@ public class TouchController {
     }
 
 
+    @Override
+    public void close() {
 
-
-
+    }
 }

@@ -3,6 +3,8 @@ package com.limelight.binding.input.advance_setting;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
+
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -104,6 +106,8 @@ public class ElementPreference {
     public void delete(){
         editor.clear();
         editor.apply();
+        //不加commit无法删除文件
+        editor.commit();
         new File(context.getFilesDir().getParent() + "/shared_prefs/" + elementPreferenceName + ".xml").delete();
     }
 

@@ -18,7 +18,7 @@ import com.limelight.preferences.PreferenceConfiguration;
 
 import java.util.Map;
 
-public class SettingController {
+public class SettingController extends Controller{
 
     private static final String MOUSE_SENSE = "mouse_sense";
     private static final String ELEMENT_OPACITY = "element_opacity";
@@ -30,13 +30,7 @@ public class SettingController {
     private SettingPreference settingPreference;
     private ControllerManager controllerManager;
     private FrameLayout settingLayout;
-    private FrameLayout floatLayout;
     //simplifyPerformance
-    private LinearLayout simplifyPerformanceBox;
-    private TextView bandWidthInfo;
-    private TextView delayInfo;
-    private TextView frameInfo;
-    private TextView lostInfo;
 
 
     private TextView msenseTextView;
@@ -49,10 +43,9 @@ public class SettingController {
 
     private Context context;
 
-    public SettingController(ControllerManager controllerManager, FrameLayout settingLayout, FrameLayout floatLayout, Context context){
+    public SettingController(ControllerManager controllerManager, FrameLayout settingLayout, Context context){
         this.controllerManager = controllerManager;
         this.settingLayout = settingLayout;
-        this.floatLayout = floatLayout;
         this.context = context;
         msenseTextView = settingLayout.findViewById(R.id.msense_textview);
         elementOpacitySeekbar = settingLayout.findViewById(R.id.element_opacity_seekbar);
@@ -67,7 +60,6 @@ public class SettingController {
         initMouseMode();
         initSimplifyPerformance();
     }
-
 
 
     private void initMouseSense(){
@@ -149,11 +141,6 @@ public class SettingController {
     }
 
     private void initSimplifyPerformance(){
-        simplifyPerformanceBox = floatLayout.findViewById(R.id.simplify_performance_box);
-        bandWidthInfo = simplifyPerformanceBox.findViewById(R.id.simplify_performance_bandwidth);
-        delayInfo = simplifyPerformanceBox.findViewById(R.id.simplify_performance_delay);
-        frameInfo = simplifyPerformanceBox.findViewById(R.id.simplify_performance_frame);
-        lostInfo = simplifyPerformanceBox.findViewById(R.id.simplify_performance_lost);
         simplifyPerformanceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -180,15 +167,7 @@ public class SettingController {
         });
     }
 
-    public void refreshSimplifyPerformance(PerformanceInfo performanceInfo){
-        bandWidthInfo.setText("带宽: " + performanceInfo.bandWidth);
-        delayInfo.setText("主机/网络/解码: " + String.format("%.0f", performanceInfo.aveHostProcessingLatency)
-                + "/" + String.format("%d",(int)(performanceInfo.rttInfo >> 32))
-                + "/" + String.format("%.0f",performanceInfo.decodeTimeMs)
-                + " ms");
-        frameInfo.setText("帧率: " + String.format("%.0f",performanceInfo.totalFps));
-        lostInfo.setText("丢包: " + String.format("%.1f",performanceInfo.lostFrameRate) + " %");
-    }
+
 
 
     public void loadSettingConfig(String configId){
@@ -243,12 +222,15 @@ public class SettingController {
                 }
                 break;
             case SIMPLIFY_PERFORMANCE:
-                Boolean simplifyPerformanceIsChecked = Boolean.valueOf(settingValue);
-                simplifyPerformanceBox.setVisibility(simplifyPerformanceIsChecked ? View.VISIBLE : View.GONE);
-                ((Game)context).getPrefConfig().enableSimplifyPerfOverlay = simplifyPerformanceIsChecked;
+                if (Boolean.parseBoolean(settingValue)) {
+                    controllerManager.getSimplifyPerformanceController().open();
+                } else {
+                    controllerManager.getSimplifyPerformanceController().close();
+                }
+
                 break;
             case SIMPLIFY_PERFORMANCE_OPACITY:
-                simplifyPerformanceBox.setAlpha(Integer.parseInt(settingValue) * (float)0.1);
+                controllerManager.getSimplifyPerformanceController().setOpacity(Integer.parseInt(settingValue) * (float)0.1);
                 break;
         }
     }
@@ -260,13 +242,5 @@ public class SettingController {
 
     public void close(){
         settingLayout.setVisibility(View.INVISIBLE);
-    }
-
-    public void hideFloat(){
-        floatLayout.setVisibility(View.GONE);
-    }
-
-    public void displayFloat(){
-        floatLayout.setVisibility(View.VISIBLE);
     }
 }

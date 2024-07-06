@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ElementController {
+public class ElementController extends Controller{
 
     public abstract class SendEventHandler {
 
@@ -371,8 +371,10 @@ public class ElementController {
 
     }
 
+    @Override
+    public void close() {
 
-
+    }
 }
 
 
