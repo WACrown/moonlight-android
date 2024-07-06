@@ -13,16 +13,15 @@ import com.limelight.binding.input.KeyboardTranslator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CombineKeyController extends Controller{
+public class CombineKeyUIController extends UIController {
 
     private Context context;
     private FrameLayout combineKeyLayout;
     private ControllerManager controllerManager;
     private KeyboardTranslator keyboardTranslator;
     private CombineKeyPreference combineKeyPreference;
-    private int visibility = View.GONE;
 
-    public CombineKeyController(FrameLayout combineKeyLayout, ControllerManager controllerManager, Context context) {
+    public CombineKeyUIController(FrameLayout combineKeyLayout, ControllerManager controllerManager, Context context) {
         this.context = context;
         this.combineKeyLayout = combineKeyLayout;
         this.controllerManager = controllerManager;
@@ -95,6 +94,10 @@ public class CombineKeyController extends Controller{
     private void jumpDeviceWindow(TextView key){
         WindowsController.DeviceWindowListener keySelectListener = new WindowsController.DeviceWindowListener() {
             @Override
+            public void onCancelClick() {
+            }
+
+            @Override
             public void onElementClick(String text, String tag) {
                 key.setText(text);
                 key.setTag(tag);
@@ -121,13 +124,12 @@ public class CombineKeyController extends Controller{
     }
 
     public void open() {
-        visibility = View.VISIBLE;
-        combineKeyLayout.setVisibility(visibility);
+        combineKeyLayout.setVisibility(View.VISIBLE);
     }
 
 
     public void close() {
-        visibility = View.GONE;
-        combineKeyLayout.setVisibility(visibility);
+        combineKeyLayout.setVisibility(View.GONE);
+
     }
 }

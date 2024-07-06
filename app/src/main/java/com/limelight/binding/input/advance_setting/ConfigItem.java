@@ -9,8 +9,6 @@ import android.widget.LinearLayout;
 
 import com.limelight.R;
 
-import java.util.Map;
-
 public class ConfigItem {
 
 
@@ -20,11 +18,11 @@ public class ConfigItem {
     private Button configItemRenameButton;
     private Button configItemDeleteButton;
     private ConfigItem myself;
-    private ConfigController configController;
+    private ConfigUIController configController;
     private final String configId;
 
 
-    public ConfigItem(ConfigController configController,String configName, String configId,Context context){
+    public ConfigItem(ConfigUIController configController, String configName, String configId, Context context){
         this.myself = this;
         this.configController = configController;
         this.configId = configId;

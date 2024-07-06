@@ -3,20 +3,17 @@ package com.limelight.binding.input.advance_setting;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.KeyEvent;
 import android.widget.FrameLayout;
 
 import com.limelight.Game;
-import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
-import com.limelight.binding.input.virtual_controller.VirtualController;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ElementController extends Controller{
+public class ElementController {
 
     public abstract class SendEventHandler {
 
@@ -368,11 +365,6 @@ public class ElementController extends Controller{
         handler.postDelayed(runnable, 50);
         handler.postDelayed(runnable, 75);
 
-
-    }
-
-    @Override
-    public void close() {
 
     }
 }

@@ -8,9 +8,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.limelight.R;
-import com.limelight.binding.input.advance_setting.EditController;
-import com.limelight.binding.input.advance_setting.ElementBean;
-import com.limelight.binding.input.advance_setting.WindowsController;
+import com.limelight.binding.input.advance_setting.EditUIController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +19,7 @@ public class SwitchCard extends ElementCard{
     private TextView value;
     private Spinner shape;
 
-    public SwitchCard(EditController editController,Context context){
+    public SwitchCard(EditUIController editController, Context context){
         switchCardLayout = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.element_type1_switch,null);
         value = switchCardLayout.findViewById(R.id.switch_card_value);
         value.setOnClickListener(new View.OnClickListener() {

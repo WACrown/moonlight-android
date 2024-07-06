@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ConfigController extends Controller{
+public class ConfigUIController extends UIController {
 
 
 
@@ -29,7 +29,7 @@ public class ConfigController extends Controller{
 
 
 
-    public ConfigController(ControllerManager controllerManager,FrameLayout layout, Context context){
+    public ConfigUIController(ControllerManager controllerManager, FrameLayout layout, Context context){
         this.context = context;
         this.layerConfig = layout;
         this.controllerManager = controllerManager;
@@ -156,8 +156,7 @@ public class ConfigController extends Controller{
             }
 
             @Override
-            public boolean onCancelClick(String text) {
-                return true;
+            public void onCancelClick() {
             }
         };
         controllerManager.getWindowsController().openEditTextWindow(addListener,"","","", InputType.TYPE_CLASS_TEXT);
@@ -187,8 +186,7 @@ public class ConfigController extends Controller{
             }
 
             @Override
-            public boolean onCancelClick(String text) {
-                return true;
+            public void onCancelClick() {
             }
 
         };
@@ -204,8 +202,7 @@ public class ConfigController extends Controller{
             }
 
             @Override
-            public boolean onCancelClick() {
-                return true;
+            public void onCancelClick() {
             }
 
         };
@@ -215,10 +212,12 @@ public class ConfigController extends Controller{
 
     public void open(){
         layerConfig.setVisibility(View.VISIBLE);
+        controllerManager.setOpenedController(this);
     }
 
     public void close(){
         layerConfig.setVisibility(View.GONE);
+        controllerManager.setOpenedController(null);
     }
 
 

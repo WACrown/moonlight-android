@@ -1,7 +1,6 @@
 package com.limelight.binding.input.advance_setting;
 
 import android.content.Context;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,28 +12,25 @@ import android.widget.TextView;
 import com.limelight.R;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class WindowsController extends Controller{
+public class WindowsController {
 
-    public interface TextWindowListener{
+    public interface WindowListener{
+        void onCancelClick();
+    }
+
+    public interface TextWindowListener extends WindowListener{
         boolean onConfirmCLick();
 
-        boolean onCancelClick();
-
     }
 
-    public interface EditTextWindowListener{
+    public interface EditTextWindowListener extends WindowListener{
         boolean onConfirmClick(String text);
-
-        boolean onCancelClick(String text);
-
     }
 
-    public interface DeviceWindowListener{
+    public interface DeviceWindowListener extends WindowListener{
         void onElementClick(String text, String tag);
-
         void onResetClick();
     }
 
@@ -51,7 +47,6 @@ public class WindowsController extends Controller{
     private TextView textWindowText;
     private Button textWindowConfirmButton;
     private Button textWindowCancelButton;
-    private TextWindowListener textWindowListener;
 
     //edittext window
     private FrameLayout editTextWindow;
@@ -59,7 +54,6 @@ public class WindowsController extends Controller{
     private TextView editTextWindowTitle;
     private Button editTextWindowConfirmButton;
     private Button editTextWindowCancelButton;
-    private EditTextWindowListener editTextWindowListener;
 
     //device window
     private FrameLayout deviceWindow;
@@ -70,7 +64,9 @@ public class WindowsController extends Controller{
     private FrameLayout mouseLayout;
     private FrameLayout gamepadLayout;
     private Map<Button,FrameLayout> deviceMap = new HashMap<>();
-    private DeviceWindowListener deviceWindowListener;
+
+    private View showingWindow = null;
+    private WindowListener windowListener;
 
 
 
@@ -95,7 +91,7 @@ public class WindowsController extends Controller{
         textWindowConfirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (textWindowListener.onConfirmCLick()){
+                if (((TextWindowListener)windowListener).onConfirmCLick()){
                     textWindow.setVisibility(View.GONE);
                 }
             }
@@ -103,9 +99,7 @@ public class WindowsController extends Controller{
         textWindowCancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (textWindowListener.onCancelClick()){
-                    textWindow.setVisibility(View.GONE);
-                }
+                close();
             }
         });
     }
@@ -121,7 +115,7 @@ public class WindowsController extends Controller{
             @Override
             public void onClick(View v) {
                 String text = editTextWindowText.getText().toString();
-                if (editTextWindowListener.onConfirmClick(text)) {
+                if (((EditTextWindowListener)windowListener).onConfirmClick(text)) {
                     editTextWindow.setVisibility(View.GONE);
                 }
             }
@@ -129,10 +123,7 @@ public class WindowsController extends Controller{
         editTextWindowCancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String text = editTextWindowText.getText().toString();
-                if (editTextWindowListener.onCancelClick(text)) {
-                    editTextWindow.setVisibility(View.GONE);
-                }
+                close();
             }
         });
     }
@@ -162,8 +153,8 @@ public class WindowsController extends Controller{
         layout.findViewById(R.id.device_window_reset).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deviceWindowListener.onResetClick();
-                deviceWindow.setVisibility(View.GONE);
+                ((DeviceWindowListener)windowListener).onResetClick();
+                close();
             }
         });
         View.OnClickListener keyListener = new View.OnClickListener() {
@@ -171,8 +162,8 @@ public class WindowsController extends Controller{
             public void onClick(View v) {
                 String text = ((TextView)v).getText().toString();
                 String tag = ((TextView)v).getTag().toString();
-                deviceWindowListener.onElementClick(text,tag);
-                deviceWindow.setVisibility(View.GONE);
+                ((DeviceWindowListener)windowListener).onElementClick(text,tag);
+                close();
             }
         };
         LinearLayout keyboardDrawing = keyboardLayout.findViewById(R.id.keyboard_drawing);
@@ -212,16 +203,18 @@ public class WindowsController extends Controller{
     }
 
     public void openTextWindow(TextWindowListener textWindowListener, String text){
-        this.textWindowListener = textWindowListener;
+        this.windowListener = textWindowListener;
         if (text != null){
             textWindowText.setText(text);
         }
         textWindow.setVisibility(View.VISIBLE);
+        showingWindow = textWindow;
+        open();
     }
 
 
     public void openEditTextWindow(EditTextWindowListener editTextWindowListener, String text, String hint, String title,int inputType){
-        this.editTextWindowListener = editTextWindowListener;
+        this.windowListener = editTextWindowListener;
         if (text != null){
             editTextWindowText.setText(text);
         }
@@ -233,11 +226,13 @@ public class WindowsController extends Controller{
         }
         editTextWindowText.setInputType(inputType);
         editTextWindow.setVisibility(View.VISIBLE);
+        showingWindow = editTextWindow;
+        open();
     }
 
 
     public void openDeviceWindow(DeviceWindowListener deviceWindowListener,boolean openKeyboard,boolean openMouse, boolean openGamepad){
-        this.deviceWindowListener = deviceWindowListener;
+        this.windowListener = deviceWindowListener;
         keyboardButton.setVisibility(View.INVISIBLE);
         mouseButton.setVisibility(View.INVISIBLE);
         gamepadButton.setVisibility(View.INVISIBLE);
@@ -254,12 +249,24 @@ public class WindowsController extends Controller{
             switchDeviceLayout(keyboardButton);
         }
         deviceWindow.setVisibility(View.VISIBLE);
-
+        showingWindow = deviceWindow;
+        open();
 
     }
 
-    @Override
-    public void close() {
+    private void open(){
+        controllerManager.setWindowOpen(true);
+    }
 
+    public void close() {
+        if (windowListener != null){
+            windowListener.onCancelClick();
+            windowListener = null;
+        }
+        if (showingWindow != null){
+            showingWindow.setVisibility(View.GONE);
+            showingWindow = null;
+        }
+        controllerManager.setWindowOpen(false);
     }
 }

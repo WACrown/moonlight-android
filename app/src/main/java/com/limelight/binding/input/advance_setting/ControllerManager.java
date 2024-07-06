@@ -12,15 +12,17 @@ public class ControllerManager {
 
     private FrameLayout advanceSettingView;
     private FrameLayout fatherLayout;
-    private ConfigController configController;
-    private EditController editController;
-    private SettingController settingController;
+    private ConfigUIController configController;
+    private EditUIController editController;
+    private SettingUIController settingController;
     private ElementController elementController;
     private TouchController touchController;
     private WindowsController windowsController;
-    private CombineKeyController combineKeyController;
+    private CombineKeyUIController combineKeyController;
     private SimplifyPerformanceController simplifyPerformanceController;
-    private KeyboardController keyboardController;
+    private KeyboardUIController keyboardController;
+    private UIController openedUIController;
+    private boolean isWindowOpen;
     private Context context;
 
     public ControllerManager(FrameLayout layout, Context context){
@@ -39,22 +41,22 @@ public class ControllerManager {
 
         //Edit controller
         FrameLayout layerEdit = advanceSettingView.findViewById(R.id.layer_3_edit);
-        editController = new EditController(this,layerEdit,context);
+        editController = new EditUIController(this,layerEdit,context);
 
         //setting controller
         FrameLayout layerSetting = advanceSettingView.findViewById(R.id.layer_4_setting);
-        settingController = new SettingController(this,layerSetting,context);
+        settingController = new SettingUIController(this,layerSetting,context);
 
         //configController
         FrameLayout layerConfig = advanceSettingView.findViewById(R.id.layer_5_config);
-        configController = new ConfigController(this,layerConfig,context);
+        configController = new ConfigUIController(this,layerConfig,context);
 
         FrameLayout layerKeyboard = advanceSettingView.findViewById(R.id.layer_6_keyboard);
-        keyboardController = new KeyboardController(layerKeyboard,this,context);
+        keyboardController = new KeyboardUIController(layerKeyboard,this,context);
 
         //CombineKey controller
         FrameLayout layerCombineKey = advanceSettingView.findViewById(R.id.layer_7_combine_key);
-        combineKeyController = new CombineKeyController(layerCombineKey,this,context);
+        combineKeyController = new CombineKeyUIController(layerCombineKey,this,context);
 
         FrameLayout layerSimplifyPerformance = advanceSettingView.findViewById(R.id.layer_8_simplify_performance);
         simplifyPerformanceController = new SimplifyPerformanceController(layerSimplifyPerformance,this,context);
@@ -65,15 +67,15 @@ public class ControllerManager {
     }
 
 
-    public ConfigController getConfigController() {
+    public ConfigUIController getConfigController() {
         return configController;
     }
 
-    public EditController getEditController() {
+    public EditUIController getEditController() {
         return editController;
     }
 
-    public SettingController getSettingController() {
+    public SettingUIController getSettingController() {
         return settingController;
     }
 
@@ -89,7 +91,7 @@ public class ControllerManager {
         return touchController;
     }
 
-    public CombineKeyController getCombineKeyController() {
+    public CombineKeyUIController getCombineKeyController() {
         return combineKeyController;
     }
 
@@ -97,8 +99,24 @@ public class ControllerManager {
         return simplifyPerformanceController;
     }
 
-    public KeyboardController getKeyboardController() {
+    public KeyboardUIController getKeyboardController() {
         return keyboardController;
+    }
+
+    public boolean isWindowOpen() {
+        return isWindowOpen;
+    }
+
+    public void setWindowOpen(boolean windowOpen) {
+        isWindowOpen = windowOpen;
+    }
+
+    public UIController getOpenedController() {
+        return openedUIController;
+    }
+
+    public void setOpenedController(UIController openedUIController) {
+        this.openedUIController = openedUIController;
     }
 
     public void refreshLayout(){

@@ -6,7 +6,6 @@ import android.widget.ArrayAdapter;
 
 import com.limelight.binding.input.GameInputDevice;
 import com.limelight.binding.input.KeyboardTranslator;
-import com.limelight.binding.input.advance_setting.Controller;
 import com.limelight.binding.input.advance_setting.ControllerManager;
 import com.limelight.binding.input.advance_setting.CombineKeyBean;
 import com.limelight.nvstream.NvConnection;
@@ -25,7 +24,7 @@ public class GameMenu {
     private static final long TEST_GAME_FOCUS_DELAY = 10;
     private static final long KEY_UP_DELAY = 25;
     private static final long KEY_INTERVAL_TIME = 3;
-    private static Controller openedController;
+
 
     public static class MenuOption {
         private final String label;
@@ -202,30 +201,29 @@ public class GameMenu {
     }
 
     private void showMenu() {
-        if (openedController != null){
-            openedController.close();
-            openedController = null;
-            return;
-        }
         List<MenuOption> options = new ArrayList<>();
-
         if (controllerManager != null){
+            if (controllerManager.isWindowOpen()){
+                controllerManager.getWindowsController().close();
+                return;
+            }
+
+            if (controllerManager.getOpenedController() != null){
+                controllerManager.getOpenedController().close();
+                return;
+            }
             options.add(new MenuOption("配置选择", () -> {
                 controllerManager.getConfigController().open();
-                openedController = controllerManager.getConfigController();
 
             }));
             options.add(new MenuOption("按键编辑", () -> {
                 controllerManager.getEditController().open();
-                openedController = controllerManager.getEditController();
             }));
             options.add(new MenuOption("配置设置", () -> {
                 controllerManager.getSettingController().open();
-                openedController = controllerManager.getSettingController();
             }));
             options.add(new MenuOption(getString(R.string.game_menu_toggle_all_keyboard), () -> {
                 controllerManager.getKeyboardController().open();
-                openedController = controllerManager.getKeyboardController();
             }));
         }
         options.add(new MenuOption(getString(R.string.game_menu_send_keys), () -> showSpecialKeysMenu()));

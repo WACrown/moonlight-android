@@ -8,8 +8,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.limelight.R;
-import com.limelight.binding.input.advance_setting.EditController;
-import com.limelight.binding.input.advance_setting.WindowsController;
+import com.limelight.binding.input.advance_setting.EditUIController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +19,7 @@ public class GStickCard extends ElementCard{
     private TextView middleValue;
     private Spinner stick;
 
-    public GStickCard(EditController editController, Context context){
+    public GStickCard(EditUIController editController, Context context){
         buttonCardLayout = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.element_type5_g_stick,null);
         middleValue = buttonCardLayout.findViewById(R.id.g_stick_card_middle_value);
         middleValue.setOnClickListener(new View.OnClickListener() {

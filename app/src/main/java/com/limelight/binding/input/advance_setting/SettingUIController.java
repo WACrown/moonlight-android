@@ -5,20 +5,16 @@ import android.text.InputType;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.limelight.Game;
 import com.limelight.R;
-import com.limelight.binding.video.PerformanceInfo;
-import com.limelight.preferences.PreferenceConfiguration;
 
 import java.util.Map;
 
-public class SettingController extends Controller{
+public class SettingUIController extends UIController {
 
     private static final String MOUSE_SENSE = "mouse_sense";
     private static final String ELEMENT_OPACITY = "element_opacity";
@@ -43,7 +39,7 @@ public class SettingController extends Controller{
 
     private Context context;
 
-    public SettingController(ControllerManager controllerManager, FrameLayout settingLayout, Context context){
+    public SettingUIController(ControllerManager controllerManager, FrameLayout settingLayout, Context context){
         this.controllerManager = controllerManager;
         this.settingLayout = settingLayout;
         this.context = context;
@@ -86,8 +82,7 @@ public class SettingController extends Controller{
             }
 
             @Override
-            public boolean onCancelClick(String text) {
-                return true;
+            public void onCancelClick() {
             }
 
         };
@@ -238,9 +233,11 @@ public class SettingController extends Controller{
 
     public void open(){
         settingLayout.setVisibility(View.VISIBLE);
+        controllerManager.setOpenedController(this);
     }
 
     public void close(){
         settingLayout.setVisibility(View.INVISIBLE);
+        controllerManager.setOpenedController(null);
     }
 }

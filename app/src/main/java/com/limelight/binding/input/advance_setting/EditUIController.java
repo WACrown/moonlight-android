@@ -21,7 +21,7 @@ import com.limelight.binding.input.advance_setting.element_card.PadCard;
 import com.limelight.binding.input.advance_setting.element_card.KStickCard;
 import com.limelight.binding.input.advance_setting.element_card.SwitchCard;
 
-public class EditController extends Controller{
+public class EditUIController extends UIController {
     private int editColor = 0xF0FF0000;
     private int normalColor = 0xF0888888;
     private int elementMiniSize = 50;
@@ -31,7 +31,7 @@ public class EditController extends Controller{
     private FrameLayout layerEdit;
     private Element editElement;
     private ElementCard elementCard;
-    private EditController myself;
+    private EditUIController myself;
 
 
 
@@ -58,7 +58,7 @@ public class EditController extends Controller{
 
 
 
-    public EditController( ControllerManager controllerManager, FrameLayout layout,Context context) {
+    public EditUIController(ControllerManager controllerManager, FrameLayout layout, Context context) {
         this.context = context;
         this.controllerManager = controllerManager;
         this.layerEdit = layout;
@@ -81,8 +81,8 @@ public class EditController extends Controller{
                     }
 
                     @Override
-                    public boolean onCancelClick() {
-                        return true;
+                    public void onCancelClick() {
+
                     }
 
                 };
@@ -396,8 +396,7 @@ public class EditController extends Controller{
             }
 
             @Override
-            public boolean onCancelClick(String text) {
-                return true;
+            public void onCancelClick() {
             }
 
         };
@@ -418,6 +417,7 @@ public class EditController extends Controller{
 
     public void open(){
         layerEdit.setVisibility(View.VISIBLE);
+        controllerManager.setOpenedController(this);
     }
 
     public void close(){
@@ -426,11 +426,16 @@ public class EditController extends Controller{
             editElement.setNormalColor(normalColor);
         }
         editElement = null;
+        controllerManager.setOpenedController(null);
     }
 
 
     public void jumpDeviceLayout(TextView valueTextView){
         WindowsController.DeviceWindowListener keySelectListener = new WindowsController.DeviceWindowListener() {
+            @Override
+            public void onCancelClick() {
+            }
+
             @Override
             public void onElementClick(String text, String tag) {
                 elementName.setText(text);

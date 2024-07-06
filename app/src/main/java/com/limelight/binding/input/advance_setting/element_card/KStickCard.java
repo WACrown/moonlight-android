@@ -7,8 +7,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.limelight.R;
-import com.limelight.binding.input.advance_setting.EditController;
-import com.limelight.binding.input.advance_setting.WindowsController;
+import com.limelight.binding.input.advance_setting.EditUIController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +21,7 @@ public class KStickCard extends ElementCard{
     private TextView rightValue;
     private TextView middleValue;
 
-    public KStickCard(EditController editController, Context context){
+    public KStickCard(EditUIController editController, Context context){
         kStickCardLayout = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.element_type4_k_stick,null);
         topValue = kStickCardLayout.findViewById(R.id.element_k_stick_card_top);
         downValue = kStickCardLayout.findViewById(R.id.element_k_stick_card_down);

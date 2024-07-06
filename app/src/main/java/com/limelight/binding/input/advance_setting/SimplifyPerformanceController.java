@@ -2,16 +2,14 @@ package com.limelight.binding.input.advance_setting;
 
 import android.content.Context;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.limelight.Game;
 import com.limelight.R;
 import com.limelight.binding.video.PerformanceInfo;
 
-public class SimplifyPerformanceController extends Controller{
+public class SimplifyPerformanceController {
 
     private FrameLayout simplifyPerformanceLayout;
     private TextView bandWidthInfo;
@@ -20,9 +18,11 @@ public class SimplifyPerformanceController extends Controller{
     private TextView lostInfo;
     private Context context;
     private int visibility = View.GONE;
+    private ControllerManager controllerManager;
     
     public SimplifyPerformanceController(FrameLayout simplifyPerformanceLayout, ControllerManager controllerManager, Context context){
         this.context = context;
+        this.controllerManager = controllerManager;
         this.simplifyPerformanceLayout = simplifyPerformanceLayout;
         bandWidthInfo = simplifyPerformanceLayout.findViewById(R.id.simplify_performance_bandwidth);
         delayInfo = simplifyPerformanceLayout.findViewById(R.id.simplify_performance_delay);

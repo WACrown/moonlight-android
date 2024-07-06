@@ -7,7 +7,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.limelight.R;
-import com.limelight.binding.input.advance_setting.EditController;
+import com.limelight.binding.input.advance_setting.EditUIController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +20,7 @@ public class PadCard extends ElementCard{
     private TextView leftValue;
     private TextView rightValue;
 
-    public PadCard(EditController editController, Context context){
+    public PadCard(EditUIController editController, Context context){
         kPadCardLayout = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.element_type2_k_pad,null);
         topValue = kPadCardLayout.findViewById(R.id.element_k_pad_card_top);
         downValue = kPadCardLayout.findViewById(R.id.element_k_pad_card_down);
