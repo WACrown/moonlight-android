@@ -803,6 +803,15 @@ public class StreamSettings extends Activity {
                 });
 
             }
+            findPreference(PreferenceConfiguration.ABOUT_AUTHOR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.author_web)));
+                    startActivity(intent);
+                    return true;
+                }
+            });
+
         }
 
         @Override
