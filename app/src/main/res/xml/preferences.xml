@@ -201,7 +201,7 @@
         <Preference
             android:key="about_author"
             android:title="关注作者，不断更新新功能！"
-            android:summary="B站:西瓜hub，抖音:xiguahub。这是增强版，原版请在github搜索moonlight，让我们致敬原作者！" />
+            android:summary="B站:西瓜hub。这是增强版，原版请在github搜索moonlight，让我们致敬原作者！" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/category_host_settings">
         <CheckBoxPreference
