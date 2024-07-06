@@ -34,6 +34,7 @@ public class DigitalSwitch extends Element {
 
     private final Paint paint = new Paint();
     private final RectF rect = new RectF();
+    private boolean wasPressed = false;
 
     private String shape = "CIRCLE";
 
@@ -108,12 +109,9 @@ public class DigitalSwitch extends Element {
         _DBG("switch");
         // notify listeners
         for (DigitalSwitchListener listener : listeners) {
-            listener.onSwitch(isPressed());
-            if (isPressed()){
-                setPressed(false);
-            } else {
-                setPressed(true);
-            }
+            wasPressed = !wasPressed;
+            listener.onSwitch(wasPressed);
+            setPressed(wasPressed);
             invalidate();
 
         }
