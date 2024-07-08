@@ -53,6 +53,15 @@ public class SimplifyPerformanceController {
         ((Game)context).getPrefConfig().enableSimplifyPerfOverlay = false;
     }
 
+    public void hide(boolean hide){
+        if (hide){
+            simplifyPerformanceLayout.setVisibility(View.GONE);
+        } else {
+            simplifyPerformanceLayout.setVisibility(View.VISIBLE);
+        }
+
+    }
+
     public void setOpacity(float opacity){
         simplifyPerformanceLayout.setAlpha(opacity);
     }

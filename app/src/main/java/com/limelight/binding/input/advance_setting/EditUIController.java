@@ -416,11 +416,13 @@ public class EditUIController extends UIController {
 
 
     public void open(){
+        controllerManager.getSimplifyPerformanceController().hide(true);
         layerEdit.setVisibility(View.VISIBLE);
         controllerManager.setOpenedController(this);
     }
 
     public void close(){
+        controllerManager.getSimplifyPerformanceController().hide(false);
         layerEdit.setVisibility(View.GONE);
         if (editElement != null){
             editElement.setNormalColor(normalColor);
