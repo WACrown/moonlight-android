@@ -22,6 +22,7 @@ public class ControllerManager {
     private SimplifyPerformanceController simplifyPerformanceController;
     private KeyboardUIController keyboardController;
     private UIController openedUIController;
+    private SuperContentBoxController superContentBoxController;
     private boolean isWindowOpen;
     private Context context;
 
@@ -61,7 +62,8 @@ public class ControllerManager {
         FrameLayout layerSimplifyPerformance = advanceSettingView.findViewById(R.id.layer_8_simplify_performance);
         simplifyPerformanceController = new SimplifyPerformanceController(layerSimplifyPerformance,this,context);
 
-
+        FrameLayout superContextBox = advanceSettingView.findViewById(R.id.super_content_box);
+        superContentBoxController = new SuperContentBoxController(superContextBox,context);
 
         configController.initLoadCurrentConfig();
     }
@@ -117,6 +119,10 @@ public class ControllerManager {
 
     public void setOpenedController(UIController openedUIController) {
         this.openedUIController = openedUIController;
+    }
+
+    public SuperContentBoxController getSuperContentBoxController() {
+        return superContentBoxController;
     }
 
     public void refreshLayout(){
