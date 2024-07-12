@@ -5,9 +5,15 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ScrollView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SuperContentBoxController {
 
@@ -22,6 +28,7 @@ public class SuperContentBoxController {
         Left
     }
 
+
     private TouchFrameLayout superContentBox;
     private BoxVisibleStatus boxVisibleStatus = BoxVisibleStatus.Invisible;
     private BoxPositionStatus boxPositionStatus = BoxPositionStatus.Right;
@@ -34,6 +41,8 @@ public class SuperContentBoxController {
     private float rightHidePosition;
     private float leftPosition;
     private float leftHidePosition;
+
+    private List<ViewGroup> pages = new ArrayList<>();
 
     private int backgroundColor;
     private int backgroundOpacity;
@@ -79,19 +88,6 @@ public class SuperContentBoxController {
     }
 
 
-    public void open(ViewGroup viewGroup, BoxPositionStatus boxPositionStatus){
-        changePositionStatus(boxPositionStatus);
-        changeVisibleStatus(BoxVisibleStatus.Visible);
-    }
-
-    public void open(ViewGroup viewGroup){
-        changeVisibleStatus(BoxVisibleStatus.Visible);
-    }
-
-    public void close(){
-        changeVisibleStatus(BoxVisibleStatus.Invisible);
-    }
-
     private float dpToPx(float dp){
         return dp * context.getResources().getDisplayMetrics().density;
     }
@@ -128,6 +124,9 @@ public class SuperContentBoxController {
         if (nextVisibleStatus == boxVisibleStatus){
             return;
         }
+        if (nextVisibleStatus == BoxVisibleStatus.Visible){
+            superContentBox.addView(pages.get(0));
+        }
         float previousPosition = getPosition(boxPositionStatus,boxVisibleStatus);
         float nextPosition = getPosition(boxPositionStatus,nextVisibleStatus);
         ObjectAnimator animator = ObjectAnimator.ofFloat(superContentBox, "translationX", previousPosition, nextPosition);
@@ -138,6 +137,10 @@ public class SuperContentBoxController {
             public void onAnimationEnd(Animator animation) {
                 // 动画结束后将视图设置到最终位置
                 superContentBox.setX(nextPosition);
+                if (nextVisibleStatus == BoxVisibleStatus.Invisible){
+                    superContentBox.removeView(pages.get(0));
+                    pages.remove(0);
+                }
             }
         });
         animator.start();
@@ -163,5 +166,91 @@ public class SuperContentBoxController {
             return leftDoubleFingerSwipeListener;
         }
     }
+
+
+    private void closeLastPage(){
+        ViewGroup page = pages.get(pages.size() - 1);
+        ViewGroup pagePrevious = pages.get(pages.size() - 2);
+        pagePrevious.setVisibility(View.VISIBLE);
+        float previousPosition = 0;
+        final float nextPosition;
+        if (boxPositionStatus == BoxPositionStatus.Right){
+            nextPosition = previousPosition + superContentBox.getWidth();
+        } else {
+            nextPosition = previousPosition - superContentBox.getWidth();
+        }
+        ObjectAnimator animator = ObjectAnimator.ofFloat(page, "translationX", previousPosition, nextPosition);
+        animator.setDuration(500); // 设置动画持续时间为1秒
+        animator.setInterpolator(new AccelerateDecelerateInterpolator()); // 设置动画插值器
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                superContentBox.removeView(page);
+                pages.remove(page);
+            }
+        });
+        animator.start();
+    }
+    private void openNextPage(){
+        ViewGroup page = pages.get(pages.size() - 1);
+        ViewGroup pagePrevious = pages.get(pages.size() - 2);
+        final float previousPosition;
+        float nextPosition = 0;
+        if (boxPositionStatus == BoxPositionStatus.Right){
+            previousPosition = nextPosition + superContentBox.getWidth();
+        } else {
+            previousPosition = nextPosition - superContentBox.getWidth();
+        }
+        page.setX(previousPosition);
+        superContentBox.addView(page);
+        ObjectAnimator animator = ObjectAnimator.ofFloat(page, "translationX", previousPosition, nextPosition);
+        animator.setDuration(500); // 设置动画持续时间为0.3秒
+        animator.setInterpolator(new AccelerateDecelerateInterpolator()); // 设置动画插值器
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                // 动画结束后将视图设置到最终位置
+                page.setX(nextPosition);
+                pagePrevious.setVisibility(View.GONE);
+            }
+        });
+        animator.start();
+
+    }
+
+
+    public void setBoxPositionStatus(BoxPositionStatus boxPositionStatus){
+        changePositionStatus(boxPositionStatus);
+    }
+
+
+    public void open(ViewGroup viewGroup){
+        if (pages.isEmpty()){
+            pages.add(viewGroup);
+            changeVisibleStatus(BoxVisibleStatus.Visible);
+        } else {
+            pages.add(viewGroup);
+            openNextPage();
+        }
+
+    }
+
+    public void close(){
+        if (pages.isEmpty()){
+            return;
+        }
+        if (pages.size() == 1){
+            changeVisibleStatus(BoxVisibleStatus.Invisible);
+        } else {
+            closeLastPage();
+        }
+
+    }
+
+    public boolean isOpened(){
+        return !pages.isEmpty();
+    }
+
+
 
 }

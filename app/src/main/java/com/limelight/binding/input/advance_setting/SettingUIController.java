@@ -1,10 +1,13 @@
 package com.limelight.binding.input.advance_setting;
 
 import android.content.Context;
-import android.text.InputType;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -25,7 +28,7 @@ public class SettingUIController extends UIController {
 
     private SettingPreference settingPreference;
     private ControllerManager controllerManager;
-    private FrameLayout settingLayout;
+    private ScrollView settingLayout;
     //simplifyPerformance
 
 
@@ -36,12 +39,11 @@ public class SettingUIController extends UIController {
     private Switch simplifyPerformanceSwitch;
     private SeekBar simplifyPerformanceSeekBar;
 
-
     private Context context;
 
-    public SettingUIController(ControllerManager controllerManager, FrameLayout settingLayout, Context context){
+    public SettingUIController(ControllerManager controllerManager, Context context){
         this.controllerManager = controllerManager;
-        this.settingLayout = settingLayout;
+        this.settingLayout = (ScrollView) LayoutInflater.from(context).inflate(R.layout.setting_layout,null);
         this.context = context;
         msenseTextView = settingLayout.findViewById(R.id.msense_textview);
         elementOpacitySeekbar = settingLayout.findViewById(R.id.element_opacity_seekbar);
@@ -61,9 +63,49 @@ public class SettingUIController extends UIController {
     private void initMouseSense(){
         int min = 1;
         int max = 500;
-        WindowsController.EditTextWindowListener inputMsenseListener = new WindowsController.EditTextWindowListener() {
+
+        FrameLayout inputWindow = (FrameLayout) LayoutInflater.from(context).inflate(R.layout.windows_input,null);
+        TextView inputWindowTitle = inputWindow.findViewById(R.id.window_input_title);
+        EditText inputWindowEdittext = inputWindow.findViewById(R.id.window_input_edittext);
+        TextView inputWindowConfirm = inputWindow.findViewById(R.id.window_input_confirm);
+        TextView inputWindowCancel = inputWindow.findViewById(R.id.window_input_cancel);
+
+        inputWindowTitle.setText("灵敏度:");
+        inputWindowEdittext.setText(msenseTextView.getText());
+        inputWindowConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onConfirmClick(String text) {
+            public void onClick(View v) {
+                String text = inputWindowEdittext.getText().toString();
+                if (text.equals("")){
+                    Toast.makeText(context,"请输入" + min + "~" + max + "的数字",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                int value = Integer.parseInt(text);
+                if (value > max || value < min){
+                    Toast.makeText(context,"请输入" + min + "~" + max + "的数字",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String sense = String.valueOf(value);
+                msenseTextView.setText(sense);
+                doSetting(MOUSE_SENSE, sense);
+                settingPreference.saveSetting(MOUSE_SENSE, sense);
+                controllerManager.getSuperContentBoxController().close();
+            }
+        });
+
+        inputWindowCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                controllerManager.getSuperContentBoxController().close();
+            }
+        });
+
+
+        msenseTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                String text = v.getText().toString();
+                System.out.println("text = " + text);
                 if (text.equals("")){
                     Toast.makeText(context,"请输入" + min + "~" + max + "的数字",Toast.LENGTH_SHORT).show();
                     return false;
@@ -80,18 +122,15 @@ public class SettingUIController extends UIController {
 
                 return true;
             }
+        });
 
-            @Override
-            public void onCancelClick() {
-            }
-
-        };
         msenseTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                controllerManager.getWindowsController().openEditTextWindow(inputMsenseListener,msenseTextView.getText().toString(),null,null, InputType.TYPE_CLASS_NUMBER);
+                controllerManager.getSuperContentBoxController().open(inputWindow);
             }
         });
+
     }
     private void initElementOpacity(){
         elementOpacitySeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -213,7 +252,7 @@ public class SettingUIController extends UIController {
                 boolean touchMode = Boolean.valueOf(settingValue);
                 controllerManager.getTouchController().setTouchMode(touchMode);
                 if (touchMode){
-                    doSetting(MOUSE_SENSE,msenseTextView.getText().toString());
+                    doSetting(MOUSE_SENSE, msenseTextView.getText().toString());
                 }
                 break;
             case SIMPLIFY_PERFORMANCE:
@@ -232,12 +271,10 @@ public class SettingUIController extends UIController {
 
 
     public void open(){
-        settingLayout.setVisibility(View.VISIBLE);
-        controllerManager.setOpenedController(this);
+        controllerManager.getSuperContentBoxController().open(settingLayout);
     }
 
     public void close(){
-        settingLayout.setVisibility(View.INVISIBLE);
-        controllerManager.setOpenedController(null);
+
     }
 }

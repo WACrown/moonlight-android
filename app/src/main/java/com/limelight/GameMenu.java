@@ -204,6 +204,10 @@ public class GameMenu {
     private void showMenu() {
         List<MenuOption> options = new ArrayList<>();
         if (controllerManager != null){
+            if (controllerManager.getSuperContentBoxController().isOpened()){
+                controllerManager.getSuperContentBoxController().close();
+                return;
+            }
 
             if (controllerManager.isWindowOpen()){
                 controllerManager.getWindowsController().close();
@@ -214,10 +218,6 @@ public class GameMenu {
                 controllerManager.getOpenedController().close();
                 return;
             }
-
-            options.add(new MenuOption("打开超级盒子右", () -> controllerManager.getSuperContentBoxController().open(null, SuperContentBoxController.BoxPositionStatus.Right)));
-            options.add(new MenuOption("打开超级盒子左", () -> controllerManager.getSuperContentBoxController().open(null, SuperContentBoxController.BoxPositionStatus.Left)));
-            options.add(new MenuOption("打开超级盒子", () -> controllerManager.getSuperContentBoxController().open(null)));
             options.add(new MenuOption("配置选择", () -> {
                 controllerManager.getConfigController().open();
 

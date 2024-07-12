@@ -45,8 +45,7 @@ public class ControllerManager {
         editController = new EditUIController(this,layerEdit,context);
 
         //setting controller
-        FrameLayout layerSetting = advanceSettingView.findViewById(R.id.layer_4_setting);
-        settingController = new SettingUIController(this,layerSetting,context);
+        settingController = new SettingUIController(this, context);
 
         //configController
         FrameLayout layerConfig = advanceSettingView.findViewById(R.id.layer_5_config);
