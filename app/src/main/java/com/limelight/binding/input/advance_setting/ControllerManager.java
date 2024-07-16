@@ -14,7 +14,7 @@ public class ControllerManager {
     private FrameLayout fatherLayout;
     private ConfigUIController configController;
     private EditUIController editController;
-    private SettingUIController settingController;
+    private SettingPageController settingController;
     private ElementController elementController;
     private TouchController touchController;
     private WindowsController windowsController;
@@ -22,7 +22,7 @@ public class ControllerManager {
     private SimplifyPerformanceController simplifyPerformanceController;
     private KeyboardUIController keyboardController;
     private UIController openedUIController;
-    private SuperContentBoxController superContentBoxController;
+    private SuperPagesController superPagesController;
     private boolean isWindowOpen;
     private Context context;
 
@@ -45,7 +45,7 @@ public class ControllerManager {
         editController = new EditUIController(this,layerEdit,context);
 
         //setting controller
-        settingController = new SettingUIController(this, context);
+        settingController = new SettingPageController(this, context);
 
         //configController
         FrameLayout layerConfig = advanceSettingView.findViewById(R.id.layer_5_config);
@@ -61,8 +61,8 @@ public class ControllerManager {
         FrameLayout layerSimplifyPerformance = advanceSettingView.findViewById(R.id.layer_8_simplify_performance);
         simplifyPerformanceController = new SimplifyPerformanceController(layerSimplifyPerformance,this,context);
 
-        FrameLayout superContextBox = advanceSettingView.findViewById(R.id.super_content_box);
-        superContentBoxController = new SuperContentBoxController(superContextBox,context);
+        FrameLayout superPagesBox = advanceSettingView.findViewById(R.id.super_pages_box);
+        superPagesController = new SuperPagesController(superPagesBox,context);
 
         configController.initLoadCurrentConfig();
     }
@@ -76,7 +76,7 @@ public class ControllerManager {
         return editController;
     }
 
-    public SettingUIController getSettingController() {
+    public SettingPageController getSettingController() {
         return settingController;
     }
 
@@ -120,8 +120,8 @@ public class ControllerManager {
         this.openedUIController = openedUIController;
     }
 
-    public SuperContentBoxController getSuperContentBoxController() {
-        return superContentBoxController;
+    public SuperPagesController getSuperPagesController() {
+        return superPagesController;
     }
 
     public void refreshLayout(){

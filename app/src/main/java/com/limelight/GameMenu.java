@@ -8,7 +8,6 @@ import com.limelight.binding.input.GameInputDevice;
 import com.limelight.binding.input.KeyboardTranslator;
 import com.limelight.binding.input.advance_setting.ControllerManager;
 import com.limelight.binding.input.advance_setting.CombineKeyBean;
-import com.limelight.binding.input.advance_setting.SuperContentBoxController;
 import com.limelight.nvstream.NvConnection;
 import com.limelight.nvstream.input.KeyboardPacket;
 
@@ -204,8 +203,8 @@ public class GameMenu {
     private void showMenu() {
         List<MenuOption> options = new ArrayList<>();
         if (controllerManager != null){
-            if (controllerManager.getSuperContentBoxController().isOpened()){
-                controllerManager.getSuperContentBoxController().close();
+            if (!controllerManager.getSuperPagesController().isClosed()){
+                controllerManager.getSuperPagesController().close();
                 return;
             }
 
@@ -218,6 +217,7 @@ public class GameMenu {
                 controllerManager.getOpenedController().close();
                 return;
             }
+
             options.add(new MenuOption("配置选择", () -> {
                 controllerManager.getConfigController().open();
 

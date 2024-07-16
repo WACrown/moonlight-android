@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
-public class TouchFrameLayout extends FrameLayout {
+public class SuperPageLayout extends FrameLayout {
 
     public interface DoubleFingerSwipeListener{
         void onRightSwipe();
@@ -22,20 +22,20 @@ public class TouchFrameLayout extends FrameLayout {
     private DoubleFingerSwipeListener doubleFingerSwipeListener;
 
 
-    public TouchFrameLayout(Context context) {
+    public SuperPageLayout(Context context) {
         super(context);
     }
 
-    public TouchFrameLayout(Context context, AttributeSet attrs) {
+    public SuperPageLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public TouchFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SuperPageLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public TouchFrameLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public SuperPageLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 

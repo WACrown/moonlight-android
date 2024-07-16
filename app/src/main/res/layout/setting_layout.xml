@@ -1,149 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.limelight.binding.input.advance_setting.SuperPageLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="250dp"
     android:layout_height="match_parent"
-    android:layout_marginVertical="5dp"
-    android:layout_marginEnd="5dp"
-    android:paddingTop="3dp"
-    android:background="@drawable/super_content_box_background">
-    <LinearLayout
-        android:orientation="vertical"
+    android:tag="250">
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp">
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginVertical="5dp">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:layout_weight="1"
-                android:text="开启触摸"/>
-            <Switch
-                android:id="@+id/mouse_enable_switch"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:checked="true"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginVertical="5dp">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:layout_weight="1"
-                android:text="触控板模式"/>
-            <Switch
-                android:id="@+id/trackpad_enable_switch"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:checked="true"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginVertical="5dp">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="触控板灵敏度" />
-            <TextView
-                android:id="@+id/msense_textview"
-                android:layout_width="70dp"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="60"
-                android:background="@drawable/enabled_square"
-                android:inputType="number"/>
-        </LinearLayout>
+        android:layout_marginEnd="5dp"
+        android:paddingTop="3dp"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/super_content_box_background">
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginVertical="5dp">
-            <FrameLayout
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp">
+
+            <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_marginBottom="5dp">
+                android:layout_height="40dp"
+                android:layout_marginVertical="5dp">
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
-                    android:text="按键透明度"/>
-                <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:text="开启触摸"/>
+                <Switch
+                    android:id="@+id/mouse_enable_switch"
+                    android:layout_width="50dp"
                     android:layout_height="match_parent"
-                    android:layout_gravity="end"
-                    android:gravity="center_vertical"
-                    android:text="100 %"/>
-            </FrameLayout>
-            <SeekBar
-                android:id="@+id/element_opacity_seekbar"
-                android:layout_width="match_parent"
-                android:layout_height="25dp"
-                android:max="10"
-                android:min="1"
-                android:progress="10"/>
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginVertical="5dp">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:layout_weight="1"
-                android:text="精简性能显示"/>
-            <Switch
-                android:id="@+id/simplify_performance_display"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:checked="false"/>
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginVertical="5dp">
-            <FrameLayout
+                    android:checked="true"/>
+            </LinearLayout>
+
+            <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_marginBottom="5dp">
+                android:layout_height="40dp"
+                android:layout_marginVertical="5dp">
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
-                    android:text="精简性能透明度"/>
-                <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:text="触控板模式"/>
+                <Switch
+                    android:id="@+id/trackpad_enable_switch"
+                    android:layout_width="50dp"
                     android:layout_height="match_parent"
-                    android:layout_gravity="end"
-                    android:gravity="center_vertical"
-                    android:text="100 %"/>
-            </FrameLayout>
-            <SeekBar
-                android:id="@+id/simplify_performance_opacity_seekbar"
+                    android:checked="true"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="25dp"
-                android:max="10"
-                android:min="1"
-                android:progress="10"/>
+                android:layout_height="40dp"
+                android:layout_marginVertical="5dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text="触控板灵敏度" />
+                <TextView
+                    android:id="@+id/msense_textview"
+                    android:layout_width="70dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="60"
+                    android:background="@drawable/enabled_square"
+                    android:inputType="number"/>
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginVertical="5dp">
+                <FrameLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_marginBottom="5dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="按键透明度"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="end"
+                        android:gravity="center_vertical"
+                        android:text="100 %"/>
+                </FrameLayout>
+                <SeekBar
+                    android:id="@+id/element_opacity_seekbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp"
+                    android:max="10"
+                    android:min="1"
+                    android:progress="10"/>
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginVertical="5dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="精简性能显示"/>
+                <Switch
+                    android:id="@+id/simplify_performance_display"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:checked="false"/>
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginVertical="5dp">
+                <FrameLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_marginBottom="5dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="精简性能透明度"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="end"
+                        android:gravity="center_vertical"
+                        android:text="100 %"/>
+                </FrameLayout>
+                <SeekBar
+                    android:id="@+id/simplify_performance_opacity_seekbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp"
+                    android:max="10"
+                    android:min="1"
+                    android:progress="10"/>
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</com.limelight.binding.input.advance_setting.SuperPageLayout>
+

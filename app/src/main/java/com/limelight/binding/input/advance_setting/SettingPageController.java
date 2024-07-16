@@ -1,13 +1,10 @@
 package com.limelight.binding.input.advance_setting;
 
 import android.content.Context;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -17,7 +14,7 @@ import com.limelight.R;
 
 import java.util.Map;
 
-public class SettingUIController extends UIController {
+public class SettingPageController {
 
     private static final String MOUSE_SENSE = "mouse_sense";
     private static final String ELEMENT_OPACITY = "element_opacity";
@@ -28,7 +25,7 @@ public class SettingUIController extends UIController {
 
     private SettingPreference settingPreference;
     private ControllerManager controllerManager;
-    private ScrollView settingLayout;
+    private SuperPageLayout settingLayout;
     //simplifyPerformance
 
 
@@ -41,9 +38,9 @@ public class SettingUIController extends UIController {
 
     private Context context;
 
-    public SettingUIController(ControllerManager controllerManager, Context context){
+    public SettingPageController(ControllerManager controllerManager, Context context){
         this.controllerManager = controllerManager;
-        this.settingLayout = (ScrollView) LayoutInflater.from(context).inflate(R.layout.setting_layout,null);
+        this.settingLayout = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.setting_layout,null);
         this.context = context;
         msenseTextView = settingLayout.findViewById(R.id.msense_textview);
         elementOpacitySeekbar = settingLayout.findViewById(R.id.element_opacity_seekbar);
@@ -64,7 +61,7 @@ public class SettingUIController extends UIController {
         int min = 1;
         int max = 500;
 
-        FrameLayout inputWindow = (FrameLayout) LayoutInflater.from(context).inflate(R.layout.windows_input,null);
+        SuperPageLayout inputWindow = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.windows_input,null);
         TextView inputWindowTitle = inputWindow.findViewById(R.id.window_input_title);
         EditText inputWindowEdittext = inputWindow.findViewById(R.id.window_input_edittext);
         TextView inputWindowConfirm = inputWindow.findViewById(R.id.window_input_confirm);
@@ -89,45 +86,22 @@ public class SettingUIController extends UIController {
                 msenseTextView.setText(sense);
                 doSetting(MOUSE_SENSE, sense);
                 settingPreference.saveSetting(MOUSE_SENSE, sense);
-                controllerManager.getSuperContentBoxController().close();
+                controllerManager.getSuperPagesController().close();
             }
         });
 
         inputWindowCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                controllerManager.getSuperContentBoxController().close();
+                controllerManager.getSuperPagesController().close();
             }
         });
 
-
-        msenseTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                String text = v.getText().toString();
-                System.out.println("text = " + text);
-                if (text.equals("")){
-                    Toast.makeText(context,"请输入" + min + "~" + max + "的数字",Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-                int value = Integer.parseInt(text);
-                if (value > max || value < min){
-                    Toast.makeText(context,"请输入" + min + "~" + max + "的数字",Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-                String sense = String.valueOf(value);
-                msenseTextView.setText(sense);
-                doSetting(MOUSE_SENSE, sense);
-                settingPreference.saveSetting(MOUSE_SENSE, sense);
-
-                return true;
-            }
-        });
 
         msenseTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                controllerManager.getSuperContentBoxController().open(inputWindow);
+                controllerManager.getSuperPagesController().open(inputWindow);
             }
         });
 
@@ -271,7 +245,7 @@ public class SettingUIController extends UIController {
 
 
     public void open(){
-        controllerManager.getSuperContentBoxController().open(settingLayout);
+        controllerManager.getSuperPagesController().open(settingLayout);
     }
 
     public void close(){

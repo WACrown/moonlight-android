@@ -10,6 +10,5 @@
     <include layout="@layout/layer_7_combine_key"/>
     <include layout="@layout/layer_8_simplify_performance"/>
     <include layout="@layout/layer_window"/>
-    <include layout="@layout/super_content_box"/>
-
+    <include layout="@layout/super_pages_box"/>
 </FrameLayout>
