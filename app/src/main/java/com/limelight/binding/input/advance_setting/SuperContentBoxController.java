@@ -37,10 +37,6 @@ public class SuperContentBoxController {
     private TouchFrameLayout.DoubleFingerSwipeListener rightDoubleFingerSwipeListener;
     private TouchFrameLayout.DoubleFingerSwipeListener leftDoubleFingerSwipeListener;
 
-    private float rightPosition;
-    private float rightHidePosition;
-    private float leftPosition;
-    private float leftHidePosition;
 
     private List<ViewGroup> pages = new ArrayList<>();
 
@@ -50,12 +46,6 @@ public class SuperContentBoxController {
     public SuperContentBoxController(FrameLayout superContentBox, Context context){
         this.superContentBox = (TouchFrameLayout) superContentBox;
         this.context = context;
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-
-        rightPosition = displayMetrics.heightPixels - dpToPx(270);
-        rightHidePosition = displayMetrics.heightPixels;
-        leftPosition = dpToPx(20);
-        leftHidePosition = - dpToPx(250);
 
 
         rightDoubleFingerSwipeListener = new TouchFrameLayout.DoubleFingerSwipeListener() {
@@ -82,7 +72,7 @@ public class SuperContentBoxController {
             }
         };
 
-        this.superContentBox.setX(rightHidePosition);
+        this.superContentBox.setX(getRightPosition());
         this.superContentBox.setDoubleFingerSwipeListener(rightDoubleFingerSwipeListener);
 
     }
@@ -119,6 +109,21 @@ public class SuperContentBoxController {
 
     }
 
+    private int getRightPosition(){
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return (int) (displayMetrics.widthPixels - dpToPx(270));
+    }
+    private int getRightHidePosition(){
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return displayMetrics.widthPixels;
+    }
+    private int getLeftPosition(){
+        return (int) dpToPx(20);
+    }
+    private int getLeftHidePosition(){
+        return (int) - dpToPx(250);
+    }
+
     private void changeVisibleStatus(BoxVisibleStatus nextVisibleStatus){
 
         if (nextVisibleStatus == boxVisibleStatus){
@@ -149,13 +154,13 @@ public class SuperContentBoxController {
 
     private float getPosition(BoxPositionStatus boxPositionStatus, BoxVisibleStatus boxVisibleStatus){
         if (boxPositionStatus == BoxPositionStatus.Right && boxVisibleStatus == BoxVisibleStatus.Visible){
-            return rightPosition;
+            return getRightPosition();
         } else if (boxPositionStatus == BoxPositionStatus.Right && boxVisibleStatus == BoxVisibleStatus.Invisible) {
-            return rightHidePosition;
+            return getRightHidePosition();
         } else if (boxPositionStatus == BoxPositionStatus.Left && boxVisibleStatus == BoxVisibleStatus.Visible) {
-            return leftPosition;
+            return getLeftPosition();
         } else {
-            return leftHidePosition;
+            return getLeftHidePosition();
         }
     }
 
