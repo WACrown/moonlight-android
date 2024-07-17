@@ -14,7 +14,7 @@ import com.limelight.R;
 
 import java.util.Map;
 
-public class SettingPageController {
+public class PageSettingController {
 
     private static final String MOUSE_SENSE = "mouse_sense";
     private static final String ELEMENT_OPACITY = "element_opacity";
@@ -38,9 +38,9 @@ public class SettingPageController {
 
     private Context context;
 
-    public SettingPageController(ControllerManager controllerManager, Context context){
+    public PageSettingController(ControllerManager controllerManager, Context context){
         this.controllerManager = controllerManager;
-        this.settingLayout = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.setting_layout,null);
+        this.settingLayout = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_setting,null);
         this.context = context;
         msenseTextView = settingLayout.findViewById(R.id.msense_textview);
         elementOpacitySeekbar = settingLayout.findViewById(R.id.element_opacity_seekbar);
@@ -61,7 +61,7 @@ public class SettingPageController {
         int min = 1;
         int max = 500;
 
-        SuperPageLayout inputWindow = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.windows_input,null);
+        SuperPageLayout inputWindow = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_input,null);
         TextView inputWindowTitle = inputWindow.findViewById(R.id.window_input_title);
         EditText inputWindowEdittext = inputWindow.findViewById(R.id.window_input_edittext);
         TextView inputWindowConfirm = inputWindow.findViewById(R.id.window_input_confirm);

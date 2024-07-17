@@ -19,7 +19,7 @@
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
-                android:text="灵敏度:"/>
+                android:text="Title:"/>
             <EditText
                 android:id="@+id/window_input_edittext"
                 android:layout_width="200dp"

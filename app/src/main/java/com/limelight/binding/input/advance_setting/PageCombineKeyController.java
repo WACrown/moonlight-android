@@ -1,9 +1,9 @@
 package com.limelight.binding.input.advance_setting;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,38 +13,57 @@ import com.limelight.binding.input.KeyboardTranslator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CombineKeyUIController extends UIController {
+public class PageCombineKeyController extends UIController {
 
     private Context context;
-    private FrameLayout combineKeyLayout;
+    private SuperPageLayout combineKeyPage;
     private ControllerManager controllerManager;
     private KeyboardTranslator keyboardTranslator;
     private CombineKeyPreference combineKeyPreference;
 
-    public CombineKeyUIController(FrameLayout combineKeyLayout, ControllerManager controllerManager, Context context) {
+    public PageCombineKeyController(ControllerManager controllerManager, Context context) {
         this.context = context;
-        this.combineKeyLayout = combineKeyLayout;
+        this.combineKeyPage = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_combine_key,null);
         this.controllerManager = controllerManager;
         this.keyboardTranslator = new KeyboardTranslator();
 
         TextView[] addCombineKeys = new TextView[]{
-                combineKeyLayout.findViewById(R.id.add_combine_key_1),
-                combineKeyLayout.findViewById(R.id.add_combine_key_2),
-                combineKeyLayout.findViewById(R.id.add_combine_key_3),
-                combineKeyLayout.findViewById(R.id.add_combine_key_4),
-                combineKeyLayout.findViewById(R.id.add_combine_key_5)
+                combineKeyPage.findViewById(R.id.add_combine_key_1),
+                combineKeyPage.findViewById(R.id.add_combine_key_2),
+                combineKeyPage.findViewById(R.id.add_combine_key_3),
+                combineKeyPage.findViewById(R.id.add_combine_key_4),
+                combineKeyPage.findViewById(R.id.add_combine_key_5)
         };
-        EditText editTextName = combineKeyLayout.findViewById(R.id.add_combine_key_name);
+
+
+
+
         for (TextView key : addCombineKeys){
             key.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    jumpDeviceWindow(key);
+                    TextView textView = (TextView) v;
+                    PageDeviceController.DeviceCallBack deviceCallBack = new PageDeviceController.DeviceCallBack() {
+                        @Override
+                        public void OnKeyClick(TextView key) {
+                            ((TextView) v).setText(key.getText());
+                            v.setTag(key.getTag());
+                        }
+
+                        @Override
+                        public void OnResetKeyClick() {
+                            ((TextView) v).setText("");
+                            v.setTag("k-1");
+                        }
+                    };
+                    controllerManager.getDevicePageController().open(deviceCallBack,View.VISIBLE,View.GONE,View.GONE);
                 }
             });
         }
 
-        combineKeyLayout.findViewById(R.id.add_combine_key_ensure).setOnClickListener(new View.OnClickListener() {
+
+        EditText editTextName = combineKeyPage.findViewById(R.id.add_combine_key_name);
+        combineKeyPage.findViewById(R.id.add_combine_key_ensure).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String name = editTextName.getText().toString();
@@ -76,41 +95,21 @@ public class CombineKeyUIController extends UIController {
                         keysValue,
                         keysNameList.toArray(new String[0]),
                         birthTime));
-                combineKeyLayout.setVisibility(View.GONE);
-
+                controllerManager.getSuperPagesController().close();
             }
         });
 
-        combineKeyLayout.findViewById(R.id.add_combine_key_cancel).setOnClickListener(new View.OnClickListener() {
+        combineKeyPage.findViewById(R.id.add_combine_key_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                combineKeyLayout.setVisibility(View.GONE);
+                controllerManager.getSuperPagesController().close();
             }
         });
 
     }
 
 
-    private void jumpDeviceWindow(TextView key){
-        WindowsController.DeviceWindowListener keySelectListener = new WindowsController.DeviceWindowListener() {
-            @Override
-            public void onCancelClick() {
-            }
 
-            @Override
-            public void onElementClick(String text, String tag) {
-                key.setText(text);
-                key.setTag(tag);
-            }
-
-            @Override
-            public void onResetClick() {
-                key.setText("");
-                key.setTag("-1");
-            }
-        };
-        controllerManager.getWindowsController().openDeviceWindow(keySelectListener,true,false,false);
-    }
 
     public void deleteCombineKey(CombineKeyBean bean){
         combineKeyPreference.deleteCombineKey(bean);
@@ -124,12 +123,11 @@ public class CombineKeyUIController extends UIController {
     }
 
     public void open() {
-        combineKeyLayout.setVisibility(View.VISIBLE);
+        controllerManager.getSuperPagesController().open(combineKeyPage);
     }
 
 
     public void close() {
-        combineKeyLayout.setVisibility(View.GONE);
 
     }
 }

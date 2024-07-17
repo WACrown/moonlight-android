@@ -14,15 +14,16 @@ public class ControllerManager {
     private FrameLayout fatherLayout;
     private ConfigUIController configController;
     private EditUIController editController;
-    private SettingPageController settingController;
+    private PageSettingController settingController;
     private ElementController elementController;
     private TouchController touchController;
     private WindowsController windowsController;
-    private CombineKeyUIController combineKeyController;
+    private PageCombineKeyController combineKeyController;
     private SimplifyPerformanceController simplifyPerformanceController;
     private KeyboardUIController keyboardController;
     private UIController openedUIController;
     private SuperPagesController superPagesController;
+    private PageDeviceController pageDeviceController;
     private boolean isWindowOpen;
     private Context context;
 
@@ -45,7 +46,7 @@ public class ControllerManager {
         editController = new EditUIController(this,layerEdit,context);
 
         //setting controller
-        settingController = new SettingPageController(this, context);
+        settingController = new PageSettingController(this, context);
 
         //configController
         FrameLayout layerConfig = advanceSettingView.findViewById(R.id.layer_5_config);
@@ -55,14 +56,16 @@ public class ControllerManager {
         keyboardController = new KeyboardUIController(layerKeyboard,this,context);
 
         //CombineKey controller
-        FrameLayout layerCombineKey = advanceSettingView.findViewById(R.id.layer_7_combine_key);
-        combineKeyController = new CombineKeyUIController(layerCombineKey,this,context);
+        combineKeyController = new PageCombineKeyController(this,context);
 
         FrameLayout layerSimplifyPerformance = advanceSettingView.findViewById(R.id.layer_8_simplify_performance);
         simplifyPerformanceController = new SimplifyPerformanceController(layerSimplifyPerformance,this,context);
 
         FrameLayout superPagesBox = advanceSettingView.findViewById(R.id.super_pages_box);
         superPagesController = new SuperPagesController(superPagesBox,context);
+
+        pageDeviceController = new PageDeviceController(context,this);
+
 
         configController.initLoadCurrentConfig();
     }
@@ -76,7 +79,7 @@ public class ControllerManager {
         return editController;
     }
 
-    public SettingPageController getSettingController() {
+    public PageSettingController getSettingController() {
         return settingController;
     }
 
@@ -92,7 +95,7 @@ public class ControllerManager {
         return touchController;
     }
 
-    public CombineKeyUIController getCombineKeyController() {
+    public PageCombineKeyController getCombineKeyController() {
         return combineKeyController;
     }
 
@@ -124,9 +127,17 @@ public class ControllerManager {
         return superPagesController;
     }
 
+    public PageDeviceController getDevicePageController() {
+        return pageDeviceController;
+    }
+
     public void refreshLayout(){
         fatherLayout.removeView(advanceSettingView);
         fatherLayout.addView(advanceSettingView);
+    }
+
+    private int dpToPx(int dp){
+        return (int) (dp * context.getResources().getDisplayMetrics().density);
     }
 
 }
