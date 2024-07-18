@@ -7,7 +7,7 @@ import android.widget.ArrayAdapter;
 import com.limelight.binding.input.GameInputDevice;
 import com.limelight.binding.input.KeyboardTranslator;
 import com.limelight.binding.input.advance_setting.ControllerManager;
-import com.limelight.binding.input.advance_setting.CombineKeyBean;
+import com.limelight.binding.input.advance_setting.combinekey.CombineKeyBean;
 import com.limelight.nvstream.NvConnection;
 import com.limelight.nvstream.input.KeyboardPacket;
 
@@ -208,28 +208,8 @@ public class GameMenu {
                 return;
             }
 
-            if (controllerManager.isWindowOpen()){
-                controllerManager.getWindowsController().close();
-                return;
-            }
-
-            if (controllerManager.getOpenedController() != null){
-                controllerManager.getOpenedController().close();
-                return;
-            }
-
             options.add(new MenuOption("配置选择", () -> {
                 controllerManager.getConfigController().open();
-
-            }));
-            options.add(new MenuOption("按键编辑", () -> {
-                controllerManager.getEditController().open();
-            }));
-            options.add(new MenuOption("配置设置", () -> {
-                controllerManager.getSettingController().open();
-            }));
-            options.add(new MenuOption(getString(R.string.game_menu_toggle_all_keyboard), () -> {
-                controllerManager.getKeyboardController().open();
             }));
         }
         options.add(new MenuOption(getString(R.string.game_menu_send_keys), () -> showSpecialKeysMenu()));

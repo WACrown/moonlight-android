@@ -1,4 +1,4 @@
-package com.limelight.binding.input.advance_setting;
+package com.limelight.binding.input.advance_setting.combinekey;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,6 +9,10 @@ import android.widget.Toast;
 
 import com.limelight.R;
 import com.limelight.binding.input.KeyboardTranslator;
+import com.limelight.binding.input.advance_setting.ControllerManager;
+import com.limelight.binding.input.advance_setting.PageDeviceController;
+import com.limelight.binding.input.advance_setting.superpage.SuperPageLayout;
+import com.limelight.binding.input.advance_setting.UIController;
 
 import java.util.ArrayList;
 import java.util.List;

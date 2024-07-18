@@ -1,4 +1,4 @@
-package com.limelight.binding.input.advance_setting;
+package com.limelight.binding.input.advance_setting.element;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -6,10 +6,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.MotionEvent;
 
+import com.limelight.binding.input.advance_setting.ElementController;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class DigitalPad extends Element{
+public class DigitalPad extends Element {
 
     private String value;
 

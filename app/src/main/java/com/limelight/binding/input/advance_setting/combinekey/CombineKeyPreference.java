@@ -1,4 +1,4 @@
-package com.limelight.binding.input.advance_setting;
+package com.limelight.binding.input.advance_setting.combinekey;
 
 import android.content.Context;
 import android.content.SharedPreferences;

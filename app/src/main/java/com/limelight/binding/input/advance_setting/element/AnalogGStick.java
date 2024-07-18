@@ -1,11 +1,10 @@
-package com.limelight.binding.input.advance_setting;
+package com.limelight.binding.input.advance_setting.element;
 
 import android.content.Context;
-import android.view.KeyEvent;
 
-import com.limelight.binding.input.virtual_controller.VirtualController;
+import com.limelight.binding.input.advance_setting.ElementController;
 
-public class AnalogGStick extends AnalogStick{
+public class AnalogGStick extends AnalogStick {
 
 
     public AnalogGStick(ElementController controller, ElementBean elementBean, Context context){

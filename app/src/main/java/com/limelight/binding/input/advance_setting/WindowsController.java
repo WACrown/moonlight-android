@@ -255,7 +255,7 @@ public class WindowsController {
     }
 
     private void open(){
-        controllerManager.setWindowOpen(true);
+
     }
 
     public void close() {
@@ -267,6 +267,5 @@ public class WindowsController {
             showingWindow.setVisibility(View.GONE);
             showingWindow = null;
         }
-        controllerManager.setWindowOpen(false);
     }
 }

@@ -1,4 +1,4 @@
-package com.limelight.binding.input.advance_setting;
+package com.limelight.binding.input.advance_setting.superpage;
 
 
 import android.annotation.TargetApi;

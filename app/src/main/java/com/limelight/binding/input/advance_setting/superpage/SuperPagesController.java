@@ -1,15 +1,12 @@
-package com.limelight.binding.input.advance_setting;
+package com.limelight.binding.input.advance_setting.superpage;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.view.Gravity;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
-
-import com.limelight.R;
 
 import java.util.ArrayList;
 import java.util.List;

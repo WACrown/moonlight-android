@@ -1540,6 +1540,10 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         return touchContextMap;
     }
 
+    public TouchContext[] getRelativeTouchContextMap(){
+        return  relativeTouchContextMap;
+    }
+
     /**
      * false : RelativeTouchContext
      * true : AbsoluteTouchContext
@@ -2770,7 +2774,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 }
 
                 if (controllerManager != null && prefConfig.enableSimplifyPerfOverlay){
-                    controllerManager.getSimplifyPerformanceController().refreshSimplifyPerformance(performanceInfo);
+
                 }
 
             }

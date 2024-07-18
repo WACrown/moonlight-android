@@ -3,9 +3,9 @@ package com.limelight.binding.input.advance_setting;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 
 import com.google.gson.Gson;
+import com.limelight.binding.input.advance_setting.element.ElementBean;
 
 import java.io.File;
 import java.util.ArrayList;

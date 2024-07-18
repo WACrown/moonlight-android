@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.limelight.binding.input.advance_setting.SuperPageLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.limelight.binding.input.advance_setting.superpage.SuperPageLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="310dp"
     android:layout_height="match_parent"
     android:tag="310">
@@ -114,4 +114,4 @@
 
     </LinearLayout>
 
-</com.limelight.binding.input.advance_setting.SuperPageLayout>
+</com.limelight.binding.input.advance_setting.superpage.SuperPageLayout>

@@ -1,4 +1,4 @@
-package com.limelight.binding.input.advance_setting;
+package com.limelight.binding.input.advance_setting.combinekey;
 
 public class CombineKeyBean {
     private String Id;

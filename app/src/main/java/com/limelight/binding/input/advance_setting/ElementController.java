@@ -7,6 +7,13 @@ import android.widget.FrameLayout;
 
 import com.limelight.Game;
 import com.limelight.binding.input.ControllerHandler;
+import com.limelight.binding.input.advance_setting.element.AnalogGStick;
+import com.limelight.binding.input.advance_setting.element.AnalogKStick;
+import com.limelight.binding.input.advance_setting.element.DigitalButton;
+import com.limelight.binding.input.advance_setting.element.DigitalPad;
+import com.limelight.binding.input.advance_setting.element.DigitalSwitch;
+import com.limelight.binding.input.advance_setting.element.Element;
+import com.limelight.binding.input.advance_setting.element.ElementBean;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,7 +65,7 @@ public class ElementController {
         handler = new Handler(Looper.getMainLooper());
     }
 
-    Handler getHandler() {
+    public Handler getHandler() {
         return handler;
     }
 

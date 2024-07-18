@@ -14,6 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.limelight.R;
+import com.limelight.binding.input.advance_setting.element.Element;
+import com.limelight.binding.input.advance_setting.element.ElementBean;
 import com.limelight.binding.input.advance_setting.element_card.ButtonCard;
 import com.limelight.binding.input.advance_setting.element_card.ElementCard;
 import com.limelight.binding.input.advance_setting.element_card.GStickCard;
@@ -75,7 +77,6 @@ public class EditUIController extends UIController {
                 WindowsController.TextWindowListener deleteListener = new WindowsController.TextWindowListener() {
                     @Override
                     public boolean onConfirmCLick() {
-                        controllerManager.getElementController().deleteElement(editElement);
                         editElement = null;
                         return true;
                     }
@@ -87,7 +88,6 @@ public class EditUIController extends UIController {
 
                 };
 
-                controllerManager.getWindowsController().openTextWindow(deleteListener, "是否删除:" + editElement.getElementName());
             }
         });
         layout.findViewById(R.id.add_element_button).setOnClickListener(new View.OnClickListener() {
@@ -240,7 +240,7 @@ public class EditUIController extends UIController {
 
                     case MotionEvent.ACTION_UP:
                         if (isSelect){
-                            Element element = controllerManager.getElementController().selectElement(lastX,lastY);
+                            Element element = null;
                             if (element == null){
                                 return true;
                             }
@@ -262,7 +262,7 @@ public class EditUIController extends UIController {
                             }
                         } else {
                             if (editElement != null){
-                                controllerManager.getElementController().saveElement(editElement);
+
                             }
                         }
 
@@ -342,7 +342,7 @@ public class EditUIController extends UIController {
                         null
                 );
 
-                Element element = controllerManager.getElementController().addElement(elementBean);
+                Element element = null;
 
                 //选中刚刚添加的按钮
                 if (element == null){
@@ -401,8 +401,6 @@ public class EditUIController extends UIController {
 
         };
 
-        controllerManager.getWindowsController().openEditTextWindow(inputNumListener,
-                inputNumView.getText().toString(), "","", InputType.TYPE_CLASS_NUMBER);
     }
 
 
@@ -416,19 +414,9 @@ public class EditUIController extends UIController {
 
 
     public void open(){
-        controllerManager.getSimplifyPerformanceController().hide(true);
-        layerEdit.setVisibility(View.VISIBLE);
-        controllerManager.setOpenedController(this);
     }
 
     public void close(){
-        controllerManager.getSimplifyPerformanceController().hide(false);
-        layerEdit.setVisibility(View.GONE);
-        if (editElement != null){
-            editElement.setNormalColor(normalColor);
-        }
-        editElement = null;
-        controllerManager.setOpenedController(null);
     }
 
 
@@ -452,7 +440,6 @@ public class EditUIController extends UIController {
                 valueTextView.setText("A");
             }
         };
-        controllerManager.getWindowsController().openDeviceWindow(keySelectListener,true,true,true);
 
 
     }

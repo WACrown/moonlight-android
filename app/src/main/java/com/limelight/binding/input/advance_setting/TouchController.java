@@ -21,10 +21,8 @@ public class TouchController{
     }
 
     public void adjustTouchSense(int sense){
-        for (TouchContext aTouchContext : game.getTouchContextMap()) {
-            if (aTouchContext instanceof RelativeTouchContext){
-                ((RelativeTouchContext) aTouchContext).adjustMsense(sense * 0.01);
-            }
+        for (TouchContext aTouchContext : game.getRelativeTouchContextMap()) {
+            ((RelativeTouchContext) aTouchContext).adjustMsense(sense * 0.01);
         }
     }
     /**

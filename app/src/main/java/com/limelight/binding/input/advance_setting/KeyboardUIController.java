@@ -49,12 +49,10 @@ public class KeyboardUIController extends UIController {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         // 处理按下事件
-                        controllerManager.getElementController().sendKeyEvent(true,(short) keyCode);
                         v.setBackgroundResource(R.drawable.confirm_square_border);
                         return true;
                     case MotionEvent.ACTION_UP:
                         // 处理释放事件
-                        controllerManager.getElementController().sendKeyEvent(false,(short) keyCode);
                         v.setBackgroundResource(R.drawable.square_border);
                         return true;
                 }
@@ -72,12 +70,10 @@ public class KeyboardUIController extends UIController {
     public void open() {
         visibility = View.VISIBLE;
         keyboardLayout.setVisibility(visibility);
-        controllerManager.setOpenedController(this);
     }
     @Override
     public void close() {
         visibility = View.GONE;
         keyboardLayout.setVisibility(visibility);
-        controllerManager.setOpenedController(null);
     }
 }

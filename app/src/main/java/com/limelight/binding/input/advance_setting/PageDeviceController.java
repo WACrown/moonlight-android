@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.limelight.R;
+import com.limelight.binding.input.advance_setting.superpage.SuperPageLayout;
 
 public class PageDeviceController {
 

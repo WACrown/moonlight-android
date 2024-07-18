@@ -1,12 +1,13 @@
-package com.limelight.binding.input.advance_setting;
+package com.limelight.binding.input.advance_setting.element;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+
+import com.limelight.binding.input.advance_setting.ElementController;
 
 public abstract class Element extends View {
     private int normalColor = 0xF0888888;
@@ -36,7 +37,7 @@ public abstract class Element extends View {
     public String getElementName(){
         return elementBean.getName();
     }
-    boolean inRange(float x, float y) {
+    public boolean inRange(float x, float y) {
         return (this.getX() < x && this.getX() + this.getWidth() > x) &&
                 (this.getY() < y && this.getY() + this.getHeight() > y);
     }

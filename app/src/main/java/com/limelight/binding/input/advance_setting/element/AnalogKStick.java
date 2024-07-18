@@ -1,7 +1,8 @@
-package com.limelight.binding.input.advance_setting;
+package com.limelight.binding.input.advance_setting.element;
 
 import android.content.Context;
-import android.view.KeyEvent;
+
+import com.limelight.binding.input.advance_setting.ElementController;
 
 public class AnalogKStick extends AnalogStick {
 
