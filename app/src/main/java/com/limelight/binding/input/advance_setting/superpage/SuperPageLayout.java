@@ -15,11 +15,16 @@ public class SuperPageLayout extends FrameLayout {
         void onLeftSwipe();
     }
 
+    public interface PageCloseListener {
+        void close();
+    }
+
     private static final int SWIPE_THRESHOLD = 70;
     private float startX;
     private boolean isTwoFingerSwipe = false;
     private boolean isSwipeActionDone = false;
     private DoubleFingerSwipeListener doubleFingerSwipeListener;
+    private PageCloseListener pageCloseListener;
 
 
     public SuperPageLayout(Context context) {
@@ -104,6 +109,17 @@ public class SuperPageLayout extends FrameLayout {
 
     public void setDoubleFingerSwipeListener(DoubleFingerSwipeListener doubleFingerSwipeListener){
         this.doubleFingerSwipeListener = doubleFingerSwipeListener;
+    }
+
+    protected void close(){
+        if (pageCloseListener != null){
+            pageCloseListener.close();
+        }
+
+    }
+
+    public void setPageCloseListener(PageCloseListener pageCloseListener){
+        this.pageCloseListener = pageCloseListener;
     }
 
 }

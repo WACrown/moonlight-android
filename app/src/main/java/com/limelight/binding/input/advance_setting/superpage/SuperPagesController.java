@@ -170,6 +170,7 @@ public class SuperPagesController {
             }
         });
         animator.start();
+        page.close();
     }
 
 
