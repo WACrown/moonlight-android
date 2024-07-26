@@ -86,26 +86,24 @@ public class SuperPagesController {
     }
 
     public void open(SuperPageLayout page){
-        pages.add(page);
+
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(dpToPx(Integer.parseInt(page.getTag().toString())), ViewGroup.LayoutParams.MATCH_PARENT);
         layoutParams.topMargin = dpToPx(20);
         layoutParams.bottomMargin = dpToPx(20);
         superPagesBox.addView(page,layoutParams);
         page.setDoubleFingerSwipeListener(boxPosition == BoxPosition.Right ? rightListener : leftListener);
-
-
         float previousPosition = getHidePosition(page);
         float nextPosition = getVisiblePosition(page);
         page.setX(previousPosition);
-        ObjectAnimator animator = ObjectAnimator.ofFloat(page, "translationX", previousPosition, nextPosition);
-        animator.setDuration(300); // 设置动画持续时间为1秒
-        animator.setInterpolator(new AccelerateDecelerateInterpolator()); // 设置动画插值器
-        animator.addListener(new AnimatorListenerAdapter() {
+        ObjectAnimator animator1 = ObjectAnimator.ofFloat(page, "translationX", previousPosition, nextPosition);
+        animator1.setDuration(300); // 设置动画持续时间为1秒
+        animator1.setInterpolator(new AccelerateDecelerateInterpolator()); // 设置动画插值器
+        animator1.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 // 动画结束后将视图设置到最终位置
                 page.setX(nextPosition);
-
+                pages.add(page);
             }
         });
 
@@ -114,63 +112,57 @@ public class SuperPagesController {
             SuperPageLayout pagePrevious = pages.get(pages.size() - 2);
             float pagePreviousPreviousPosition = getVisiblePosition(pagePrevious);
             float pagePreviousNextPosition = getHidePosition(pagePrevious);
-            ObjectAnimator pagePreviousAnimator = ObjectAnimator.ofFloat(pagePrevious, "translationX", pagePreviousPreviousPosition, pagePreviousNextPosition);
-            pagePreviousAnimator.setDuration(300); // 设置动画持续时间为1秒
-            pagePreviousAnimator.setInterpolator(new AccelerateDecelerateInterpolator()); // 设置动画插值器
-            pagePreviousAnimator.addListener(new AnimatorListenerAdapter() {
+            ObjectAnimator animator2 = ObjectAnimator.ofFloat(pagePrevious, "translationX", pagePreviousPreviousPosition, pagePreviousNextPosition);
+            animator2.setDuration(300); // 设置动画持续时间为1秒
+            animator2.setInterpolator(new AccelerateDecelerateInterpolator()); // 设置动画插值器
+            animator2.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     // 动画结束后将视图设置到最终位置
                     pagePrevious.setX(pagePreviousNextPosition);
-                    animator.start();
+
                 }
             });
-            pagePreviousAnimator.start();
-        } else {
-            animator.start();
+            animator2.start();
         }
+        animator1.start();
     }
 
     public void close(){
         SuperPageLayout page = pages.get(pages.size() - 1);
         float previousPosition = getVisiblePosition(page);
         float nextPosition = getHidePosition(page);
-        ObjectAnimator animator = ObjectAnimator.ofFloat(page, "translationX", previousPosition, nextPosition);
-        animator.setDuration(300); // 设置动画持续时间为1秒
-        animator.setInterpolator(new AccelerateDecelerateInterpolator());// 设置动画插值器
-
-        ObjectAnimator pagePreviousAnimator = null;
-        if (pages.size() - 2 >= 0){
-            SuperPageLayout pagePrevious = pages.get(pages.size() - 2);
-            float pagePreviousPreviousPosition = getHidePosition(pagePrevious);
-            float pagePreviousNextPosition = getVisiblePosition(pagePrevious);
-            pagePreviousAnimator = ObjectAnimator.ofFloat(pagePrevious, "translationX", pagePreviousPreviousPosition, pagePreviousNextPosition);
-            pagePreviousAnimator.setDuration(300); // 设置动画持续时间为1秒
-            pagePreviousAnimator.setInterpolator(new AccelerateDecelerateInterpolator()); // 设置动画插值器
-            pagePreviousAnimator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    // 动画结束后将视图设置到最终位置
-                    pagePrevious.setX(pagePreviousNextPosition);
-                }
-            });
-        }
-        ObjectAnimator finalPagePreviousAnimator = pagePreviousAnimator;
-        animator.addListener(new AnimatorListenerAdapter() {
+        ObjectAnimator animator1 = ObjectAnimator.ofFloat(page, "translationX", previousPosition, nextPosition);
+        animator1.setDuration(300); // 设置动画持续时间为1秒
+        animator1.setInterpolator(new AccelerateDecelerateInterpolator());// 设置动画插值器
+        animator1.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 // 动画结束后将视图设置到最终位置
                 page.setX(nextPosition);
                 superPagesBox.removeView(page);
                 pages.remove(page);
-                if (finalPagePreviousAnimator != null){
-                    finalPagePreviousAnimator.start();
-                }
-
+                page.close();
             }
         });
-        animator.start();
-        page.close();
+
+        if (pages.size() - 2 >= 0){
+            SuperPageLayout pagePrevious = pages.get(pages.size() - 2);
+            float pagePreviousPreviousPosition = getHidePosition(pagePrevious);
+            float pagePreviousNextPosition = getVisiblePosition(pagePrevious);
+            ObjectAnimator animator2 = ObjectAnimator.ofFloat(pagePrevious, "translationX", pagePreviousPreviousPosition, pagePreviousNextPosition);
+            animator2.setDuration(300); // 设置动画持续时间为1秒
+            animator2.setInterpolator(new AccelerateDecelerateInterpolator()); // 设置动画插值器
+            animator2.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    // 动画结束后将视图设置到最终位置
+                    pagePrevious.setX(pagePreviousNextPosition);
+                }
+            });
+            animator2.start();
+        }
+        animator1.start();
     }
 
 
