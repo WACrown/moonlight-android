@@ -2,13 +2,11 @@ package com.limelight.binding.input.advance_setting.element;
 
 import android.content.Context;
 
-import com.limelight.binding.input.advance_setting.ElementController;
-
 public class AnalogGStick extends AnalogStick {
 
 
     public AnalogGStick(ElementController controller, ElementBean elementBean, Context context){
-        super(controller, elementBean, context);
+        super(0L,0L,0,controller, context);
         ElementController.SendEventHandler sendStickEventHandler = controller.getSendEventHandler(elementBean.getTypeAttributes().get("value"));
         ElementController.SendEventHandler sendButtonEventHandler = controller.getSendEventHandler(elementBean.getTypeAttributes().get("middle_value"));
         addAnalogStickListener(new AnalogStick.AnalogStickListener() {

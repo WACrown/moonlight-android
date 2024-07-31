@@ -2,12 +2,15 @@ package com.limelight;
 
 import android.app.AlertDialog;
 import android.os.Handler;
+import android.view.LayoutInflater;
 import android.widget.ArrayAdapter;
 
 import com.limelight.binding.input.GameInputDevice;
 import com.limelight.binding.input.KeyboardTranslator;
 import com.limelight.binding.input.advance_setting.ControllerManager;
 import com.limelight.binding.input.advance_setting.combinekey.CombineKeyBean;
+import com.limelight.binding.input.advance_setting.element.Element;
+import com.limelight.binding.input.advance_setting.superpage.SuperPageLayout;
 import com.limelight.nvstream.NvConnection;
 import com.limelight.nvstream.input.KeyboardPacket;
 
@@ -150,68 +153,30 @@ public class GameMenu {
         builder.show();
     }
 
-    private void showDeleteSpecialKeys(){
-        List<CombineKeyBean> specialKeyBeans = controllerManager.getCombineKeyController().loadCombineKeyConfig();
-        List<MenuOption> menuOptions = new ArrayList<>();
-
-        for (int specialKeyNum = 0;specialKeyNum < specialKeyBeans.size();specialKeyNum ++){
-            CombineKeyBean combineKeyBean = specialKeyBeans.get(specialKeyNum);
-
-            menuOptions.add(new MenuOption("删除:" + combineKeyBean.getName(),
-                    () -> controllerManager.getCombineKeyController().deleteCombineKey(combineKeyBean) ));
-
-        }
-        showMenuDialog("删除指令",menuOptions.toArray(new MenuOption[0]));
-        menuOptions.add(new MenuOption(getString(R.string.game_menu_cancel), null));
-    }
-
     private void showSpecialKeysMenu() {
-        if (controllerManager != null){
-            List<CombineKeyBean> specialKeyBeans = controllerManager.getCombineKeyController().loadCombineKeyConfig();
-            List<MenuOption> menuOptions = new ArrayList<>();
-            for (CombineKeyBean bean : specialKeyBeans){
-                menuOptions.add(new MenuOption(bean.getName(), () -> sendKeys(bean.getKeyValue())));
-            }
-            menuOptions.add(new MenuOption("增加指令", () -> controllerManager.getCombineKeyController().open()));
-            menuOptions.add(new MenuOption("删除指令", () -> showDeleteSpecialKeys()));
-            menuOptions.add(new MenuOption(getString(R.string.game_menu_cancel), null));
 
-            showMenuDialog(getString(R.string.game_menu_send_keys), menuOptions.toArray(new MenuOption[0]));
-        } else {
-            showMenuDialog(getString(R.string.game_menu_send_keys), new MenuOption[]{
-                    new MenuOption(getString(R.string.game_menu_send_keys_esc),
-                            () -> sendKeys(new short[]{KeyboardTranslator.VK_ESCAPE})),
-                    new MenuOption(getString(R.string.game_menu_send_keys_f11),
-                            () -> sendKeys(new short[]{KeyboardTranslator.VK_F11})),
-                    new MenuOption(getString(R.string.game_menu_send_keys_ctrl_v),
-                            () -> sendKeys(new short[]{KeyboardTranslator.VK_LCONTROL, KeyboardTranslator.VK_V})),
-                    new MenuOption(getString(R.string.game_menu_send_keys_win),
-                            () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN})),
-                    new MenuOption(getString(R.string.game_menu_send_keys_win_d),
-                            () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_D})),
-                    new MenuOption(getString(R.string.game_menu_send_keys_win_g),
-                            () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_G})),
-                    new MenuOption(getString(R.string.game_menu_send_keys_shift_tab),
-                            () -> sendKeys(new short[]{KeyboardTranslator.VK_LSHIFT, KeyboardTranslator.VK_TAB})),
-                    new MenuOption(getString(R.string.game_menu_cancel), null),
-            });
-        }
-
+        showMenuDialog(getString(R.string.game_menu_send_keys), new MenuOption[]{
+                new MenuOption(getString(R.string.game_menu_send_keys_esc),
+                        () -> sendKeys(new short[]{KeyboardTranslator.VK_ESCAPE})),
+                new MenuOption(getString(R.string.game_menu_send_keys_f11),
+                        () -> sendKeys(new short[]{KeyboardTranslator.VK_F11})),
+                new MenuOption(getString(R.string.game_menu_send_keys_ctrl_v),
+                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LCONTROL, KeyboardTranslator.VK_V})),
+                new MenuOption(getString(R.string.game_menu_send_keys_win),
+                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN})),
+                new MenuOption(getString(R.string.game_menu_send_keys_win_d),
+                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_D})),
+                new MenuOption(getString(R.string.game_menu_send_keys_win_g),
+                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_G})),
+                new MenuOption(getString(R.string.game_menu_send_keys_shift_tab),
+                        () -> sendKeys(new short[]{KeyboardTranslator.VK_LSHIFT, KeyboardTranslator.VK_TAB})),
+                new MenuOption(getString(R.string.game_menu_cancel), null),
+        });
 
     }
 
     private void showMenu() {
         List<MenuOption> options = new ArrayList<>();
-        if (controllerManager != null){
-            if (!controllerManager.getSuperPagesController().isClosed()){
-                controllerManager.getSuperPagesController().close();
-                return;
-            }
-
-            options.add(new MenuOption("配置选择", () -> {
-                controllerManager.getConfigController().open();
-            }));
-        }
         options.add(new MenuOption(getString(R.string.game_menu_send_keys), () -> showSpecialKeysMenu()));
         options.add(new MenuOption(getString(R.string.game_menu_toggle_keyboard), true,
                 () -> game.toggleKeyboard()));
@@ -222,6 +187,7 @@ public class GameMenu {
         options.add(new MenuOption(getString(R.string.game_menu_toggle_performance_overlay), () -> game.togglePerformanceOverlay()));
         options.add(new MenuOption(getString(R.string.game_menu_disconnect), () -> game.disconnect()));
         options.add(new MenuOption(getString(R.string.game_menu_cancel), null));
+
 
         showMenuDialog("Game Menu", options.toArray(new MenuOption[options.size()]));
     }

@@ -34,7 +34,6 @@ import com.limelight.LimeLog;
 import com.limelight.PcView;
 import com.limelight.R;
 import com.limelight.binding.input.advance_setting.ConfigListPreference;
-import com.limelight.binding.input.advance_setting.ElementPreference;
 import com.limelight.binding.input.advance_setting.SettingPreference;
 import com.limelight.binding.video.MediaCodecHelper;
 import com.limelight.utils.Dialog;
@@ -48,7 +47,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 public class StreamSettings extends Activity {
@@ -755,62 +753,62 @@ public class StreamSettings extends Activity {
 
 
 
-            ListPreference exportPreference = (ListPreference) findPreference(PreferenceConfiguration.EXPORT_CONFIG_STRING);
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                Context context = getContext();
-                ConfigListPreference configListPreference = new ConfigListPreference(context);
-                Map<String, String> configs = configListPreference.getSortedConfigurationMap();
-                CharSequence[] nameEntries = configs.values().toArray(new String[0]);
-                CharSequence[] nameEntryValues = configs.keySet().toArray(new String[0]);
-                exportPreference.setEntries(nameEntries);
-                exportPreference.setEntryValues(nameEntryValues);
-
-                exportPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-
-
-                        String configId = (String) newValue;
-                        SettingPreference settingPreference = new SettingPreference(configId,context);
-                        ElementPreference elementPreference = new ElementPreference(configId,context);
-
-                        Map<String, String> settingPreferenceMap = settingPreference.exportPreference();
-                        Map<String, String> elementPreferenceMap = elementPreference.exportPreference();
-                        ListPreference listPreference = (ListPreference) preference;
-                        int index = listPreference.findIndexOfValue(newValue.toString());
-                        String newName = (String) listPreference.getEntries()[index];
-
-                        ConfigObject configObject = new ConfigObject(newName,
-                                CONFIG_MAJOR_VERSION,
-                                CONFIG_MINOR_VERSION,
-                                CONFIG_PATCH_VERSION,
-                                settingPreferenceMap,
-                                elementPreferenceMap);
-
-                        Gson gson = new Gson();
-                        String configObjectString = gson.toJson(configObject);
-                        String md5 = MathUtils.computeMD5(configObjectString);
-                        exportConfigString = "###" + configObjectString + "###" + md5 + "###";
-
-                        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-                        intent.setType("*/*");
-                        intent.putExtra(Intent.EXTRA_TITLE, newName + ".mdat");
-                        startActivityForResult(intent, 1);
-
-                        return false;
-                    }
-                });
-
-            }
-            findPreference(PreferenceConfiguration.ABOUT_AUTHOR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.author_web)));
-                    startActivity(intent);
-                    return true;
-                }
-            });
+//            ListPreference exportPreference = (ListPreference) findPreference(PreferenceConfiguration.EXPORT_CONFIG_STRING);
+//            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+//                Context context = getContext();
+//                ConfigListPreference configListPreference = new ConfigListPreference(context);
+//                Map<String, String> configs = configListPreference.getSortedConfigurationMap();
+//                CharSequence[] nameEntries = configs.values().toArray(new String[0]);
+//                CharSequence[] nameEntryValues = configs.keySet().toArray(new String[0]);
+//                exportPreference.setEntries(nameEntries);
+//                exportPreference.setEntryValues(nameEntryValues);
+//
+//                exportPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+//                    @Override
+//                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+//
+//
+//                        String configId = (String) newValue;
+//                        SettingPreference settingPreference = new SettingPreference(configId,context);
+//                        ElementPreference elementPreference = new ElementPreference(configId,context);
+//
+//                        Map<String, String> settingPreferenceMap = settingPreference.exportPreference();
+//                        Map<String, String> elementPreferenceMap = elementPreference.exportPreference();
+//                        ListPreference listPreference = (ListPreference) preference;
+//                        int index = listPreference.findIndexOfValue(newValue.toString());
+//                        String newName = (String) listPreference.getEntries()[index];
+//
+//                        ConfigObject configObject = new ConfigObject(newName,
+//                                CONFIG_MAJOR_VERSION,
+//                                CONFIG_MINOR_VERSION,
+//                                CONFIG_PATCH_VERSION,
+//                                settingPreferenceMap,
+//                                elementPreferenceMap);
+//
+//                        Gson gson = new Gson();
+//                        String configObjectString = gson.toJson(configObject);
+//                        String md5 = MathUtils.computeMD5(configObjectString);
+//                        exportConfigString = "###" + configObjectString + "###" + md5 + "###";
+//
+//                        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+//                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                        intent.setType("*/*");
+//                        intent.putExtra(Intent.EXTRA_TITLE, newName + ".mdat");
+//                        startActivityForResult(intent, 1);
+//
+//                        return false;
+//                    }
+//                });
+//
+//            }
+//            findPreference(PreferenceConfiguration.ABOUT_AUTHOR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//                @Override
+//                public boolean onPreferenceClick(Preference preference) {
+//                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.author_web)));
+//                    startActivity(intent);
+//                    return true;
+//                }
+//            });
 
         }
 
@@ -880,12 +878,12 @@ public class StreamSettings extends Activity {
                         String configId = String.valueOf(System.currentTimeMillis());
                         configListPreference.addConfiguration(configId,configObject.configName);
 
-                        SettingPreference settingPreference = new SettingPreference(configId,getContext());
-                        ElementPreference elementPreference = new ElementPreference(configId,getContext());
-
-                        settingPreference.importPreference(configObject.settingMap);
-                        elementPreference.importPreference(configObject.elementMap);
-                        Toast.makeText(getContext(),"导入配置文件成功",Toast.LENGTH_SHORT).show();
+//                        SettingPreference settingPreference = new SettingPreference(configId,getContext());
+//                        ElementPreference elementPreference = new ElementPreference(configId,getContext());
+//
+//                        settingPreference.importPreference(configObject.settingMap);
+//                        elementPreference.importPreference(configObject.elementMap);
+//                        Toast.makeText(getContext(),"导入配置文件成功",Toast.LENGTH_SHORT).show();
 
                         //更新导出配置文件列表
                         ListPreference exportPreference = (ListPreference) findPreference(PreferenceConfiguration.EXPORT_CONFIG_STRING);

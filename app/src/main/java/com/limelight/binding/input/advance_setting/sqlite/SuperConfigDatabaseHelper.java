@@ -15,6 +15,44 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
 
     public SuperConfigDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS element");
+        // 创建表格的SQL语句
+        String createElementTable = "CREATE TABLE IF NOT EXISTS element (" +
+                "_id INTEGER PRIMARY KEY, " +
+                "element_id INTEGER," +
+                "config_id INTEGER," +
+                "element_type INTEGER," +
+                "element_value TEXT," +
+                "element_middle_value TEXT," +
+                "element_up_value TEXT," +
+                "element_down_value TEXT," +
+                "element_left_value TEXT," +
+                "element_right_value TEXT," +
+                "element_layer INTEGER," +
+                "element_mode INTEGER," +
+                "element_sense INTEGER," +
+                "element_central_x INTEGER," +
+                "element_central_y INTEGER," +
+                "element_width INTEGER," +
+                "element_height INTEGER," +
+                "element_area_width INTEGER," +
+                "element_area_height INTEGER," +
+                "element_text TEXT," +
+                "element_click_text TEXT," +
+                "element_background_icon TEXT," +
+                "element_click_background_icon TEXT," +
+                "element_radius INTEGER," +
+                "element_opacity INTEGER," +
+                "element_thick INTEGER," +
+                "element_background_color INTEGER," +
+                "element_color INTEGER," +
+                "element_pressed_color INTEGER," +
+                "element_create_time INTEGER" +
+                ")";
+
+        // 执行SQL语句
+        db.execSQL(createElementTable);
     }
 
     @Override
@@ -24,34 +62,33 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
                 "_id INTEGER PRIMARY KEY, " +
                 "element_id INTEGER," +
                 "config_id INTEGER," +
-                "element_type TEXT," +
+                "element_type INTEGER," +
                 "element_value TEXT," +
                 "element_middle_value TEXT," +
                 "element_up_value TEXT," +
                 "element_down_value TEXT," +
                 "element_left_value TEXT," +
                 "element_right_value TEXT," +
-                "element_text TEXT," +
-                "element_mode TEXT," +
+                "element_layer INTEGER," +
+                "element_mode INTEGER," +
+                "element_sense INTEGER," +
+                "element_central_x INTEGER," +
+                "element_central_y INTEGER," +
                 "element_width INTEGER," +
                 "element_height INTEGER," +
                 "element_area_width INTEGER," +
                 "element_area_height INTEGER," +
-                "element_sense INTEGER," +
-                "element_x INTEGER," +
-                "element_y INTEGER," +
+                "element_text TEXT," +
+                "element_click_text TEXT," +
+                "element_background_icon TEXT," +
+                "element_click_background_icon TEXT," +
                 "element_radius INTEGER," +
-                "element_shape TEXT," +
                 "element_opacity INTEGER," +
-                "element_layer INTEGER," +
+                "element_thick INTEGER," +
                 "element_background_color INTEGER," +
-                "element_click_background_color INTEGER," +
-                "element_border_color INTEGER," +
-                "element_click_border_color INTEGER," +
-                "element_text_color INTEGER," +
-                "element_click_text_color INTEGER," +
-                "element_create_time INTEGER," +
-                "element_update_time INTEGER" +
+                "element_color INTEGER," +
+                "element_pressed_color INTEGER," +
+                "element_create_time INTEGER" +
                 ")";
 
         // 执行SQL语句
@@ -68,6 +105,10 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL(createConfigTable);
     }
+    public void deleteTable(String tableName){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + tableName);
+    }
 
 
 
@@ -78,7 +119,9 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
 
     public void insertElement(ContentValues values){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.insert("element",null,values);
+        long error = db.insert("element",null,values);
+        System.out.println("error = " + error);
+        db.close();
     }
 
     public void deleteElement(long elementId){
@@ -90,8 +133,8 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
         String[] selectionArgs = { String.valueOf(elementId) };
 
         // 执行删除操作
-        int deletedRows = db.delete("element", selection, selectionArgs);
-
+        db.delete("element", selection, selectionArgs);
+        db.close();
     }
 
     public void updateElement(long elementId,ContentValues values){
@@ -102,27 +145,27 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
         // selectionArgs 数组提供了 WHERE 子句中占位符 ? 的实际值
         String[] selectionArgs = { String.valueOf(elementId) };
 
-        int count = db.update(
-                "config",   // 要更新的表
+        db.update(
+                "element",   // 要更新的表
                 values,    // 新值
                 selection, // WHERE 子句
                 selectionArgs // WHERE 子句中的占位符值
         );
-
+        db.close();
     }
 
     public List<Long> queryAllElementIds(long configId){
         SQLiteDatabase db = this.getReadableDatabase();
 
         // 定义要查询的列
-        String[] projection = { "element_id" };
+        String[] projection = { "element_id", "element_layer" };
 
         // 定义 WHERE 子句
         String selection = "config_id = ?";
         // 定义 WHERE 子句中的参数
         String[] selectionArgs = { String.valueOf(configId) };
         // 排序方式，增序
-        String orderBy = "config_id ASC";
+        String orderBy = "element_id + (element_layer * 281474976710656) ASC";
 
         // 执行查询
         Cursor cursor = db.query(
@@ -144,7 +187,7 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
             }
             cursor.close();
         }
-
+        db.close();
         return elementIds;
     }
     public Object queryElementAttribute(long elementId,String elementAttribute){

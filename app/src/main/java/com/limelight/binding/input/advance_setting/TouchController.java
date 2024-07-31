@@ -46,8 +46,8 @@ public class TouchController{
         }
     }
 
-    public void mouseMove(int deltaX, int deltaY){
-        game.mouseMove(deltaX,deltaY);
+    public void mouseMove(float deltaX, float deltaY){
+        game.mouseMove((int) deltaX,(int) deltaY);
     }
 
 

@@ -78,4 +78,8 @@ public class PageDeviceController {
             }
         }
     }
+
+    public String getKeyNameByValue(String value){
+        return ((TextView)devicePage.findViewWithTag(value)).getText().toString();
+    }
 }

@@ -8,6 +8,7 @@ import com.limelight.Game;
 import com.limelight.R;
 import com.limelight.binding.input.advance_setting.combinekey.PageCombineKeyController;
 import com.limelight.binding.input.advance_setting.config.PageConfigController;
+import com.limelight.binding.input.advance_setting.element.ElementController;
 import com.limelight.binding.input.advance_setting.sqlite.SuperConfigDatabaseHelper;
 import com.limelight.binding.input.advance_setting.superpage.SuperPagesController;
 
@@ -15,12 +16,13 @@ public class ControllerManager {
 
     private FrameLayout advanceSettingView;
     private FrameLayout fatherLayout;
-    private PageConfigController configController;
+    private PageConfigController pageConfigController;
     private TouchController touchController;
     private PageCombineKeyController combineKeyController;
     private SuperPagesController superPagesController;
     private PageDeviceController pageDeviceController;
     private SuperConfigDatabaseHelper superConfigDatabaseHelper;
+    private ElementController elementController;
     private Context context;
 
     public ControllerManager(FrameLayout layout, Context context){
@@ -32,8 +34,9 @@ public class ControllerManager {
         FrameLayout layerElement = advanceSettingView.findViewById(R.id.layer_2_element);
         touchController = new TouchController((Game) context,this,layerElement);
 
+        elementController = new ElementController(this,layerElement,context);
         //configController
-        configController = new PageConfigController(this,context);
+        pageConfigController = new PageConfigController(this,context);
 
         //CombineKey controller
         combineKeyController = new PageCombineKeyController(this,context);
@@ -43,13 +46,15 @@ public class ControllerManager {
 
         pageDeviceController = new PageDeviceController(context,this);
 
-        configController.initConfig();
+
+
+        pageConfigController.initConfig();
 
     }
 
 
-    public PageConfigController getConfigController() {
-        return configController;
+    public PageConfigController getPageConfigController() {
+        return pageConfigController;
     }
 
 
@@ -72,6 +77,10 @@ public class ControllerManager {
 
     public SuperConfigDatabaseHelper getSuperConfigDatabaseHelper() {
         return superConfigDatabaseHelper;
+    }
+
+    public ElementController getElementController() {
+        return elementController;
     }
 
     public void refreshLayout(){

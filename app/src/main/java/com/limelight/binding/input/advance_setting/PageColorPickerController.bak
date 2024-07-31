@@ -1,0 +1,75 @@
+package com.limelight.binding.input.advance_setting;
+
+import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+
+import com.limelight.R;
+import com.limelight.binding.input.advance_setting.superpage.SuperPageLayout;
+import com.skydoves.colorpickerview.ColorPickerView;
+import com.skydoves.colorpickerview.listeners.ColorListener;
+import com.skydoves.colorpickerview.sliders.AlphaSlideBar;
+import com.skydoves.colorpickerview.sliders.BrightnessSlideBar;
+
+public class PageColorPickerController {
+    public interface ColorSelectListener{
+        void colorSelect(int color);
+    }
+
+    private SuperPageLayout pageColorPicker;
+    private ColorPickerView colorPickerView;
+    private AlphaSlideBar alphaSlideBar;
+    private BrightnessSlideBar brightnessSlideBar;
+    private View displayColorView;
+    private EditText colorValueEditText;
+    private ColorSelectListener colorSelectListener;
+
+    public PageColorPickerController(Context context){
+        pageColorPicker = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_color_picker,null);
+        colorPickerView = pageColorPicker.findViewById(R.id.colorPickerView);
+        alphaSlideBar = pageColorPicker.findViewById(R.id.alphaSlideBar);
+        brightnessSlideBar = pageColorPicker.findViewById(R.id.brightnessSlide);
+        displayColorView = pageColorPicker.findViewById(R.id.display_color);
+        colorValueEditText = pageColorPicker.findViewById(R.id.color_value);
+        colorPickerView.attachAlphaSlider(alphaSlideBar);
+        colorPickerView.attachBrightnessSlider(brightnessSlideBar);
+
+        colorPickerView.setColorListener(new ColorListener() {
+            @Override
+            public void onColorSelected(int color, boolean fromUser) {
+                colorSelectListener.colorSelect(color);
+                displayColorView.setBackgroundColor(color);
+                colorValueEditText.setText(String.format("%08X", color));
+            }
+        });
+        colorValueEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String color = s.toString();
+                if (color.matches("^#([A-F0-9]{8})$")){
+                    colorPickerView.
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+    }
+
+    public void open(ColorSelectListener colorSelectListener,int initialColor){
+        this.colorSelectListener = colorSelectListener;
+    }
+
+
+}

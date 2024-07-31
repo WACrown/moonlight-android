@@ -6,8 +6,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.MotionEvent;
 
-import com.limelight.binding.input.advance_setting.ElementController;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,6 +114,9 @@ public class AnalogStick extends Element {
     private float position_stick_x = 0;
     private float position_stick_y = 0;
 
+    private int normalColor;
+    private int pressedColor;
+
     private final Paint paint = new Paint();
 
     private AnalogStick.STICK_STATE stick_state = AnalogStick.STICK_STATE.NO_MOVEMENT;
@@ -159,8 +160,8 @@ public class AnalogStick extends Element {
         }
     }
 
-    public AnalogStick(ElementController controller, ElementBean elementBean, Context context) {
-        super(controller, elementBean, context);
+    public AnalogStick(Long elementId, Long configID, int elementType, ElementController controller, Context context) {
+        super(elementId,configID,elementType,context);
         // reset stick position
         position_stick_x = getWidth() / 2;
         position_stick_y = getHeight() / 2;
@@ -171,7 +172,6 @@ public class AnalogStick extends Element {
     }
 
     private void notifyOnMovement(float x, float y) {
-        _DBG("movement x: " + x + " movement y: " + y);
         // notify listeners
         for (AnalogStick.AnalogStickListener listener : listeners) {
             listener.onMovement(x, y);
@@ -179,7 +179,6 @@ public class AnalogStick extends Element {
     }
 
     private void notifyOnClick() {
-        _DBG("click");
         // notify listeners
         for (AnalogStick.AnalogStickListener listener : listeners) {
             listener.onClick();
@@ -187,7 +186,6 @@ public class AnalogStick extends Element {
     }
 
     private void notifyOnDoubleClick() {
-        _DBG("double click");
         // notify listeners
         for (AnalogStick.AnalogStickListener listener : listeners) {
             listener.onDoubleClick();
@@ -195,7 +193,6 @@ public class AnalogStick extends Element {
     }
 
     private void notifyOnRevoke() {
-        _DBG("revoke");
         // notify listeners
         for (AnalogStick.AnalogStickListener listener : listeners) {
             listener.onRevoke();
@@ -222,20 +219,20 @@ public class AnalogStick extends Element {
 
         // draw outer circle
         if (!isPressed() || click_state == AnalogStick.CLICK_STATE.SINGLE) {
-            paint.setColor(getNormalColor());
+            paint.setColor(normalColor);
         } else {
             paint.setColor(pressedColor);
         }
         canvas.drawCircle(getWidth() / 2, getHeight() / 2, radius_complete, paint);
 
-        paint.setColor(getNormalColor());
+        paint.setColor(normalColor);
         // draw dead zone
         canvas.drawCircle(getWidth() / 2, getHeight() / 2, radius_dead_zone, paint);
 
         // draw stick depending on state
         switch (stick_state) {
             case NO_MOVEMENT: {
-                paint.setColor(getNormalColor());
+                paint.setColor(normalColor);
                 canvas.drawCircle(getWidth() / 2, getHeight() / 2, radius_analog_stick, paint);
                 break;
             }

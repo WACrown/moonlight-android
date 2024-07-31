@@ -6,8 +6,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.MotionEvent;
 
-import com.limelight.binding.input.advance_setting.ElementController;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,20 +20,25 @@ public class DigitalPad extends Element {
     public final static int DIGITAL_PAD_DIRECTION_RIGHT = 4;
     public final static int DIGITAL_PAD_DIRECTION_DOWN = 8;
     List<DigitalPadListener> listeners = new ArrayList<>();
-
     private static final int DPAD_MARGIN = 5;
+
+    private int normalColor;
+    private int pressedColor;
 
     //加上这个防止一些无用的按键多次触发，发送大量数据，导致卡顿
     private int lastDirection = 0;
     private final Paint paint = new Paint();
 
-    public DigitalPad(ElementController controller, ElementBean elementBean, Context context) {
-        super(controller, elementBean, context);
-        ElementController.SendEventHandler topSender = controller.getSendEventHandler(elementBean.getTypeAttributes().get("top_value"));
-        ElementController.SendEventHandler downSender = controller.getSendEventHandler(elementBean.getTypeAttributes().get("down_value"));
-        ElementController.SendEventHandler leftSender = controller.getSendEventHandler(elementBean.getTypeAttributes().get("left_value"));
-        ElementController.SendEventHandler rightSender = controller.getSendEventHandler(elementBean.getTypeAttributes().get("right_value"));
-
+    public DigitalPad(Long elementId, Long configID, int elementType, ElementController controller, Context context) {
+        super(elementId,configID,elementType,context);
+//        ElementController.SendEventHandler topSender = controller.getSendEventHandler(elementBean.getTypeAttributes().get("top_value"));
+//        ElementController.SendEventHandler downSender = controller.getSendEventHandler(elementBean.getTypeAttributes().get("down_value"));
+//        ElementController.SendEventHandler leftSender = controller.getSendEventHandler(elementBean.getTypeAttributes().get("left_value"));
+//        ElementController.SendEventHandler rightSender = controller.getSendEventHandler(elementBean.getTypeAttributes().get("right_value"));
+        ElementController.SendEventHandler topSender = null;
+        ElementController.SendEventHandler downSender = null;
+        ElementController.SendEventHandler leftSender = null;
+        ElementController.SendEventHandler rightSender = null;
         addDigitalPadListener(new DigitalPad.DigitalPadListener() {
             @Override
             public void onDirectionChange(int direction) {
@@ -94,7 +97,7 @@ public class DigitalPad extends Element {
         if (direction == DIGITAL_PAD_DIRECTION_NO_DIRECTION) {
             // draw no direction rect
             paint.setStyle(Paint.Style.STROKE);
-            paint.setColor(getNormalColor());
+            paint.setColor(normalColor);
             canvas.drawRect(
                     getPercent(getWidth(), 36), getPercent(getHeight(), 36),
                     getPercent(getWidth(), 63), getPercent(getHeight(), 63),
@@ -104,7 +107,7 @@ public class DigitalPad extends Element {
 
         // draw left rect
         paint.setColor(
-                (direction & DIGITAL_PAD_DIRECTION_LEFT) > 0 ? pressedColor : getNormalColor());
+                (direction & DIGITAL_PAD_DIRECTION_LEFT) > 0 ? pressedColor : normalColor);
         paint.setStyle(Paint.Style.STROKE);
         canvas.drawRect(
                 paint.getStrokeWidth()+DPAD_MARGIN, getPercent(getHeight(), 33),
@@ -115,7 +118,7 @@ public class DigitalPad extends Element {
 
         // draw up rect
         paint.setColor(
-                (direction & DIGITAL_PAD_DIRECTION_UP) > 0 ? pressedColor : getNormalColor());
+                (direction & DIGITAL_PAD_DIRECTION_UP) > 0 ? pressedColor : normalColor);
         paint.setStyle(Paint.Style.STROKE);
         canvas.drawRect(
                 getPercent(getWidth(), 33), paint.getStrokeWidth()+DPAD_MARGIN,
@@ -125,7 +128,7 @@ public class DigitalPad extends Element {
 
         // draw right rect
         paint.setColor(
-                (direction & DIGITAL_PAD_DIRECTION_RIGHT) > 0 ? pressedColor : getNormalColor());
+                (direction & DIGITAL_PAD_DIRECTION_RIGHT) > 0 ? pressedColor : normalColor);
         paint.setStyle(Paint.Style.STROKE);
         canvas.drawRect(
                 getPercent(getWidth(), 66), getPercent(getHeight(), 33),
@@ -135,7 +138,7 @@ public class DigitalPad extends Element {
 
         // draw down rect
         paint.setColor(
-                (direction & DIGITAL_PAD_DIRECTION_DOWN) > 0 ? pressedColor : getNormalColor());
+                (direction & DIGITAL_PAD_DIRECTION_DOWN) > 0 ? pressedColor : normalColor);
         paint.setStyle(Paint.Style.STROKE);
         canvas.drawRect(
                 getPercent(getWidth(), 33), getPercent(getHeight(), 66),
@@ -147,7 +150,7 @@ public class DigitalPad extends Element {
         paint.setColor((
                         (direction & DIGITAL_PAD_DIRECTION_LEFT) > 0 &&
                                 (direction & DIGITAL_PAD_DIRECTION_UP) > 0
-                ) ? pressedColor : getNormalColor()
+                ) ? pressedColor : normalColor
         );
         paint.setStyle(Paint.Style.STROKE);
         canvas.drawLine(
@@ -160,7 +163,7 @@ public class DigitalPad extends Element {
         paint.setColor((
                         (direction & DIGITAL_PAD_DIRECTION_UP) > 0 &&
                                 (direction & DIGITAL_PAD_DIRECTION_RIGHT) > 0
-                ) ? pressedColor : getNormalColor()
+                ) ? pressedColor : normalColor
         );
         paint.setStyle(Paint.Style.STROKE);
         canvas.drawLine(
@@ -173,7 +176,7 @@ public class DigitalPad extends Element {
         paint.setColor((
                         (direction & DIGITAL_PAD_DIRECTION_RIGHT) > 0 &&
                                 (direction & DIGITAL_PAD_DIRECTION_DOWN) > 0
-                ) ? pressedColor : getNormalColor()
+                ) ? pressedColor : normalColor
         );
         paint.setStyle(Paint.Style.STROKE);
         canvas.drawLine(
@@ -186,7 +189,7 @@ public class DigitalPad extends Element {
         paint.setColor((
                         (direction & DIGITAL_PAD_DIRECTION_DOWN) > 0 &&
                                 (direction & DIGITAL_PAD_DIRECTION_LEFT) > 0
-                ) ? pressedColor : getNormalColor()
+                ) ? pressedColor : normalColor
         );
         paint.setStyle(Paint.Style.STROKE);
         canvas.drawLine(
@@ -197,7 +200,6 @@ public class DigitalPad extends Element {
     }
 
     private void newDirectionCallback(int direction) {
-        _DBG("direction: " + direction);
 
         // notify listeners
         for (DigitalPadListener listener : listeners) {

@@ -1,19 +1,19 @@
-package com.limelight.binding.input.advance_setting;
+package com.limelight.binding.input.advance_setting.element;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import com.limelight.Game;
+import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
-import com.limelight.binding.input.advance_setting.element.AnalogGStick;
-import com.limelight.binding.input.advance_setting.element.AnalogKStick;
-import com.limelight.binding.input.advance_setting.element.DigitalButton;
-import com.limelight.binding.input.advance_setting.element.DigitalPad;
-import com.limelight.binding.input.advance_setting.element.DigitalSwitch;
-import com.limelight.binding.input.advance_setting.element.Element;
-import com.limelight.binding.input.advance_setting.element.ElementBean;
+import com.limelight.binding.input.advance_setting.ControllerManager;
+import com.limelight.binding.input.advance_setting.sqlite.SuperConfigDatabaseHelper;
+import com.limelight.binding.input.advance_setting.superpage.SuperPageLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,11 +22,18 @@ import java.util.Map;
 
 public class ElementController {
 
-    public abstract class SendEventHandler {
 
-        public abstract void sendEvent(boolean down);
-        public abstract void sendEvent(int analog1, int analog2);
 
+
+    public interface SendEventHandler {
+        void sendEvent(boolean down);
+        void sendEvent(int analog1, int analog2);
+    }
+
+
+    public enum Mode{
+        Normal,
+        Edit
     }
 
     public static class GamepadInputContext {
@@ -39,10 +46,10 @@ public class ElementController {
         public short leftStickY = 0x0000;
     }
 
+
     private final Context context;
     private final Game game;
     private final Handler handler;
-    private ElementPreference elementPreference;
 
     private final ControllerManager controllerManager;
     private final ControllerHandler controllerHandler;
@@ -51,143 +58,169 @@ public class ElementController {
 
 
     private final List<Element> elements = new ArrayList<>();
+    private List<Long> elementIds;
     private Map<Short, Runnable> keyEventRunnableMap = new HashMap<>();
     private Map<Integer, Runnable> mouseEventRunnableMap = new HashMap<>();
     private FrameLayout elementsLayout;
+    private Mode mode = Mode.Normal;
+    private SuperPageLayout pageEdit;
+    private SuperConfigDatabaseHelper superConfigDatabaseHelper;
+    private SuperPageLayout lastElementSettingPage;
+
+
+
     public ElementController(ControllerManager controllerManager, FrameLayout layout, final Context context) {
         this.elementsLayout = layout;
         this.context = context;
         this.game = (Game) context;
         this.controllerManager = controllerManager;
         this.controllerHandler = game.getControllerHandler();
+        this.superConfigDatabaseHelper = controllerManager.getSuperConfigDatabaseHelper();
+        this.handler = new Handler(Looper.getMainLooper());
+        this.pageEdit = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_edit,null);
 
-
-        handler = new Handler(Looper.getMainLooper());
+        initEditTool();
+        initEditPage();
     }
 
-    public Handler getHandler() {
+    private void initEditTool(){
+
+    }
+    private void initEditPage(){
+        pageEdit.findViewById(R.id.page_edit_exit_edit_mode).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                controllerManager.getPageConfigController().exitElementEditMode();
+                controllerManager.getTouchController().enableTouch(true);
+                mode = Mode.Normal;
+                for (Element element : elements){
+                    element.invalidate();
+                }
+            }
+        });
+        pageEdit.findViewById(R.id.page_edit_add_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                controllerManager.getElementController().addElement(Element.ELEMENT_TYPE_DIGITAL_BUTTON);
+            }
+        });
+    }
+
+
+    protected Handler getHandler() {
         return handler;
     }
 
+    protected SuperConfigDatabaseHelper getSuperConfigDatabaseHelper() {
+        return superConfigDatabaseHelper;
+    }
 
+    public void loadAllElement(Long configId){
+        removeAllElementsFromScreen();
+        elementIds = superConfigDatabaseHelper.queryAllElementIds(configId);
+        for (Long elementId : elementIds){
+            int type = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,Element.COLUMN_INT_ELEMENT_TYPE);
+            Element element = null;
+            switch (type){
+                case Element.ELEMENT_TYPE_DIGITAL_BUTTON:
+                    element = new DigitalButton(elementId,
+                            configId,
+                            Element.ELEMENT_TYPE_DIGITAL_BUTTON,
+                            this,
+                            controllerManager.getTouchController(),
+                            controllerManager.getDevicePageController(),
+                            context);
+                    break;
+                case Element.ELEMENT_TYPE_DIGITAL_DIGITAL_PAD:
 
+                    break;
+                case Element.ELEMENT_TYPE_ANALOG_STICK:
 
-    public void loadElementConfig(String configId){
-        removeElementsFromScreen();
-        elementPreference = new ElementPreference(configId,context);
-        for (ElementBean elementBean : elementPreference.getElements()){
-            addElementToScreen(elementBean);
+                    break;
+            }
+
+            elements.add(element);
+            int elementWidth = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,Element.COLUMN_INT_ELEMENT_WIDTH);
+            int elementHeight = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,Element.COLUMN_INT_ELEMENT_HEIGHT);
+            int elementCentralX = (int) superConfigDatabaseHelper.queryElementAttribute(elementId, Element.COLUMN_INT_ELEMENT_CENTRAL_X);
+            int elementCentralY = (int) superConfigDatabaseHelper.queryElementAttribute(elementId, Element.COLUMN_INT_ELEMENT_CENTRAL_Y);
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(elementWidth, elementHeight);
+            layoutParams.leftMargin = elementCentralX - elementWidth / 2;
+            layoutParams.topMargin = elementCentralY - elementHeight / 2;
+            elementsLayout.addView(element,elementsLayout.getChildCount() - 1,layoutParams);
+        }
+    }
+
+    public void addElement(int elementType){
+        switch (elementType){
+            case Element.ELEMENT_TYPE_DIGITAL_BUTTON:
+                Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
+                // save a new element to sqlite
+                ContentValues contentValues = DigitalButton.getInitialInfo();
+                //ContentValues contentValues = new ContentValues();
+                contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
+                superConfigDatabaseHelper.insertElement(contentValues);
+                // add the element to screen
+                loadAllElement(configId);
+                break;
+            case Element.ELEMENT_TYPE_DIGITAL_DIGITAL_PAD:
+
+                break;
+            case Element.ELEMENT_TYPE_ANALOG_STICK:
+
+                break;
         }
     }
 
 
-    public void deleteElement(Element element){
-        elementsLayout.removeView(element);
-        elements.remove(element);
-        elementPreference.deleteElement(element.getElementId());
-    }
-
-    public void saveElement(Element element){
-        elementPreference.addElement(element.getElementBean());
-    }
-
-
-    public Element addElement(ElementBean elementBean){
-        Element element = addElementToScreen(elementBean);
-        elementPreference.addElement(elementBean);
-        return element;
-    }
-
-    private Element addElementToScreen(ElementBean elementBean){
-        Element element = null;
-        switch (elementBean.getType()){
-            case ElementBean.TYPE_BUTTON:
-                element = new DigitalButton(this,elementBean,context);
-                break;
-
-            case ElementBean.TYPE_SWITCH:
-                element = new DigitalSwitch(this,elementBean,context);
-                break;
-
-            case ElementBean.TYPE_K_PAD:
-            case ElementBean.TYPE_G_PAD:
-            case ElementBean.TYPE_PAD:
-                element = new DigitalPad(this,elementBean,context);
-                break;
-
-            case ElementBean.TYPE_M_BUTTON:
-                element = addMButton(elementBean);
-                break;
-
-            case ElementBean.TYPE_K_STICK:
-                element = new AnalogKStick(this,elementBean,context);
-                break;
-
-            case ElementBean.TYPE_K_ISTICK:
-                element = addKIStick(elementBean);
-                break;
-
-            case ElementBean.TYPE_G_STICK:
-                element = new AnalogGStick(this,elementBean,context);
-                break;
-
-            case ElementBean.TYPE_G_ISTICK:
-                element = addGIStick(elementBean);
-                break;
-
-
+    public void toggleSettingPage(SuperPageLayout elementSettingPage){
+        if (controllerManager.getSuperPagesController().getLastPage() == lastElementSettingPage && lastElementSettingPage != null){
+            controllerManager.getSuperPagesController().close();
+            if (elementSettingPage != lastElementSettingPage){
+                controllerManager.getSuperPagesController().open(elementSettingPage);
+                lastElementSettingPage = elementSettingPage;
+            }
+        } else {
+            controllerManager.getSuperPagesController().open(elementSettingPage);
+            lastElementSettingPage = elementSettingPage;
         }
-        elements.add(element);
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(elementBean.getWidth(), elementBean.getHeight());
-        layoutParams.setMargins(elementBean.getPositionX() - elementBean.getWidth()/2, elementBean.getPositionY() - elementBean.getHeight()/2, 0, 0);
-
-        elementsLayout.addView(element, layoutParams);
-        return element;
     }
 
-    private Element addMButton(ElementBean elementBean){
-        return null;
-    }
-    private Element addKStick(ElementBean elementBean){
-        return null;
-    }
-    private Element addKIStick(ElementBean elementBean){
-        return null;
-    }
-    private Element addGStick(ElementBean elementBean){
-        return null;
-    }
-    private Element addGIStick(ElementBean elementBean){
-        return null;
+    public SuperPageLayout getPageEdit() {
+        return pageEdit;
     }
 
+    public void entryEditMode(){
+
+        controllerManager.getTouchController().enableTouch(false);
+        mode = Mode.Edit;
+        for (Element element : elements){
+            element.invalidate();
+        }
+
+    }
+
+    public Mode getMode() {
+        return mode;
+    }
 
     //其他辅助方法----------------------------------
     public List<Element> getElements() {
         return elements;
     }
-    public void removeElementsFromScreen() {
+    public void removeAllElementsFromScreen() {
         for (Element element : elements) {
             elementsLayout.removeView(element);
         }
         elements.clear();
     }
 
-    //倒序选择，不然会先选择下面的按钮
-    public Element selectElement(float x, float y){
-        for (int i = elements.size() - 1;i > -1;i --){
-            Element element = elements.get(i);
-            if (element.inRange(x,y)){
-                return element;
-            }
-        }
-        return null;
+    public int getElementsParentWidth(){
+        return elementsLayout.getWidth();
     }
 
-    public void setOpacity(int opacity) {
-        for (Element element : elements) {
-            element.setOpacity(opacity);
-        }
+    public int getElementsParentHeight(){
+        return elementsLayout.getHeight();
     }
 
     public SendEventHandler getSendEventHandler(String key){

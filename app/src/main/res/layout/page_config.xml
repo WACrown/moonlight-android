@@ -74,38 +74,28 @@
                     android:layout_height="match_parent"
                     android:checked="true"/>
             </LinearLayout>
-
-
-            <LinearLayout
-                android:orientation="vertical"
+            <com.limelight.binding.input.advance_setting.NumberSeekbar
+                android:id="@+id/mouse_sense_number_seekbar"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
+                android:layout_marginVertical="5dp"
+                android:text="触控板灵敏度"
+                android:max="500"
+                android:min="1"
+                android:progress="100" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
                 android:layout_marginVertical="5dp">
-                <FrameLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:layout_marginBottom="5dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical"
-                        android:text="触控板灵敏度"/>
-                    <TextView
-                        android:id="@+id/mouse_sense_textview"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="end"
-                        android:gravity="center_vertical"
-                        android:text="100"/>
-                </FrameLayout>
-                <SeekBar
-                    android:id="@+id/mouse_sense_seekbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="25dp"
-                    android:max="500"
-                    android:min="1"
-                    android:progress="100"/>
+
+                <TextView
+                    android:id="@+id/page_config_edit_mode"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text="进入编辑模式" />
             </LinearLayout>
             <LinearLayout
                 android:orientation="horizontal"

@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.limelight.R;
 import com.limelight.binding.input.advance_setting.ControllerManager;
+import com.limelight.binding.input.advance_setting.NumberSeekbar;
 import com.limelight.binding.input.advance_setting.sqlite.SuperConfigDatabaseHelper;
 import com.limelight.binding.input.advance_setting.superpage.SuperPageLayout;
 
@@ -43,6 +44,7 @@ public class PageConfigController {
 
     private List<Long> configIds = new ArrayList<>();
     private List<String> configNames = new ArrayList<>();
+    private SuperPageLayout openPage;
 
 
 
@@ -52,6 +54,7 @@ public class PageConfigController {
         this.controllerManager = controllerManager;
         this.superConfigDatabaseHelper = controllerManager.getSuperConfigDatabaseHelper();
         configSelectSpinner = pageConfig.findViewById(R.id.config_select_spinner);
+        openPage = pageConfig;
 
         //新增布局按钮
         pageConfig.findViewById(R.id.add_config_button).setOnClickListener(new View.OnClickListener() {
@@ -171,6 +174,14 @@ public class PageConfigController {
             }
         });
 
+        pageConfig.findViewById(R.id.page_config_edit_mode).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                controllerManager.getElementController().entryEditMode();
+                controllerManager.getSuperPagesController().close();
+                openPage = controllerManager.getElementController().getPageEdit();
+            }
+        });
 
     }
 
@@ -294,28 +305,19 @@ public class PageConfigController {
     }
 
     private void loadMouseSense(){
-        SeekBar mouseSenseSeekBar = pageConfig.findViewById(R.id.mouse_sense_seekbar);
-        TextView mouseSenseTextview = pageConfig.findViewById(R.id.mouse_sense_textview);
+        NumberSeekbar mouseSenseSeekBar = pageConfig.findViewById(R.id.mouse_sense_number_seekbar);
         int mouseSense = ((Long) superConfigDatabaseHelper.queryConfigAttribute(currentConfigId, COLUMN_INT_TOUCH_SENSE)).intValue();
-        mouseSenseTextview.setText(String.valueOf(mouseSense));
-        mouseSenseSeekBar.setOnSeekBarChangeListener(null);
-        mouseSenseSeekBar.setProgress(mouseSense);
+        mouseSenseSeekBar.setValueWithNoCallBack(mouseSense);
         controllerManager.getTouchController().adjustTouchSense(mouseSense);
-        mouseSenseSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mouseSenseSeekBar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             private int progress = 0;
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mouseSenseTextview.setText(String.valueOf(progress));
+            public void onProgressChanged(int progress) {
                 this.progress = progress;
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+            public void onProgressRelease() {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_INT_TOUCH_SENSE,progress);
                 //保存到数据库中
@@ -325,9 +327,23 @@ public class PageConfigController {
             }
         });
     }
+    public Long getCurrentConfigId(){
+        return currentConfigId;
+    }
+
+    public void exitElementEditMode(){
+        controllerManager.getSuperPagesController().close();
+        openPage = pageConfig;
+    }
 
     public void open(){
-        controllerManager.getSuperPagesController().open(pageConfig);
+        if (controllerManager.getSuperPagesController().getLastPage() != null){
+            controllerManager.getSuperPagesController().close();
+            return;
+        }
+
+        controllerManager.getSuperPagesController().open(openPage);
+
     }
 
 }

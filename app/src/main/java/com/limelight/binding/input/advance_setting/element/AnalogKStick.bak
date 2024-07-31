@@ -2,8 +2,6 @@ package com.limelight.binding.input.advance_setting.element;
 
 import android.content.Context;
 
-import com.limelight.binding.input.advance_setting.ElementController;
-
 public class AnalogKStick extends AnalogStick {
 
     private boolean upIsPressed = false;
@@ -11,7 +9,7 @@ public class AnalogKStick extends AnalogStick {
     private boolean leftIsPressed = false;
     private boolean rightIsPressed = false;
     public AnalogKStick(ElementController controller, ElementBean elementBean, Context context){
-        super(controller, elementBean, context);
+        super(0L,0L,0,controller, context);
 
         ElementController.SendEventHandler topSender = controller.getSendEventHandler(elementBean.getTypeAttributes().get("top_value"));
         ElementController.SendEventHandler downSender = controller.getSendEventHandler(elementBean.getTypeAttributes().get("down_value"));
