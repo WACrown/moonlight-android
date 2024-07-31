@@ -26,8 +26,6 @@ public class SuperPagesController {
     private FrameLayout superPagesBox;
     private Context context;
 
-    private boolean animator1Done = true;
-    private boolean animator2Done = true;
     private Animator animator1;
     private Animator animator2;
 
@@ -99,6 +97,7 @@ public class SuperPagesController {
         return pages.isEmpty() ? null : pages.get(pages.size() - 1);
     }
 
+
     public boolean open(SuperPageLayout page){
         if (animator1 != null){
             animator1.end();
@@ -106,7 +105,7 @@ public class SuperPagesController {
         if (animator2 != null){
             animator2.end();
         }
-
+        pages.add(page);
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(dpToPx(Integer.parseInt(page.getTag().toString())), ViewGroup.LayoutParams.MATCH_PARENT);
         layoutParams.topMargin = dpToPx(20);
         layoutParams.bottomMargin = dpToPx(20);
@@ -123,7 +122,6 @@ public class SuperPagesController {
             public void onAnimationEnd(Animator animation) {
                 // 动画结束后将视图设置到最终位置
                 page.setX(nextPosition);
-                pages.add(page);
                 animator1 = null;
             }
         });
@@ -157,8 +155,8 @@ public class SuperPagesController {
         if (animator2 != null){
             animator2.end();
         }
-
         SuperPageLayout page = pages.get(pages.size() - 1);
+        pages.remove(page);
         float previousPosition = getVisiblePosition(page);
         float nextPosition = getHidePosition(page);
         animator1 = ObjectAnimator.ofFloat(page, "translationX", previousPosition, nextPosition);
@@ -170,14 +168,13 @@ public class SuperPagesController {
                 // 动画结束后将视图设置到最终位置
                 page.setX(nextPosition);
                 superPagesBox.removeView(page);
-                pages.remove(page);
                 page.close();
                 animator1 = null;
             }
         });
 
-        if (pages.size() - 2 >= 0){
-            SuperPageLayout pagePrevious = pages.get(pages.size() - 2);
+        if (pages.size() - 1 >= 0){
+            SuperPageLayout pagePrevious = pages.get(pages.size() - 1);
             float pagePreviousPreviousPosition = getHidePosition(pagePrevious);
             float pagePreviousNextPosition = getVisiblePosition(pagePrevious);
             animator2 = ObjectAnimator.ofFloat(pagePrevious, "translationX", pagePreviousPreviousPosition, pagePreviousNextPosition);
