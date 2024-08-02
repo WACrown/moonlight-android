@@ -174,16 +174,6 @@ public class PageConfigController {
             }
         });
 
-        pageConfig.findViewById(R.id.page_config_edit_mode).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                controllerManager.getElementController().entryEditMode();
-                controllerManager.getSuperPagesController().close();
-                openPage = controllerManager.getElementController().getPageEdit();
-                open();
-            }
-        });
-
     }
 
     public void initConfig(){
@@ -331,19 +321,8 @@ public class PageConfigController {
         return currentConfigId;
     }
 
-    public void exitElementEditMode(){
-        controllerManager.getSuperPagesController().close();
-        openPage = pageConfig;
-    }
-
     public void open(){
-        if (controllerManager.getSuperPagesController().getLastPage() != null){
-            controllerManager.getSuperPagesController().close();
-            return;
-        }
-
         controllerManager.getSuperPagesController().open(openPage);
-
     }
 
 }

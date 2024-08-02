@@ -79,18 +79,14 @@ public class ElementController {
         this.handler = new Handler(Looper.getMainLooper());
         this.pageEdit = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_edit,null);
 
-        initEditTool();
         initEditPage();
     }
 
-    private void initEditTool(){
-
-    }
     private void initEditPage(){
         pageEdit.findViewById(R.id.page_edit_exit_edit_mode).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                controllerManager.getPageConfigController().exitElementEditMode();
+                controllerManager.getPageSuperMenuController().exitElementEditMode();
                 controllerManager.getTouchController().enableTouch(true);
                 mode = Mode.Normal;
                 for (Element element : elements){
@@ -128,7 +124,7 @@ public class ElementController {
                             Element.ELEMENT_TYPE_DIGITAL_BUTTON,
                             this,
                             controllerManager.getTouchController(),
-                            controllerManager.getDevicePageController(),
+                            controllerManager.getPageDeviceController(),
                             context);
                     break;
                 case Element.ELEMENT_TYPE_DIGITAL_DIGITAL_PAD:

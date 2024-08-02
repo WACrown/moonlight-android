@@ -23,6 +23,7 @@ public class ControllerManager {
     private PageDeviceController pageDeviceController;
     private SuperConfigDatabaseHelper superConfigDatabaseHelper;
     private ElementController elementController;
+    private PageSuperMenuController pageSuperMenuController;
     private Context context;
 
     public ControllerManager(FrameLayout layout, Context context){
@@ -30,6 +31,8 @@ public class ControllerManager {
         this.fatherLayout = layout;
 
         superConfigDatabaseHelper = new SuperConfigDatabaseHelper(context);
+
+        pageSuperMenuController = new PageSuperMenuController(context,this);
 
         FrameLayout layerElement = advanceSettingView.findViewById(R.id.layer_2_element);
         touchController = new TouchController((Game) context,this,layerElement);
@@ -71,7 +74,7 @@ public class ControllerManager {
         return superPagesController;
     }
 
-    public PageDeviceController getDevicePageController() {
+    public PageDeviceController getPageDeviceController() {
         return pageDeviceController;
     }
 
@@ -81,6 +84,10 @@ public class ControllerManager {
 
     public ElementController getElementController() {
         return elementController;
+    }
+
+    public PageSuperMenuController getPageSuperMenuController() {
+        return pageSuperMenuController;
     }
 
     public void refreshLayout(){

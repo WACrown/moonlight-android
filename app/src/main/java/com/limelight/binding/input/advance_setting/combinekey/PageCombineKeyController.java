@@ -59,7 +59,7 @@ public class PageCombineKeyController {
                             v.setTag("k-1");
                         }
                     };
-                    controllerManager.getDevicePageController().open(deviceCallBack,View.VISIBLE,View.GONE,View.GONE);
+                    controllerManager.getPageDeviceController().open(deviceCallBack,View.VISIBLE,View.GONE,View.GONE);
                 }
             });
         }

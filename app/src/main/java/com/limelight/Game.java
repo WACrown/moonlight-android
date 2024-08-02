@@ -2798,7 +2798,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     @Override
     public void showGameMenu(GameInputDevice device) {
         if (controllerManager != null){
-            controllerManager.getPageConfigController().open();
+            controllerManager.getPageSuperMenuController().open();
         } else {
             new GameMenu(this, conn, device,controllerManager);
         }
