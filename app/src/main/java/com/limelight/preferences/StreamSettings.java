@@ -34,7 +34,6 @@ import com.limelight.LimeLog;
 import com.limelight.PcView;
 import com.limelight.R;
 import com.limelight.binding.input.advance_setting.ConfigListPreference;
-import com.limelight.binding.input.advance_setting.SettingPreference;
 import com.limelight.binding.video.MediaCodecHelper;
 import com.limelight.utils.Dialog;
 import com.limelight.utils.MathUtils;

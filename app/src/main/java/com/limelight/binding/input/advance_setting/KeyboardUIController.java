@@ -9,7 +9,7 @@ import android.widget.SeekBar;
 
 import com.limelight.R;
 
-public class KeyboardUIController extends UIController {
+public class KeyboardUIController {
 
     private FrameLayout keyboardLayout;
     private ControllerManager controllerManager;
@@ -71,7 +71,6 @@ public class KeyboardUIController extends UIController {
         visibility = View.VISIBLE;
         keyboardLayout.setVisibility(visibility);
     }
-    @Override
     public void close() {
         visibility = View.GONE;
         keyboardLayout.setVisibility(visibility);

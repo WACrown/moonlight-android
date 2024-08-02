@@ -151,7 +151,7 @@ public class ElementController {
         }
     }
 
-    public void addElement(int elementType){
+    private void addElement(int elementType){
         switch (elementType){
             case Element.ELEMENT_TYPE_DIGITAL_BUTTON:
                 Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
@@ -170,6 +170,20 @@ public class ElementController {
 
                 break;
         }
+    }
+
+    protected void deleteElement(Element element){
+        superConfigDatabaseHelper.deleteElement(element.elementId);
+        Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
+        loadAllElement(configId);
+    }
+
+    protected void copyElement(ContentValues contentValues){
+        Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
+        contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
+        superConfigDatabaseHelper.insertElement(contentValues);
+        // add the element to screen
+        loadAllElement(configId);
     }
 
 

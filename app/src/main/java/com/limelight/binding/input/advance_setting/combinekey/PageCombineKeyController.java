@@ -12,12 +12,11 @@ import com.limelight.binding.input.KeyboardTranslator;
 import com.limelight.binding.input.advance_setting.ControllerManager;
 import com.limelight.binding.input.advance_setting.PageDeviceController;
 import com.limelight.binding.input.advance_setting.superpage.SuperPageLayout;
-import com.limelight.binding.input.advance_setting.UIController;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PageCombineKeyController extends UIController {
+public class PageCombineKeyController {
 
     private Context context;
     private SuperPageLayout combineKeyPage;

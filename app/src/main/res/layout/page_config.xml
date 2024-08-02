@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.limelight.binding.input.advance_setting.superpage.SuperPageLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.limelight.binding.input.advance_setting.superpage.SuperPageLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="250dp"
     android:layout_height="match_parent"
     android:tag="250">
@@ -74,28 +76,37 @@
                     android:layout_height="match_parent"
                     android:checked="true"/>
             </LinearLayout>
-            <com.limelight.binding.input.advance_setting.NumberSeekbar
+            <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
                 android:id="@+id/mouse_sense_number_seekbar"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginVertical="5dp"
-                android:text="触控板灵敏度"
-                android:max="500"
-                android:min="1"
+                app:text="触控板灵敏度"
+                app:max="500"
+                app:min="1"
                 android:progress="100" />
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginVertical="5dp">
-
-                <TextView
+                <LinearLayout
                     android:id="@+id/page_config_edit_mode"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:text="进入编辑模式" />
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="进入编辑模式" />
+                    <View
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_margin="5dp"
+                        android:background="@drawable/right_arrow"/>
+                </LinearLayout>
             </LinearLayout>
             <LinearLayout
                 android:orientation="horizontal"

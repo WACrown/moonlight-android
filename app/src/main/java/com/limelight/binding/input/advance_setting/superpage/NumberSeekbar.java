@@ -1,4 +1,4 @@
-package com.limelight.binding.input.advance_setting;
+package com.limelight.binding.input.advance_setting.superpage;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -22,7 +22,7 @@ public class NumberSeekbar extends LinearLayout {
 
     public interface OnNumberSeekbarChangeListener{
         void onProgressChanged(int progress);
-        void onProgressRelease();
+        void onProgressRelease(int lastProgress);
     }
 
 
@@ -60,16 +60,16 @@ public class NumberSeekbar extends LinearLayout {
         if (attrs != null) {
             TypedArray a = context.getTheme().obtainStyledAttributes(
                     attrs,
-                    new int[]{android.R.attr.max, android.R.attr.min, android.R.attr.text},
+                    R.styleable.NumberSeekbar,
                     0, 0);
 
             try {
-                int maxValue = a.getInt(0, 100);
-                int minValue = a.getInt(1, 0);
+                int maxValue = a.getInt(R.styleable.NumberSeekbar_max, 100);
+                int minValue = a.getInt(R.styleable.NumberSeekbar_min, 0);
                 numberSeekbarSeekbar.setMax(maxValue);
                 numberSeekbarSeekbar.setProgress(minValue);
 
-                String title = a.getString(2);
+                String title = a.getString(R.styleable.NumberSeekbar_text);
                 numberSeekbarTitle.setText(title);
             } finally {
                 a.recycle();
@@ -94,7 +94,7 @@ public class NumberSeekbar extends LinearLayout {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (onNumberSeekbarChangeListener != null){
-                    onNumberSeekbarChangeListener.onProgressRelease();
+                    onNumberSeekbarChangeListener.onProgressRelease(numberSeekbarSeekbar.getProgress());
                 }
             }
         });
@@ -106,7 +106,7 @@ public class NumberSeekbar extends LinearLayout {
                 if (progress > numberSeekbarSeekbar.getMin()) {
                     numberSeekbarSeekbar.setProgress(progress - 1);
                     if (onNumberSeekbarChangeListener != null){
-                        onNumberSeekbarChangeListener.onProgressRelease();
+                        onNumberSeekbarChangeListener.onProgressRelease(numberSeekbarSeekbar.getProgress());
                     }
 
                 }
@@ -120,7 +120,7 @@ public class NumberSeekbar extends LinearLayout {
                 if (progress < numberSeekbarSeekbar.getMax()) {
                     numberSeekbarSeekbar.setProgress(progress + 1);
                     if (onNumberSeekbarChangeListener != null){
-                        onNumberSeekbarChangeListener.onProgressRelease();
+                        onNumberSeekbarChangeListener.onProgressRelease(numberSeekbarSeekbar.getProgress());
                     }
                 }
             }
@@ -135,6 +135,7 @@ public class NumberSeekbar extends LinearLayout {
         OnNumberSeekbarChangeListener onNumberSeekbarChangeListenerTemp = onNumberSeekbarChangeListener;
         onNumberSeekbarChangeListener = null;
         numberSeekbarSeekbar.setProgress(value);
+        numberSeekbarNumber.setText(String.valueOf(value));
         onNumberSeekbarChangeListener = onNumberSeekbarChangeListenerTemp;
     }
 

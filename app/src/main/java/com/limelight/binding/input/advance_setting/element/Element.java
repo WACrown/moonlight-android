@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.limelight.Game;
 import com.limelight.binding.input.advance_setting.superpage.SuperPageLayout;
 
 public abstract class Element extends View {
@@ -53,16 +54,12 @@ public abstract class Element extends View {
         }
     }
 
-    public enum ElementMode{
-        Unselect,
-        Select
-    }
 
     protected final Long elementId;
     protected final Long configId;
     protected final int elementType;
     protected final ElementController elementController;
-    private ElementMode elementMode = ElementMode.Unselect;
+    private Context context;
     private final Paint paint = new Paint();
     private final RectF rect = new RectF();
     protected int centralXMax;
@@ -76,10 +73,12 @@ public abstract class Element extends View {
     private float lastX;
     private float lastY;
     private boolean isClick = true;
+    private int editColor = 0xf0dc143c;
 
 
     public Element(Long elementId, Long configId, int elementType, ElementController elementController,Context context) {
         super(context);
+        this.context = context;
         this.elementId = elementId;
         this.configId = configId;
         this.elementType = elementType;
@@ -90,23 +89,16 @@ public abstract class Element extends View {
 
     }
 
-    public boolean inRange(float x, float y) {
-        return (this.getX() < x && this.getX() + this.getWidth() > x) &&
-                (this.getY() < y && this.getY() + this.getHeight() > y);
+    protected int getCentralX(){
+        return (int) getX() + getWidth() / 2;
     }
 
-    public int getCentralX(){
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
-        return layoutParams.leftMargin + layoutParams.width / 2;
-    }
-
-    public int getCentralY(){
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
-        return layoutParams.topMargin + layoutParams.height / 2;
+    protected int getCentralY(){
+        return (int) getY() + getHeight() / 2;
     }
 
 
-    public void setCentralX(int centralX){
+    protected void setCentralX(int centralX){
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (centralX > centralXMax){
             layoutParams.leftMargin = centralXMax - layoutParams.width/2;
@@ -121,7 +113,7 @@ public abstract class Element extends View {
 
     }
 
-    public void setCentralY(int centralY){
+    protected void setCentralY(int centralY){
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (centralY > centralYMax){
             layoutParams.topMargin = centralYMax - layoutParams.height/2;
@@ -133,7 +125,7 @@ public abstract class Element extends View {
         requestLayout();
     }
 
-    public void setParamWidth(int width){
+    protected void setParamWidth(int width){
         int centralPosX = getCentralX();
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (width > widthMax){
@@ -143,10 +135,12 @@ public abstract class Element extends View {
         } else {
             layoutParams.width = width;
         }
+        System.out.println("centralPosX = " + centralPosX);
         setCentralX(centralPosX);
+        System.out.println("getX = " + getX());
     }
 
-    public void setParamHeight(int height){
+    protected void setParamHeight(int height){
         int centralPosY = getCentralY();
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (height > heightMax){
@@ -156,44 +150,29 @@ public abstract class Element extends View {
         } else {
             layoutParams.height = height;
         }
-        setLayoutParams(layoutParams);
         setCentralY(centralPosY);
     }
 
-    public int getParamWidth(){
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
-        return layoutParams.width;
+    protected int getParamWidth(){
+        return getWidth();
     }
 
-    public int getParamHeight(){
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
-        return layoutParams.height;
+    protected int getParamHeight(){
+        return getHeight();
     }
 
-    public void setMode(ElementMode elementMode){
-        this.elementMode = elementMode;
-        invalidate();
-    }
 
 
     @Override
     protected void onDraw(Canvas canvas) {
         onElementDraw(canvas);
-        if (elementMode == ElementMode.Select){
+        if (elementController.getMode() == ElementController.Mode.Edit){
             // 绘画范围
             rect.left = rect.top = 2;
             rect.right = getWidth() - rect.left;
             rect.bottom = getHeight() - rect.top;
             // 边框
-            paint.setColor(0xf041954a);
-            canvas.drawRoundRect(rect, 0, 0, paint);
-        } else if (elementController.getMode() == ElementController.Mode.Edit){
-            // 绘画范围
-            rect.left = rect.top = 2;
-            rect.right = getWidth() - rect.left;
-            rect.bottom = getHeight() - rect.top;
-            // 边框
-            paint.setColor(0xf0dc143c);
+            paint.setColor(editColor);
             canvas.drawRoundRect(rect, 0, 0, paint);
         }
 
@@ -214,32 +193,38 @@ public abstract class Element extends View {
         if (elementController.getMode() == ElementController.Mode.Normal){
             return onElementTouchEvent(event);
         }
-
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: {
                 lastX = event.getX();
                 lastY = event.getY();
                 isClick = true;
+                editColor = 0xff00f91a;
+                invalidate();
                 return true;
             }
             case MotionEvent.ACTION_MOVE: {
                 float x = event.getX();
                 float y = event.getY();
-                float deltaX = (int)(x - lastX);
-                System.out.println("deltaX = " + deltaX);
-                float deltaY = (int)(y - lastY);
-                System.out.println("deltaY = " + deltaY);
-                if (deltaX + deltaY < 2){
-                    return true;
-                }
+                float deltaX = x - lastX;
+                float deltaY = y - lastY;
+                // 小位移算作点击
+//                if (deltaX + deltaY < 2){
+//                    return true;
+//                }
                 isClick = false;
                 setCentralX(getCentralX() + (int) deltaX);
                 setCentralY(getCentralY() + (int) deltaY);
+                updatePageInfo();
+                return true;
             }
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP: {
+                editColor = 0xffdc143c;
+                invalidate();
                 if (isClick){
                     elementController.toggleSettingPage(getSettingPage());
+                } else {
+                    updatePositionDataBase();
                 }
                 return true;
             }
@@ -248,11 +233,11 @@ public abstract class Element extends View {
         }
         return true;
     }
-    abstract public SuperPageLayout getSettingPage();
+    abstract protected SuperPageLayout getSettingPage();
 
-    abstract public void updatePageInfo();
+    abstract protected void updatePageInfo();
 
-    abstract public void updateDataBase();
+    abstract protected void updatePositionDataBase();
     abstract protected void onElementDraw(Canvas canvas);
 
     abstract public boolean onElementTouchEvent(MotionEvent event);

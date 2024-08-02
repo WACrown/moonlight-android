@@ -1,9 +1,11 @@
-package com.limelight.binding.input.advance_setting;
+package com.limelight.binding.input.advance_setting.superpage;
 
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 public class ElementEditText extends EditText {
@@ -12,7 +14,12 @@ public class ElementEditText extends EditText {
         void textChanged(String text);
     }
 
-    private OnTextChangedListener onTextChangedListener;
+    private OnTextChangedListener onTextChangedListener = new OnTextChangedListener() {
+        @Override
+        public void textChanged(String text) {
+
+        }
+    };
     private TextWatcher textWatcher;
 
     public ElementEditText(Context context) {
@@ -44,7 +51,6 @@ public class ElementEditText extends EditText {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                System.out.println("s = " + s);
                 onTextChangedListener.textChanged(String.valueOf(s));
             }
 

@@ -10,12 +10,13 @@ import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.limelight.R;
-import com.limelight.binding.input.advance_setting.ElementEditText;
-import com.limelight.binding.input.advance_setting.NumberSeekbar;
+import com.limelight.binding.input.advance_setting.superpage.ElementEditText;
+import com.limelight.binding.input.advance_setting.superpage.NumberSeekbar;
 import com.limelight.binding.input.advance_setting.PageDeviceController;
 import com.limelight.binding.input.advance_setting.TouchController;
 import com.limelight.binding.input.advance_setting.sqlite.SuperConfigDatabaseHelper;
@@ -47,9 +48,9 @@ public class DigitalButton extends Element {
         void onRelease();
     }
 
-    public static final int DIGITAL_BUTTON_MODE_BUTTON = 0;
-    public static final int DIGITAL_BUTTON_MODE_SWITCH = 1;
-    public static final int DIGITAL_BUTTON_MODE_MOUSE = 2;
+    public static final int DIGITAL_BUTTON_MODE_BUTTON = 1;
+    public static final int DIGITAL_BUTTON_MODE_SWITCH = 2;
+    public static final int DIGITAL_BUTTON_MODE_MOUSE = 3;
 
     private TouchController touchController;
     private SuperConfigDatabaseHelper superConfigDatabaseHelper;
@@ -63,7 +64,6 @@ public class DigitalButton extends Element {
     private int mode;
     private int sense;
     private int layer;
-    private int opacity;
     private int thick;
     private int normalColor;
     private int pressedColor;
@@ -72,8 +72,9 @@ public class DigitalButton extends Element {
     private SuperPageLayout digitalButtonPage;
     private ElementEditText centralXEditText;
     private ElementEditText centralYEditText;
-    private ElementEditText widthEditText;
-    private ElementEditText heightEditText;
+    private NumberSeekbar widthNumberSeekbar;
+    private NumberSeekbar heightNumberSeekbar;
+    private NumberSeekbar buttonRadiusNumberSeekbar;
 
     private float lastX;
     private float lastY;
@@ -104,9 +105,9 @@ public class DigitalButton extends Element {
         super.centralXMin  = 0;
         super.centralYMax  = controller.getElementsParentHeight();
         super.centralYMin  = 0;
-        super.widthMax  = controller.getElementsParentWidth();
+        super.widthMax  = controller.getElementsParentWidth() / 2;
         super.widthMin  = 50;
-        super.heightMax  = controller.getElementsParentHeight();
+        super.heightMax  = controller.getElementsParentHeight() / 2;
         super.heightMin  = 50;
 
         paintText.setTextAlign(Paint.Align.CENTER);
@@ -117,8 +118,9 @@ public class DigitalButton extends Element {
         digitalButtonPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_digital_button,null);
         centralXEditText = digitalButtonPage.findViewById(R.id.button_central_x);
         centralYEditText = digitalButtonPage.findViewById(R.id.button_central_y);
-        widthEditText = digitalButtonPage.findViewById(R.id.button_width);
-        heightEditText = digitalButtonPage.findViewById(R.id.button_height);
+        widthNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_width);
+        heightNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_height);
+        buttonRadiusNumberSeekbar = digitalButtonPage.findViewById(R.id.button_radius);
 
 
 
@@ -127,8 +129,6 @@ public class DigitalButton extends Element {
         mode = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_MODE);
         sense = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_SENSE);
         layer = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_LAYER);
-        opacity = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_OPACITY);
-        this.setAlpha(0.01f * opacity);
         thick = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_THICK);
         normalColor = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_NORMAL_COLOR);
         pressedColor = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_PRESSED_COLOR);
@@ -181,6 +181,8 @@ public class DigitalButton extends Element {
 
     private void onClickCallback() {
         // notify listenersbuttonListener.onClick();
+        System.out.println("onClickCallback");
+        buttonListener.onClick();
         elementController.getHandler().removeCallbacks(longClickRunnable);
         elementController.getHandler().postDelayed(longClickRunnable, timerLongClickTimeout);
 
@@ -193,6 +195,7 @@ public class DigitalButton extends Element {
 
     private void onReleaseCallback() {
         // notify listeners
+        System.out.println("onReleaseCallback");
         buttonListener.onRelease();
 
         // We may be called for a release without a prior click
@@ -250,30 +253,25 @@ public class DigitalButton extends Element {
     }
 
     @Override
-    public void updateDataBase() {
+    public void updatePositionDataBase() {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,getCentralX());
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,getCentralY());
-        contentValues.put(COLUMN_INT_ELEMENT_WIDTH,getParamWidth());
-        contentValues.put(COLUMN_INT_ELEMENT_HEIGHT,getParamHeight());
         superConfigDatabaseHelper.updateElement(elementId,contentValues);
 
     }
 
     @Override
-    public void updatePageInfo() {
+    protected void updatePageInfo() {
         centralXEditText.setTextWithNoTextChangedCallBack(String.valueOf(getCentralX()));
+        // 设置光标位置在最后面
         centralXEditText.setSelection(centralXEditText.getText().length());
         centralYEditText.setTextWithNoTextChangedCallBack(String.valueOf(getCentralY()));
         centralYEditText.setSelection(centralYEditText.getText().length());
-        widthEditText.setTextWithNoTextChangedCallBack(String.valueOf(getParamWidth()));
-        widthEditText.setSelection(widthEditText.getText().length());
-        heightEditText.setTextWithNoTextChangedCallBack(String.valueOf(getParamHeight()));
-        heightEditText.setSelection(heightEditText.getText().length());
     }
 
     @Override
-    public SuperPageLayout getSettingPage() {
+    protected SuperPageLayout getSettingPage() {
 
         ElementEditText buttonTextEditText = digitalButtonPage.findViewById(R.id.button_text);
         buttonTextEditText.setTextWithNoTextChangedCallBack(elementText);
@@ -368,7 +366,9 @@ public class DigitalButton extends Element {
                 }
                 int positionX = Integer.parseInt(text);
                 setCentralX(positionX);
-                updateDataBase();
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,getCentralX());
+                superConfigDatabaseHelper.updateElement(elementId,contentValues);
             }
         });
 
@@ -382,35 +382,45 @@ public class DigitalButton extends Element {
                 }
                 int positionY = Integer.parseInt(text);
                 setCentralY(positionY);
-                updateDataBase();
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,getCentralY());
+                superConfigDatabaseHelper.updateElement(elementId,contentValues);
             }
         });
 
-        widthEditText.setTextWithNoTextChangedCallBack(String.valueOf(getParamWidth()));
-        widthEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
-        widthEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+        widthNumberSeekbar.setValueWithNoCallBack(getParamWidth());
+        widthNumberSeekbar.setProgressMax(widthMax);
+        widthNumberSeekbar.setProgressMin(widthMin);
+        widthNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
-            public void textChanged(String text) {
-                if (!text.matches("^\\d{1,10}$")){
-                    return;
-                }
-                int width = Integer.parseInt(text);
-                setParamWidth(width);
-                updateDataBase();
+            public void onProgressChanged(int progress) {
+                setParamWidth(progress);
+            }
+
+            @Override
+            public void onProgressRelease(int lastProgress) {
+                buttonRadiusNumberSeekbar.setProgressMax(Math.min(getParamWidth(),getParamHeight()) / 2);
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(COLUMN_INT_ELEMENT_WIDTH,getParamWidth());
+                superConfigDatabaseHelper.updateElement(elementId,contentValues);
             }
         });
 
-        heightEditText.setTextWithNoTextChangedCallBack(String.valueOf(getParamHeight()));
-        heightEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
-        heightEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+        heightNumberSeekbar.setValueWithNoCallBack(getParamHeight());
+        heightNumberSeekbar.setProgressMax(heightMax);
+        heightNumberSeekbar.setProgressMin(heightMin);
+        heightNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
-            public void textChanged(String text) {
-                if (!text.matches("^\\d{1,10}$")){
-                    return;
-                }
-                int height = Integer.parseInt(text);
-                setParamHeight(height);
-                updateDataBase();
+            public void onProgressChanged(int progress) {
+                setParamHeight(progress);
+            }
+
+            @Override
+            public void onProgressRelease(int lastProgress) {
+                buttonRadiusNumberSeekbar.setProgressMax(Math.min(getParamWidth(),getParamHeight()) / 2);
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(COLUMN_INT_ELEMENT_WIDTH,getParamHeight());
+                superConfigDatabaseHelper.updateElement(elementId,contentValues);
             }
         });
 
@@ -423,7 +433,7 @@ public class DigitalButton extends Element {
             }
 
             @Override
-            public void onProgressRelease() {
+            public void onProgressRelease(int lastProgress) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_INT_ELEMENT_SENSE,sense);
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
@@ -431,7 +441,8 @@ public class DigitalButton extends Element {
         });
 
         RadioGroup modeRadioGroup = digitalButtonPage.findViewById(R.id.button_mode);
-        modeRadioGroup.check(mode);
+        RadioButton radioButton = (RadioButton) modeRadioGroup.getChildAt(mode - 1);
+        radioButton.setChecked(true);
         modeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -444,25 +455,10 @@ public class DigitalButton extends Element {
             }
         });
 
-        NumberSeekbar buttonOpacityNumberSeekbar = digitalButtonPage.findViewById(R.id.button_opacity);
-        buttonOpacityNumberSeekbar.setValueWithNoCallBack(opacity);
-        buttonOpacityNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
-            @Override
-            public void onProgressChanged(int progress) {
-                opacity = progress;
-                setAlpha(opacity * 0.01f);
-            }
 
-            @Override
-            public void onProgressRelease() {
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(COLUMN_INT_ELEMENT_OPACITY,opacity);
-                superConfigDatabaseHelper.updateElement(elementId,contentValues);
-            }
-        });
 
-        NumberSeekbar buttonRadiusNumberSeekbar = digitalButtonPage.findViewById(R.id.button_radius);
         buttonRadiusNumberSeekbar.setValueWithNoCallBack(radius);
+        buttonRadiusNumberSeekbar.setProgressMax(Math.min(getParamWidth(),getParamHeight()) / 2);
         buttonRadiusNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
             public void onProgressChanged(int progress) {
@@ -471,7 +467,7 @@ public class DigitalButton extends Element {
             }
 
             @Override
-            public void onProgressRelease() {
+            public void onProgressRelease(int lastProgress) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_INT_ELEMENT_RADIUS,radius);
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
@@ -488,7 +484,7 @@ public class DigitalButton extends Element {
             }
 
             @Override
-            public void onProgressRelease() {
+            public void onProgressRelease(int lastProgress) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_INT_ELEMENT_THICK,thick);
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
@@ -513,6 +509,7 @@ public class DigitalButton extends Element {
 
         ElementEditText buttonPressedColorEditText = digitalButtonPage.findViewById(R.id.button_pressed_color);
         buttonPressedColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",pressedColor));
+        buttonPressedColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
         buttonPressedColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
@@ -528,6 +525,7 @@ public class DigitalButton extends Element {
 
         ElementEditText buttonBackgroundColorEditText = digitalButtonPage.findViewById(R.id.button_background_color);
         buttonBackgroundColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",backgroundColor));
+        buttonBackgroundColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
         buttonBackgroundColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
@@ -538,6 +536,38 @@ public class DigitalButton extends Element {
                     contentValues.put(COLUMN_INT_ELEMENT_BACKGROUND_COLOR,backgroundColor);
                     superConfigDatabaseHelper.updateElement(elementId,contentValues);
                 }
+            }
+        });
+
+        digitalButtonPage.findViewById(R.id.page_digital_copy).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(COLUMN_LONG_ELEMENT_ID,System.currentTimeMillis());
+                contentValues.put(COLUMN_INT_ELEMENT_TYPE,ELEMENT_TYPE_DIGITAL_BUTTON);
+                contentValues.put(COLUMN_STRING_ELEMENT_TEXT,elementText);
+                contentValues.put(COLUMN_STRING_ELEMENT_VALUE,elementValue);
+                contentValues.put(COLUMN_INT_ELEMENT_MODE,mode);
+                contentValues.put(COLUMN_INT_ELEMENT_SENSE,sense);
+                contentValues.put(COLUMN_INT_ELEMENT_WIDTH,getParamWidth());
+                contentValues.put(COLUMN_INT_ELEMENT_HEIGHT,getParamHeight());
+                contentValues.put(COLUMN_INT_ELEMENT_LAYER,layer);
+                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,Math.max(Math.min(getCentralX() + getParamWidth(),centralXMax),centralXMin));
+                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,getCentralY());
+                contentValues.put(COLUMN_INT_ELEMENT_RADIUS,radius);
+                contentValues.put(COLUMN_INT_ELEMENT_THICK,thick);
+                contentValues.put(COLUMN_INT_ELEMENT_NORMAL_COLOR,normalColor);
+                contentValues.put(COLUMN_INT_ELEMENT_PRESSED_COLOR,pressedColor);
+                contentValues.put(COLUMN_INT_ELEMENT_BACKGROUND_COLOR,backgroundColor);
+                elementController.copyElement(contentValues);
+            }
+        });
+
+        digitalButtonPage.findViewById(R.id.page_digital_delete).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                elementController.toggleSettingPage(digitalButtonPage);
+                elementController.deleteElement(digitalButton);
             }
         });
 
@@ -560,7 +590,6 @@ public class DigitalButton extends Element {
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,100);
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,100);
         contentValues.put(COLUMN_INT_ELEMENT_RADIUS,0);
-        contentValues.put(COLUMN_INT_ELEMENT_OPACITY,100);
         contentValues.put(COLUMN_INT_ELEMENT_THICK,5);
         contentValues.put(COLUMN_INT_ELEMENT_NORMAL_COLOR,0xF0888888);
         contentValues.put(COLUMN_INT_ELEMENT_PRESSED_COLOR,0xF00000FF);

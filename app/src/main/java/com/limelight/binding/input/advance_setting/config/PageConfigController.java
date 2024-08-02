@@ -10,15 +10,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.limelight.Game;
 import com.limelight.R;
 import com.limelight.binding.input.advance_setting.ControllerManager;
-import com.limelight.binding.input.advance_setting.NumberSeekbar;
+import com.limelight.binding.input.advance_setting.superpage.NumberSeekbar;
 import com.limelight.binding.input.advance_setting.sqlite.SuperConfigDatabaseHelper;
 import com.limelight.binding.input.advance_setting.superpage.SuperPageLayout;
 
@@ -180,6 +180,7 @@ public class PageConfigController {
                 controllerManager.getElementController().entryEditMode();
                 controllerManager.getSuperPagesController().close();
                 openPage = controllerManager.getElementController().getPageEdit();
+                open();
             }
         });
 
@@ -310,20 +311,19 @@ public class PageConfigController {
         mouseSenseSeekBar.setValueWithNoCallBack(mouseSense);
         controllerManager.getTouchController().adjustTouchSense(mouseSense);
         mouseSenseSeekBar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
-            private int progress = 0;
             @Override
             public void onProgressChanged(int progress) {
-                this.progress = progress;
+
             }
 
             @Override
-            public void onProgressRelease() {
+            public void onProgressRelease(int lastProgress) {
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(COLUMN_INT_TOUCH_SENSE,progress);
+                contentValues.put(COLUMN_INT_TOUCH_SENSE,lastProgress);
                 //保存到数据库中
                 superConfigDatabaseHelper.updateConfig(currentConfigId,contentValues);
                 //做实际的设置
-                controllerManager.getTouchController().adjustTouchSense(progress);
+                controllerManager.getTouchController().adjustTouchSense(lastProgress);
             }
         });
     }
