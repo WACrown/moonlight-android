@@ -50,9 +50,9 @@ public class DigitalButton extends Element {
         void onRelease();
     }
 
-    public static final int DIGITAL_BUTTON_MODE_BUTTON = 1;
-    public static final int DIGITAL_BUTTON_MODE_SWITCH = 2;
-    public static final int DIGITAL_BUTTON_MODE_MOUSE = 3;
+    public static final int DIGITAL_BUTTON_MODE_BUTTON = 0;
+    public static final int DIGITAL_BUTTON_MODE_SWITCH = 1;
+    public static final int DIGITAL_BUTTON_MODE_MOUSE = 2;
 
     private TouchController touchController;
     private SuperConfigDatabaseHelper superConfigDatabaseHelper;
@@ -358,7 +358,7 @@ public class DigitalButton extends Element {
                 pageDeviceController.open(deviceCallBack,View.VISIBLE,View.VISIBLE,View.VISIBLE);
             }
         });
-
+        //TODO:这里可能是因为位置信息小数变整数的原因，位置会有轻微的位移
         centralXEditText.setTextWithNoTextChangedCallBack(String.valueOf(getCentralX()));
         centralXEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
         centralXEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
@@ -391,9 +391,10 @@ public class DigitalButton extends Element {
             }
         });
 
-        widthNumberSeekbar.setValueWithNoCallBack(getParamWidth());
+
         widthNumberSeekbar.setProgressMax(widthMax);
         widthNumberSeekbar.setProgressMin(widthMin);
+        widthNumberSeekbar.setValueWithNoCallBack(getParamWidth());
         widthNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
             public void onProgressChanged(int progress) {
@@ -409,9 +410,9 @@ public class DigitalButton extends Element {
             }
         });
 
-        heightNumberSeekbar.setValueWithNoCallBack(getParamHeight());
         heightNumberSeekbar.setProgressMax(heightMax);
         heightNumberSeekbar.setProgressMin(heightMin);
+        heightNumberSeekbar.setValueWithNoCallBack(getParamHeight());
         heightNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
             public void onProgressChanged(int progress) {
@@ -422,7 +423,7 @@ public class DigitalButton extends Element {
             public void onProgressRelease(int lastProgress) {
                 buttonRadiusNumberSeekbar.setProgressMax(Math.min(getParamWidth(),getParamHeight()) / 2);
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(COLUMN_INT_ELEMENT_WIDTH,getParamHeight());
+                contentValues.put(COLUMN_INT_ELEMENT_HEIGHT,getParamHeight());
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
             }
         });
@@ -444,12 +445,22 @@ public class DigitalButton extends Element {
         });
 
         RadioGroup modeRadioGroup = digitalButtonPage.findViewById(R.id.button_mode);
-        RadioButton radioButton = (RadioButton) modeRadioGroup.getChildAt(mode - 1);
+        RadioButton radioButton = (RadioButton) modeRadioGroup.getChildAt(mode);
+        if (mode == DIGITAL_BUTTON_MODE_MOUSE){
+            buttonSenseNumberSeekbar.setVisibility(VISIBLE);
+        } else {
+            buttonSenseNumberSeekbar.setVisibility(GONE);
+        }
         radioButton.setChecked(true);
         modeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                mode = checkedId;
+                String modeString = group.findViewById(checkedId).getTag().toString();
+                mode = Integer.parseInt(modeString);
+                System.out.println("mode = " + mode);
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(COLUMN_INT_ELEMENT_MODE,mode);
+                superConfigDatabaseHelper.updateElement(elementId,contentValues);
                 if (checkedId == DIGITAL_BUTTON_MODE_MOUSE){
                     buttonSenseNumberSeekbar.setVisibility(VISIBLE);
                 } else {
@@ -460,8 +471,9 @@ public class DigitalButton extends Element {
 
 
 
-        buttonRadiusNumberSeekbar.setValueWithNoCallBack(radius);
+
         buttonRadiusNumberSeekbar.setProgressMax(Math.min(getParamWidth(),getParamHeight()) / 2);
+        buttonRadiusNumberSeekbar.setValueWithNoCallBack(radius);
         buttonRadiusNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
             public void onProgressChanged(int progress) {

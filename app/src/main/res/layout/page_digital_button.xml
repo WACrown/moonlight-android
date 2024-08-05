@@ -143,14 +143,17 @@
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:tag="0"
                         android:text="普通模式" />
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:tag="1"
                         android:text="开关模式"/>
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:tag="2"
                         android:text="鼠标透传模式"/>
 
                 </RadioGroup>
