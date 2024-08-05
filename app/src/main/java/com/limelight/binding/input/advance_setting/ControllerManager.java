@@ -29,28 +29,9 @@ public class ControllerManager {
     public ControllerManager(FrameLayout layout, Context context){
         advanceSettingView = (FrameLayout) LayoutInflater.from(context).inflate(R.layout.advance_setting_view,null);
         this.fatherLayout = layout;
+        this.context = context;
 
-        superConfigDatabaseHelper = new SuperConfigDatabaseHelper(context);
-
-        pageSuperMenuController = new PageSuperMenuController(context,this);
-
-        FrameLayout layerElement = advanceSettingView.findViewById(R.id.layer_2_element);
-        touchController = new TouchController((Game) context,this,layerElement);
-
-        elementController = new ElementController(this,layerElement,context);
-        //configController
         pageConfigController = new PageConfigController(this,context);
-
-        //CombineKey controller
-        combineKeyController = new PageCombineKeyController(this,context);
-
-        FrameLayout superPagesBox = advanceSettingView.findViewById(R.id.super_pages_box);
-        superPagesController = new SuperPagesController(superPagesBox,context);
-
-        pageDeviceController = new PageDeviceController(context,this);
-
-
-
         pageConfigController.initConfig();
 
     }
@@ -62,31 +43,55 @@ public class ControllerManager {
 
 
     public TouchController getTouchController() {
+        if (touchController == null){
+            FrameLayout layerElement = advanceSettingView.findViewById(R.id.layer_2_element);
+            touchController = new TouchController((Game) context,this,layerElement);
+        }
         return touchController;
     }
 
     public PageCombineKeyController getCombineKeyController() {
+        if (combineKeyController == null){
+            combineKeyController = new PageCombineKeyController(this,context);
+        }
         return combineKeyController;
     }
 
 
     public SuperPagesController getSuperPagesController() {
+        if (superPagesController == null){
+            FrameLayout superPagesBox = advanceSettingView.findViewById(R.id.super_pages_box);
+            superPagesController = new SuperPagesController(superPagesBox,context);
+        }
         return superPagesController;
     }
 
     public PageDeviceController getPageDeviceController() {
+        if (pageDeviceController == null){
+            pageDeviceController = new PageDeviceController(context,this);
+        }
         return pageDeviceController;
     }
 
     public SuperConfigDatabaseHelper getSuperConfigDatabaseHelper() {
+        if (superConfigDatabaseHelper == null){
+            superConfigDatabaseHelper = new SuperConfigDatabaseHelper(context);
+        }
         return superConfigDatabaseHelper;
     }
 
     public ElementController getElementController() {
+        if (elementController == null){
+            FrameLayout layerElement = advanceSettingView.findViewById(R.id.layer_2_element);
+            elementController = new ElementController(this,layerElement,context);
+        }
         return elementController;
     }
 
     public PageSuperMenuController getPageSuperMenuController() {
+        if (pageSuperMenuController == null){
+            pageSuperMenuController = new PageSuperMenuController(context,this);
+        }
         return pageSuperMenuController;
     }
 

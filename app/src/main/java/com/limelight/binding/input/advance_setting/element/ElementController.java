@@ -64,7 +64,6 @@ public class ElementController {
     private FrameLayout elementsLayout;
     private Mode mode = Mode.Normal;
     private SuperPageLayout pageEdit;
-    private SuperConfigDatabaseHelper superConfigDatabaseHelper;
     private SuperPageLayout lastElementSettingPage;
 
 
@@ -75,7 +74,6 @@ public class ElementController {
         this.game = (Game) context;
         this.controllerManager = controllerManager;
         this.controllerHandler = game.getControllerHandler();
-        this.superConfigDatabaseHelper = controllerManager.getSuperConfigDatabaseHelper();
         this.handler = new Handler(Looper.getMainLooper());
         this.pageEdit = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_edit,null);
 
@@ -108,14 +106,14 @@ public class ElementController {
     }
 
     protected SuperConfigDatabaseHelper getSuperConfigDatabaseHelper() {
-        return superConfigDatabaseHelper;
+        return controllerManager.getSuperConfigDatabaseHelper();
     }
 
     public void loadAllElement(Long configId){
         removeAllElementsFromScreen();
-        elementIds = superConfigDatabaseHelper.queryAllElementIds(configId);
+        elementIds = controllerManager.getSuperConfigDatabaseHelper().queryAllElementIds(configId);
         for (Long elementId : elementIds){
-            Map<String, Object> attributesMap =  superConfigDatabaseHelper.queryAllElementAttributes(elementId);
+            Map<String, Object> attributesMap =  controllerManager.getSuperConfigDatabaseHelper().queryAllElementAttributes(elementId);
             int type = ((Long) attributesMap.get(Element.COLUMN_INT_ELEMENT_TYPE)).intValue();
             Element element = null;
             switch (type){
@@ -153,7 +151,7 @@ public class ElementController {
                 ContentValues contentValues = DigitalButton.getInitialInfo();
                 //ContentValues contentValues = new ContentValues();
                 contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
-                superConfigDatabaseHelper.insertElement(contentValues);
+                controllerManager.getSuperConfigDatabaseHelper().insertElement(contentValues);
                 // add the element to screen
                 loadAllElement(configId);
                 break;
@@ -167,7 +165,7 @@ public class ElementController {
     }
 
     protected void deleteElement(Element element){
-        superConfigDatabaseHelper.deleteElement(element.elementId);
+        controllerManager.getSuperConfigDatabaseHelper().deleteElement(element.elementId);
         Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
         loadAllElement(configId);
     }
@@ -175,7 +173,7 @@ public class ElementController {
     protected void copyElement(ContentValues contentValues){
         Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
         contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
-        superConfigDatabaseHelper.insertElement(contentValues);
+        controllerManager.getSuperConfigDatabaseHelper().insertElement(contentValues);
         // add the element to screen
         loadAllElement(configId);
     }

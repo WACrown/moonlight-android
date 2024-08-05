@@ -38,7 +38,6 @@ public class PageConfigController {
     private SuperPageLayout pageConfig;
     private Context context;
     private ControllerManager controllerManager;
-    private SuperConfigDatabaseHelper superConfigDatabaseHelper;
     private Long currentConfigId = 0L;
     private Spinner configSelectSpinner;
 
@@ -52,7 +51,6 @@ public class PageConfigController {
         this.context = context;
         this.pageConfig = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_config,null);
         this.controllerManager = controllerManager;
-        this.superConfigDatabaseHelper = controllerManager.getSuperConfigDatabaseHelper();
         configSelectSpinner = pageConfig.findViewById(R.id.config_select_spinner);
         openPage = pageConfig;
 
@@ -80,7 +78,7 @@ public class PageConfigController {
                         contentValues.put(COLUMN_BOOLEAN_TOUCH_MODE,String.valueOf(true));
                         contentValues.put(COLUMN_INT_TOUCH_SENSE,100);
                         //保存到数据库中
-                        superConfigDatabaseHelper.insertConfig(contentValues);
+                        controllerManager.getSuperConfigDatabaseHelper().insertConfig(contentValues);
                         controllerManager.getSuperPagesController().close();
                         loadAllConfigToSpinner();
                         loadCurrentConfig();
@@ -121,7 +119,7 @@ public class PageConfigController {
                         ContentValues contentValues = new ContentValues();
                         contentValues.put(COLUMN_STRING_CONFIG_NAME,configNewName);
                         //保存到数据库中
-                        superConfigDatabaseHelper.updateConfig(currentConfigId,contentValues);
+                        controllerManager.getSuperConfigDatabaseHelper().updateConfig(currentConfigId,contentValues);
                         controllerManager.getSuperPagesController().close();
                         loadAllConfigToSpinner();
                         loadCurrentConfig();
@@ -154,7 +152,7 @@ public class PageConfigController {
                             controllerManager.getSuperPagesController().close();
                             return;
                         }
-                        superConfigDatabaseHelper.deleteConfig(currentConfigId);
+                        controllerManager.getSuperConfigDatabaseHelper().deleteConfig(currentConfigId);
                         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
                         editor.putLong(CURRENT_CONFIG_KEY,0L);
                         editor.apply();
@@ -182,7 +180,7 @@ public class PageConfigController {
     }
 
     private void loadAllConfigToSpinner(){
-        configIds = superConfigDatabaseHelper.queryAllConfigIds();
+        configIds = controllerManager.getSuperConfigDatabaseHelper().queryAllConfigIds();
         //判断是否有default布局
         if (!configIds.contains(0L)){
             ContentValues contentValues = new ContentValues();
@@ -192,12 +190,12 @@ public class PageConfigController {
             contentValues.put(COLUMN_BOOLEAN_TOUCH_MODE,String.valueOf(true));
             contentValues.put(COLUMN_INT_TOUCH_SENSE,100);
             //保存到数据库中
-            superConfigDatabaseHelper.insertConfig(contentValues);
-            configIds = superConfigDatabaseHelper.queryAllConfigIds();
+            controllerManager.getSuperConfigDatabaseHelper().insertConfig(contentValues);
+            configIds = controllerManager.getSuperConfigDatabaseHelper().queryAllConfigIds();
         }
         configNames.clear();
         for (Long configId : configIds){
-            String name = (String) superConfigDatabaseHelper.queryConfigAttribute(configId,COLUMN_STRING_CONFIG_NAME);
+            String name = (String) controllerManager.getSuperConfigDatabaseHelper().queryConfigAttribute(configId,COLUMN_STRING_CONFIG_NAME);
             configNames.add(name);
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -255,7 +253,7 @@ public class PageConfigController {
     private void loadMouseEnable(){
         //mouse enable
         Switch mouseEnableSwitch = pageConfig.findViewById(R.id.mouse_enable_switch);
-        boolean mouseEnable = Boolean.parseBoolean((String) superConfigDatabaseHelper.queryConfigAttribute(currentConfigId, COLUMN_BOOLEAN_TOUCH_ENABLE));
+        boolean mouseEnable = Boolean.parseBoolean((String) controllerManager.getSuperConfigDatabaseHelper().queryConfigAttribute(currentConfigId, COLUMN_BOOLEAN_TOUCH_ENABLE));
         //设置switch
         mouseEnableSwitch.setOnCheckedChangeListener(null);
         mouseEnableSwitch.setChecked(mouseEnable);
@@ -268,7 +266,7 @@ public class PageConfigController {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_BOOLEAN_TOUCH_ENABLE,String.valueOf(isChecked));
                 //保存到数据库中
-                superConfigDatabaseHelper.updateConfig(currentConfigId,contentValues);
+                controllerManager.getSuperConfigDatabaseHelper().updateConfig(currentConfigId,contentValues);
                 //做实际的设置
                 controllerManager.getTouchController().enableTouch(isChecked);
             }
@@ -278,7 +276,7 @@ public class PageConfigController {
     private void loadMouseMode(){
         //mouse mode
         Switch mouseModeSwitch = pageConfig.findViewById(R.id.trackpad_enable_switch);
-        Boolean mouseMode = Boolean.parseBoolean((String) superConfigDatabaseHelper.queryConfigAttribute(currentConfigId, COLUMN_BOOLEAN_TOUCH_MODE));
+        Boolean mouseMode = Boolean.parseBoolean((String) controllerManager.getSuperConfigDatabaseHelper().queryConfigAttribute(currentConfigId, COLUMN_BOOLEAN_TOUCH_MODE));
         mouseModeSwitch.setOnCheckedChangeListener(null);
         mouseModeSwitch.setChecked(mouseMode);
         controllerManager.getTouchController().setTouchMode(mouseMode);
@@ -288,7 +286,7 @@ public class PageConfigController {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_BOOLEAN_TOUCH_MODE,String.valueOf(isChecked));
                 //保存到数据库中
-                superConfigDatabaseHelper.updateConfig(currentConfigId,contentValues);
+                controllerManager.getSuperConfigDatabaseHelper().updateConfig(currentConfigId,contentValues);
                 //做实际的设置
                 controllerManager.getTouchController().setTouchMode(isChecked);
             }
@@ -297,7 +295,7 @@ public class PageConfigController {
 
     private void loadMouseSense(){
         NumberSeekbar mouseSenseSeekBar = pageConfig.findViewById(R.id.mouse_sense_number_seekbar);
-        int mouseSense = ((Long) superConfigDatabaseHelper.queryConfigAttribute(currentConfigId, COLUMN_INT_TOUCH_SENSE)).intValue();
+        int mouseSense = ((Long) controllerManager.getSuperConfigDatabaseHelper().queryConfigAttribute(currentConfigId, COLUMN_INT_TOUCH_SENSE)).intValue();
         mouseSenseSeekBar.setValueWithNoCallBack(mouseSense);
         controllerManager.getTouchController().adjustTouchSense(mouseSense);
         mouseSenseSeekBar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
@@ -311,7 +309,7 @@ public class PageConfigController {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_INT_TOUCH_SENSE,lastProgress);
                 //保存到数据库中
-                superConfigDatabaseHelper.updateConfig(currentConfigId,contentValues);
+                controllerManager.getSuperConfigDatabaseHelper().updateConfig(currentConfigId,contentValues);
                 //做实际的设置
                 controllerManager.getTouchController().adjustTouchSense(lastProgress);
             }
