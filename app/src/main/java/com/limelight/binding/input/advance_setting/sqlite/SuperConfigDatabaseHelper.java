@@ -7,14 +7,20 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "super_config.db";
     private static final int DATABASE_VERSION = 1;
+    private SQLiteDatabase writableDataBase;
+    private SQLiteDatabase readableDataBase;
 
     public SuperConfigDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        writableDataBase = getWritableDatabase();
+        readableDataBase = getReadableDatabase();
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS element");
         // 创建表格的SQL语句
@@ -118,14 +124,10 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void insertElement(ContentValues values){
-        SQLiteDatabase db = this.getWritableDatabase();
-        long error = db.insert("element",null,values);
-        System.out.println("error = " + error);
-        db.close();
+        writableDataBase.insert("element",null,values);
     }
 
     public void deleteElement(long elementId){
-        SQLiteDatabase db = this.getWritableDatabase();
 
         // 定义 WHERE 子句
         String selection = "element_id = ?";
@@ -133,29 +135,25 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
         String[] selectionArgs = { String.valueOf(elementId) };
 
         // 执行删除操作
-        db.delete("element", selection, selectionArgs);
-        db.close();
+        writableDataBase.delete("element", selection, selectionArgs);
     }
 
     public void updateElement(long elementId,ContentValues values){
-        SQLiteDatabase db = this.getWritableDatabase();
 
         // SQL WHERE 子句
         String selection = "element_id = ?";
         // selectionArgs 数组提供了 WHERE 子句中占位符 ? 的实际值
         String[] selectionArgs = { String.valueOf(elementId) };
 
-        db.update(
+        writableDataBase.update(
                 "element",   // 要更新的表
                 values,    // 新值
                 selection, // WHERE 子句
                 selectionArgs // WHERE 子句中的占位符值
         );
-        db.close();
     }
 
     public List<Long> queryAllElementIds(long configId){
-        SQLiteDatabase db = this.getReadableDatabase();
 
         // 定义要查询的列
         String[] projection = { "element_id", "element_layer" };
@@ -168,7 +166,7 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
         String orderBy = "element_id + (element_layer * 281474976710656) ASC";
 
         // 执行查询
-        Cursor cursor = db.query(
+        Cursor cursor = readableDataBase.query(
                 "element",   // 表名
                 projection, // 要查询的列
                 selection,  // WHERE 子句
@@ -187,11 +185,10 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
             }
             cursor.close();
         }
-        db.close();
+        System.out.println("elementIds = " + elementIds);
         return elementIds;
     }
     public Object queryElementAttribute(long elementId,String elementAttribute){
-        SQLiteDatabase db = this.getReadableDatabase();
 
         // 定义要查询的列
         String[] projection = { elementAttribute };
@@ -202,7 +199,7 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
         String[] selectionArgs = { String.valueOf(elementId) };
 
         // 执行查询
-        Cursor cursor = db.query(
+        Cursor cursor = readableDataBase.query(
                 "element",   // 表名
                 projection, // 要查询的列
                 selection,  // WHERE 子句
@@ -218,7 +215,7 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
                 int columnIndex = cursor.getColumnIndexOrThrow(elementAttribute);
                 switch (cursor.getType(columnIndex)) {
                     case Cursor.FIELD_TYPE_INTEGER:
-                        o = cursor.getInt(columnIndex);
+                        o = cursor.getLong(columnIndex);
                         break;
                     case Cursor.FIELD_TYPE_FLOAT:
                         o = cursor.getFloat(columnIndex);
@@ -237,21 +234,64 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
             }
             cursor.close();
         }
-        db.close();
+        
         return o;
     }
 
+    public Map<String, Object> queryAllElementAttributes(long elementId){
+        Map<String, Object> resultMap = new HashMap<>();
+        // 定义 WHERE 子句
+        String selection = "element_id = ?";
+        // 定义 WHERE 子句中的参数
+        String[] selectionArgs = { String.valueOf(elementId) };
+
+        // 执行查询
+        Cursor cursor = readableDataBase.query(
+                "element",   // 表名
+                null, // 要查询的列
+                selection,  // WHERE 子句
+                selectionArgs, // WHERE 子句中的参数
+                null, // 不分组
+                null, // 不过滤
+                null  // 不排序
+        );
+        if (cursor.moveToFirst()) {
+            int columnCount = cursor.getColumnCount();
+            for (int i = 0; i < columnCount; i++) {
+                String columnName = cursor.getColumnName(i);
+                int columnType = cursor.getType(i);
+
+                switch (columnType) {
+                    case Cursor.FIELD_TYPE_INTEGER:
+                        resultMap.put(columnName, cursor.getLong(i));
+                        break;
+                    case Cursor.FIELD_TYPE_STRING:
+                        resultMap.put(columnName, cursor.getString(i));
+                        break;
+                    case Cursor.FIELD_TYPE_FLOAT:
+                        resultMap.put(columnName, cursor.getFloat(i));
+                        break;
+                    case Cursor.FIELD_TYPE_BLOB:
+                        resultMap.put(columnName, cursor.getBlob(i));
+                        break;
+                    case Cursor.FIELD_TYPE_NULL:
+                        resultMap.put(columnName, null);
+                        break;
+                }
+            }
+        }
+        cursor.close();
+        System.out.println("resultMap = " + resultMap);
+        return resultMap;
+    }
+
     public void insertConfig(ContentValues values){
-        System.out.println("insertConfig values = " + values);
-        SQLiteDatabase db = this.getWritableDatabase();
-        long errorCode = db.insert("config",null,values);
-        System.out.println("errorCode = " + errorCode);
-        db.close();
+
+        writableDataBase.insert("config",null,values);
+        
     }
 
     public void deleteConfig(long configId){
-        System.out.println("deleteConfig configId = " + configId);
-        SQLiteDatabase db = this.getWritableDatabase();
 
         // 定义 WHERE 子句
         String selection = "config_id = ?";
@@ -259,42 +299,38 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
         String[] selectionArgs = { String.valueOf(configId) };
 
         // 执行删除操作
-        db.delete("config", selection, selectionArgs);
+        writableDataBase.delete("config", selection, selectionArgs);
 
         //删除element表中所有的config_id的element
-        db.delete("element", selection, selectionArgs);
-        db.close();
+        writableDataBase.delete("element", selection, selectionArgs);
+        
     }
 
     public void updateConfig(long configId,ContentValues values){
-        System.out.println("updateConfig configId = " + configId);
-        System.out.println("updateConfig values = " + values);
-        SQLiteDatabase db = this.getWritableDatabase();
 
         // SQL WHERE 子句
         String selection = "config_id = ?";
         // selectionArgs 数组提供了 WHERE 子句中占位符 ? 的实际值
         String[] selectionArgs = { String.valueOf(configId) };
 
-        db.update(
+        writableDataBase.update(
                 "config",   // 要更新的表
                 values,    // 新值
                 selection, // WHERE 子句
                 selectionArgs // WHERE 子句中的占位符值
         );
-        db.close();
+        
 
     }
 
     public List<Long> queryAllConfigIds(){
-        SQLiteDatabase db = this.getReadableDatabase();
 
         // 定义要查询的列
         String[] projection = { "config_id" };
         // 排序方式，增序
         String orderBy = "config_id ASC";
         // 执行查询
-        Cursor cursor = db.query(
+        Cursor cursor = readableDataBase.query(
                 "config",   // 表名
                 projection, // 要查询的列
                 null,  // WHERE 子句
@@ -313,13 +349,12 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
             }
             cursor.close();
         }
-        db.close();
-        System.out.println("queryAllConfigIds configIds = " + configIds);
+        
+        System.out.println("configIds = " + configIds);
         return configIds;
     }
 
     public Object queryConfigAttribute(long configId,String configAttribute){
-        SQLiteDatabase db = this.getReadableDatabase();
 
         // 定义要查询的列
         String[] projection = { configAttribute };
@@ -330,7 +365,7 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
         String[] selectionArgs = { String.valueOf(configId) };
 
         // 执行查询
-        Cursor cursor = db.query(
+        Cursor cursor = readableDataBase.query(
                 "config",   // 表名
                 projection, // 要查询的列
                 selection,  // WHERE 子句
@@ -365,8 +400,7 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
             }
             cursor.close();
         }
-        db.close();
-        System.out.println("queryConfigAttribute o = " + o);
+        
         return o;
     }
 }

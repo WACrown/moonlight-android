@@ -11,7 +11,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.limelight.Game;
 import com.limelight.binding.input.advance_setting.superpage.SuperPageLayout;
 
 public abstract class Element extends View {
@@ -135,9 +134,7 @@ public abstract class Element extends View {
         } else {
             layoutParams.width = width;
         }
-        System.out.println("centralPosX = " + centralPosX);
         setCentralX(centralPosX);
-        System.out.println("getX = " + getX());
     }
 
     protected void setParamHeight(int height){
@@ -222,7 +219,7 @@ public abstract class Element extends View {
                 editColor = 0xffdc143c;
                 invalidate();
                 if (isClick){
-                    elementController.toggleSettingPage(getSettingPage());
+                    elementController.toggleInfoPage(getInfoPage());
                 } else {
                     updatePositionDataBase();
                 }
@@ -233,7 +230,7 @@ public abstract class Element extends View {
         }
         return true;
     }
-    abstract protected SuperPageLayout getSettingPage();
+    abstract protected SuperPageLayout getInfoPage();
 
     abstract protected void updatePageInfo();
 

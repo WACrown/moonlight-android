@@ -115,13 +115,12 @@ public class ElementController {
         removeAllElementsFromScreen();
         elementIds = superConfigDatabaseHelper.queryAllElementIds(configId);
         for (Long elementId : elementIds){
-            int type = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,Element.COLUMN_INT_ELEMENT_TYPE);
+            Map<String, Object> attributesMap =  superConfigDatabaseHelper.queryAllElementAttributes(elementId);
+            int type = ((Long) attributesMap.get(Element.COLUMN_INT_ELEMENT_TYPE)).intValue();
             Element element = null;
             switch (type){
                 case Element.ELEMENT_TYPE_DIGITAL_BUTTON:
-                    element = new DigitalButton(elementId,
-                            configId,
-                            Element.ELEMENT_TYPE_DIGITAL_BUTTON,
+                    element = new DigitalButton(attributesMap,
                             this,
                             controllerManager.getTouchController(),
                             controllerManager.getPageDeviceController(),
@@ -134,12 +133,11 @@ public class ElementController {
 
                     break;
             }
-
             elements.add(element);
-            int elementWidth = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,Element.COLUMN_INT_ELEMENT_WIDTH);
-            int elementHeight = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,Element.COLUMN_INT_ELEMENT_HEIGHT);
-            int elementCentralX = (int) superConfigDatabaseHelper.queryElementAttribute(elementId, Element.COLUMN_INT_ELEMENT_CENTRAL_X);
-            int elementCentralY = (int) superConfigDatabaseHelper.queryElementAttribute(elementId, Element.COLUMN_INT_ELEMENT_CENTRAL_Y);
+            int elementWidth = ((Long) attributesMap.get(Element.COLUMN_INT_ELEMENT_WIDTH)).intValue();
+            int elementHeight = ((Long) attributesMap.get(Element.COLUMN_INT_ELEMENT_HEIGHT)).intValue();
+            int elementCentralX = ((Long) attributesMap.get( Element.COLUMN_INT_ELEMENT_CENTRAL_X)).intValue();
+            int elementCentralY = ((Long) attributesMap.get( Element.COLUMN_INT_ELEMENT_CENTRAL_Y)).intValue();
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(elementWidth, elementHeight);
             layoutParams.leftMargin = elementCentralX - elementWidth / 2;
             layoutParams.topMargin = elementCentralY - elementHeight / 2;
@@ -183,7 +181,7 @@ public class ElementController {
     }
 
 
-    public void toggleSettingPage(SuperPageLayout elementSettingPage){
+    public void toggleInfoPage(SuperPageLayout elementSettingPage){
         if (controllerManager.getSuperPagesController().getLastPage() == lastElementSettingPage && lastElementSettingPage != null){
             controllerManager.getSuperPagesController().close();
             if (elementSettingPage != lastElementSettingPage){

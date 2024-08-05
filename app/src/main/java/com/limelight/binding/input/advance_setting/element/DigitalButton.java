@@ -22,6 +22,8 @@ import com.limelight.binding.input.advance_setting.TouchController;
 import com.limelight.binding.input.advance_setting.sqlite.SuperConfigDatabaseHelper;
 import com.limelight.binding.input.advance_setting.superpage.SuperPageLayout;
 
+import java.util.Map;
+
 /**
  * This is a digital button on screen element. It is used to get click and double click user input.
  */
@@ -92,11 +94,12 @@ public class DigitalButton extends Element {
 
 
 
-    public DigitalButton(Long elementId, Long configID, int elementType,
+    public DigitalButton(Map<String,Object> attributesMap,
                          ElementController controller,
                          TouchController touchController,
-                         PageDeviceController pageDeviceController,Context context) {
-        super(elementId,configID,elementType,controller,context);
+                         PageDeviceController pageDeviceController, Context context) {
+        super((Long) attributesMap.get(Element.COLUMN_LONG_ELEMENT_ID),(Long)attributesMap.get(Element.COLUMN_LONG_CONFIG_ID),((Long) attributesMap.get(Element.COLUMN_INT_ELEMENT_TYPE)).intValue(),controller,context);
+        System.out.println("System.currentTimeMillis()2 = " + System.currentTimeMillis());
         this.touchController = touchController;
         this.superConfigDatabaseHelper = controller.getSuperConfigDatabaseHelper();
         this.pageDeviceController = pageDeviceController;
@@ -115,27 +118,16 @@ public class DigitalButton extends Element {
         paintBackground.setStyle(Paint.Style.FILL);
 
 
-        digitalButtonPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_digital_button,null);
-        centralXEditText = digitalButtonPage.findViewById(R.id.button_central_x);
-        centralYEditText = digitalButtonPage.findViewById(R.id.button_central_y);
-        widthNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_width);
-        heightNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_height);
-        buttonRadiusNumberSeekbar = digitalButtonPage.findViewById(R.id.button_radius);
-
-
-
-        elementText = (String) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_STRING_ELEMENT_TEXT);
-        radius = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_RADIUS);
-        mode = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_MODE);
-        sense = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_SENSE);
-        layer = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_LAYER);
-        thick = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_THICK);
-        normalColor = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_NORMAL_COLOR);
-        pressedColor = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_PRESSED_COLOR);
-        backgroundColor = (int) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_INT_ELEMENT_BACKGROUND_COLOR);
-        elementValue = (String) superConfigDatabaseHelper.queryElementAttribute(elementId,COLUMN_STRING_ELEMENT_VALUE);
-
-
+        elementText = (String) attributesMap.get(COLUMN_STRING_ELEMENT_TEXT);
+        radius = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_RADIUS)).intValue();
+        mode = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_MODE)).intValue();
+        sense = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_SENSE)).intValue();
+        layer = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_LAYER)).intValue();
+        thick = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_THICK)).intValue();
+        normalColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_NORMAL_COLOR)).intValue();
+        pressedColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_PRESSED_COLOR)).intValue();
+        backgroundColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_BACKGROUND_COLOR)).intValue();
+        elementValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_VALUE);
         ElementController.SendEventHandler sendHandler = controller.getSendEventHandler(elementValue);
         buttonListener = new DigitalButton.DigitalButtonListener() {
             @Override
@@ -153,7 +145,7 @@ public class DigitalButton extends Element {
                 sendHandler.sendEvent(false);
             }
         };
-
+        System.out.println("System.currentTimeMillis()6 = " + System.currentTimeMillis());
     }
 
     @Override
@@ -263,15 +255,26 @@ public class DigitalButton extends Element {
 
     @Override
     protected void updatePageInfo() {
-        centralXEditText.setTextWithNoTextChangedCallBack(String.valueOf(getCentralX()));
-        // 设置光标位置在最后面
-        centralXEditText.setSelection(centralXEditText.getText().length());
-        centralYEditText.setTextWithNoTextChangedCallBack(String.valueOf(getCentralY()));
-        centralYEditText.setSelection(centralYEditText.getText().length());
+        if (digitalButtonPage != null){
+            centralXEditText.setTextWithNoTextChangedCallBack(String.valueOf(getCentralX()));
+            // 设置光标位置在最后面
+            centralXEditText.setSelection(centralXEditText.getText().length());
+            centralYEditText.setTextWithNoTextChangedCallBack(String.valueOf(getCentralY()));
+            centralYEditText.setSelection(centralYEditText.getText().length());
+        }
+
     }
 
     @Override
-    protected SuperPageLayout getSettingPage() {
+    protected SuperPageLayout getInfoPage() {
+        if (digitalButtonPage == null){
+            digitalButtonPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_digital_button,null);
+            centralXEditText = digitalButtonPage.findViewById(R.id.button_central_x);
+            centralYEditText = digitalButtonPage.findViewById(R.id.button_central_y);
+            widthNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_width);
+            heightNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_height);
+            buttonRadiusNumberSeekbar = digitalButtonPage.findViewById(R.id.button_radius);
+        }
 
         ElementEditText buttonTextEditText = digitalButtonPage.findViewById(R.id.button_text);
         buttonTextEditText.setTextWithNoTextChangedCallBack(elementText);
@@ -566,7 +569,7 @@ public class DigitalButton extends Element {
         digitalButtonPage.findViewById(R.id.page_digital_delete).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                elementController.toggleSettingPage(digitalButtonPage);
+                elementController.toggleInfoPage(digitalButtonPage);
                 elementController.deleteElement(digitalButton);
             }
         });

@@ -242,6 +242,7 @@ public class PageConfigController {
         loadMouseEnable();
         loadMouseMode();
         loadMouseSense();
+        controllerManager.getElementController().loadAllElement(currentConfigId);
         if (currentConfigId == 0L){
             pageConfig.findViewById(R.id.rename_config_button).setVisibility(View.GONE);
             pageConfig.findViewById(R.id.delete_config_button).setVisibility(View.GONE);
@@ -249,7 +250,6 @@ public class PageConfigController {
             pageConfig.findViewById(R.id.rename_config_button).setVisibility(View.VISIBLE);
             pageConfig.findViewById(R.id.delete_config_button).setVisibility(View.VISIBLE);
         }
-
     }
 
     private void loadMouseEnable(){
