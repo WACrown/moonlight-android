@@ -56,51 +56,24 @@
                     android:text="A"
                     android:background="@drawable/enabled_square" />
             </LinearLayout>
-            <LinearLayout
-                android:orientation="vertical"
+            <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                android:id="@+id/page_digital_button_central_x"
                 android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:layout_marginVertical="5dp">
-                <FrameLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:layout_marginBottom="5dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical"
-                        android:text="位置"/>
-                </FrameLayout>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center_horizontal">
-                    <com.limelight.binding.input.advance_setting.superpage.ElementEditText
-                        android:id="@+id/button_central_x"
-                        android:layout_width="80dp"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:text="100"
-                        android:textSize="15dp"
-                        android:background="@drawable/enabled_square"
-                        android:inputType="number"/>
-                    <TextView
-                        android:layout_width="20dp"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:text=":"/>
-                    <com.limelight.binding.input.advance_setting.superpage.ElementEditText
-                        android:id="@+id/button_central_y"
-                        android:layout_width="80dp"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:text="60"
-                        android:textSize="15dp"
-                        android:background="@drawable/enabled_square"
-                        android:inputType="number"/>
-                </LinearLayout>
-            </LinearLayout>
+                android:layout_height="60dp"
+                android:layout_marginVertical="5dp"
+                app:text="X"
+                app:max="100"
+                app:min="0"
+                android:progress="100" />
+            <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                android:id="@+id/page_digital_button_central_y"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginVertical="5dp"
+                app:text="Y"
+                app:max="100"
+                app:min="0"
+                android:progress="100" />
             <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
                 android:id="@+id/page_digital_button_width"
                 android:layout_width="match_parent"

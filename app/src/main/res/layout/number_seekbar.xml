@@ -21,9 +21,11 @@
             android:layout_height="30dp">
             <View
                 android:id="@+id/number_seekbar_minus"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="40dp"
+                android:layout_height="30dp"
                 android:layout_marginEnd="5dp"
+                android:scaleX="0.5"
+                android:scaleY="0.67"
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/minus"/>
             <TextView
@@ -34,9 +36,11 @@
                 android:text="100"/>
             <View
                 android:id="@+id/number_seekbar_add"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="40dp"
+                android:layout_height="30dp"
                 android:layout_marginStart="5dp"
+                android:scaleX="0.5"
+                android:scaleY="0.67"
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/add"/>
         </LinearLayout>

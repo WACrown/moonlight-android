@@ -72,8 +72,8 @@ public class DigitalButton extends Element {
     private int backgroundColor;
 
     private SuperPageLayout digitalButtonPage;
-    private ElementEditText centralXEditText;
-    private ElementEditText centralYEditText;
+    private NumberSeekbar centralXNumberSeekbar;
+    private NumberSeekbar centralYNumberSeekbar;
     private NumberSeekbar widthNumberSeekbar;
     private NumberSeekbar heightNumberSeekbar;
     private NumberSeekbar buttonRadiusNumberSeekbar;
@@ -256,11 +256,8 @@ public class DigitalButton extends Element {
     @Override
     protected void updatePageInfo() {
         if (digitalButtonPage != null){
-            centralXEditText.setTextWithNoTextChangedCallBack(String.valueOf(getCentralX()));
-            // 设置光标位置在最后面
-            centralXEditText.setSelection(centralXEditText.getText().length());
-            centralYEditText.setTextWithNoTextChangedCallBack(String.valueOf(getCentralY()));
-            centralYEditText.setSelection(centralYEditText.getText().length());
+            centralXNumberSeekbar.setValueWithNoCallBack(getCentralX());
+            centralYNumberSeekbar.setValueWithNoCallBack(getCentralY());
         }
 
     }
@@ -269,8 +266,8 @@ public class DigitalButton extends Element {
     protected SuperPageLayout getInfoPage() {
         if (digitalButtonPage == null){
             digitalButtonPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_digital_button,null);
-            centralXEditText = digitalButtonPage.findViewById(R.id.button_central_x);
-            centralYEditText = digitalButtonPage.findViewById(R.id.button_central_y);
+            centralXNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_central_x);
+            centralYNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_central_y);
             widthNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_width);
             heightNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_height);
             buttonRadiusNumberSeekbar = digitalButtonPage.findViewById(R.id.button_radius);
@@ -359,32 +356,33 @@ public class DigitalButton extends Element {
             }
         });
         //TODO:这里可能是因为位置信息小数变整数的原因，位置会有轻微的位移
-        centralXEditText.setTextWithNoTextChangedCallBack(String.valueOf(getCentralX()));
-        centralXEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
-        centralXEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+        centralXNumberSeekbar.setProgressMin(centralXMin);
+        centralXNumberSeekbar.setProgressMax(centralXMax);
+        centralXNumberSeekbar.setValueWithNoCallBack(getCentralX());
+        centralXNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
-            public void textChanged(String text) {
-                if (!text.matches("^\\d{1,10}$")){
-                    return;
-                }
-                int positionX = Integer.parseInt(text);
-                setCentralX(positionX);
+            public void onProgressChanged(int progress) {
+                setCentralX(progress);
+            }
+
+            @Override
+            public void onProgressRelease(int lastProgress) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,getCentralX());
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
             }
         });
-
-        centralYEditText.setTextWithNoTextChangedCallBack(String.valueOf(getCentralY()));
-        centralYEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
-        centralYEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+        centralYNumberSeekbar.setProgressMin(centralYMin);
+        centralYNumberSeekbar.setProgressMax(centralYMax);
+        centralYNumberSeekbar.setValueWithNoCallBack(getCentralY());
+        centralYNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
-            public void textChanged(String text) {
-                if (!text.matches("^\\d{1,10}$")){
-                    return;
-                }
-                int positionY = Integer.parseInt(text);
-                setCentralY(positionY);
+            public void onProgressChanged(int progress) {
+                setCentralY(progress);
+            }
+
+            @Override
+            public void onProgressRelease(int lastProgress) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,getCentralY());
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
