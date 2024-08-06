@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.text.InputFilter;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -151,7 +150,7 @@ public class DigitalButton extends Element {
     @Override
     protected void onElementDraw(Canvas canvas) {
         // 文字
-        paintText.setTextSize(getPercent(getWidth(), 25));
+        paintText.setTextSize(getPercent(getParamWidth(), 25));
         paintText.setColor(isPressed() ? pressedColor : normalColor);
         // 边框
         paintBorder.setStrokeWidth(thick);
@@ -160,14 +159,14 @@ public class DigitalButton extends Element {
         paintBackground.setColor(backgroundColor);
         // 绘画范围
         rect.left = rect.top = (float) thick / 2;
-        rect.right = getWidth() - rect.left;
+        rect.right = getParamWidth() - rect.left;
         rect.bottom = getHeight() - rect.top;
         // 绘制背景
         canvas.drawRoundRect(rect, radius, radius, paintBackground);
         // 绘制边框
         canvas.drawRoundRect(rect, radius, radius, paintBorder);
         // 绘制文字
-        canvas.drawText(elementText, getPercent(getWidth(), 50), getPercent(getHeight(), 63), paintText);
+        canvas.drawText(elementText, getPercent(getParamWidth(), 50), getPercent(getParamHeight(), 63), paintText);
 
     }
 
@@ -247,8 +246,8 @@ public class DigitalButton extends Element {
     @Override
     public void updatePositionDataBase() {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,getCentralX());
-        contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,getCentralY());
+        contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,getParamCentralX());
+        contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,getParamCentralY());
         superConfigDatabaseHelper.updateElement(elementId,contentValues);
 
     }
@@ -256,8 +255,8 @@ public class DigitalButton extends Element {
     @Override
     protected void updatePageInfo() {
         if (digitalButtonPage != null){
-            centralXNumberSeekbar.setValueWithNoCallBack(getCentralX());
-            centralYNumberSeekbar.setValueWithNoCallBack(getCentralY());
+            centralXNumberSeekbar.setValueWithNoCallBack(getParamCentralX());
+            centralYNumberSeekbar.setValueWithNoCallBack(getParamCentralY());
         }
 
     }
@@ -358,33 +357,33 @@ public class DigitalButton extends Element {
         //TODO:这里可能是因为位置信息小数变整数的原因，位置会有轻微的位移
         centralXNumberSeekbar.setProgressMin(centralXMin);
         centralXNumberSeekbar.setProgressMax(centralXMax);
-        centralXNumberSeekbar.setValueWithNoCallBack(getCentralX());
+        centralXNumberSeekbar.setValueWithNoCallBack(getParamCentralX());
         centralXNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
             public void onProgressChanged(int progress) {
-                setCentralX(progress);
+                setParamCentralX(progress);
             }
 
             @Override
             public void onProgressRelease(int lastProgress) {
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,getCentralX());
+                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,getParamCentralX());
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
             }
         });
         centralYNumberSeekbar.setProgressMin(centralYMin);
         centralYNumberSeekbar.setProgressMax(centralYMax);
-        centralYNumberSeekbar.setValueWithNoCallBack(getCentralY());
+        centralYNumberSeekbar.setValueWithNoCallBack(getParamCentralY());
         centralYNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
             public void onProgressChanged(int progress) {
-                setCentralY(progress);
+                setParamCentralY(progress);
             }
 
             @Override
             public void onProgressRelease(int lastProgress) {
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,getCentralY());
+                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,getParamCentralY());
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
             }
         });
@@ -565,8 +564,8 @@ public class DigitalButton extends Element {
                 contentValues.put(COLUMN_INT_ELEMENT_WIDTH,getParamWidth());
                 contentValues.put(COLUMN_INT_ELEMENT_HEIGHT,getParamHeight());
                 contentValues.put(COLUMN_INT_ELEMENT_LAYER,layer);
-                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,Math.max(Math.min(getCentralX() + getParamWidth(),centralXMax),centralXMin));
-                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,getCentralY());
+                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,Math.max(Math.min(getParamCentralX() + getParamWidth(),centralXMax),centralXMin));
+                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,getParamCentralY());
                 contentValues.put(COLUMN_INT_ELEMENT_RADIUS,radius);
                 contentValues.put(COLUMN_INT_ELEMENT_THICK,thick);
                 contentValues.put(COLUMN_INT_ELEMENT_NORMAL_COLOR,normalColor);

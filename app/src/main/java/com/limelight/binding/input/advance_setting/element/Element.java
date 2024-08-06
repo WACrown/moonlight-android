@@ -96,8 +96,18 @@ public abstract class Element extends View {
         return (int) getY() + getHeight() / 2;
     }
 
+    protected int getParamCentralX(){
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
+        return layoutParams.leftMargin + layoutParams.width / 2;
+    }
 
-    protected void setCentralX(int centralX){
+    protected int getParamCentralY(){
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
+        return layoutParams.topMargin + layoutParams.height / 2;
+    }
+
+
+    protected void setParamCentralX(int centralX){
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (centralX > centralXMax){
             layoutParams.leftMargin = centralXMax - layoutParams.width/2;
@@ -112,7 +122,7 @@ public abstract class Element extends View {
 
     }
 
-    protected void setCentralY(int centralY){
+    protected void setParamCentralY(int centralY){
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (centralY > centralYMax){
             layoutParams.topMargin = centralYMax - layoutParams.height/2;
@@ -125,7 +135,7 @@ public abstract class Element extends View {
     }
 
     protected void setParamWidth(int width){
-        int centralPosX = getCentralX();
+        int centralPosX = getParamCentralX();
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (width > widthMax){
             layoutParams.width = widthMax;
@@ -134,11 +144,11 @@ public abstract class Element extends View {
         } else {
             layoutParams.width = width;
         }
-        setCentralX(centralPosX);
+        setParamCentralX(centralPosX);
     }
 
     protected void setParamHeight(int height){
-        int centralPosY = getCentralY();
+        int centralPosY = getParamCentralY();
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (height > heightMax){
             layoutParams.height = heightMax;
@@ -147,15 +157,17 @@ public abstract class Element extends View {
         } else {
             layoutParams.height = height;
         }
-        setCentralY(centralPosY);
+        setParamCentralY(centralPosY);
     }
 
     protected int getParamWidth(){
-        return getWidth();
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
+        return layoutParams.width;
     }
 
     protected int getParamHeight(){
-        return getHeight();
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
+        return layoutParams.height;
     }
 
 
@@ -209,8 +221,8 @@ public abstract class Element extends View {
 //                    return true;
 //                }
                 isClick = false;
-                setCentralX(getCentralX() + (int) deltaX);
-                setCentralY(getCentralY() + (int) deltaY);
+                setParamCentralX(getCentralX() + (int) deltaX);
+                setParamCentralY(getCentralY() + (int) deltaY);
                 updatePageInfo();
                 return true;
             }
