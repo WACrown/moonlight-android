@@ -281,7 +281,6 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
             }
         }
         cursor.close();
-        System.out.println("resultMap = " + resultMap);
         return resultMap;
     }
 

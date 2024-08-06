@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import com.limelight.R;
 import com.limelight.binding.input.advance_setting.element.Element;
-import com.limelight.binding.input.advance_setting.element.ElementBean;
 import com.limelight.binding.input.advance_setting.element_card.ButtonCard;
 import com.limelight.binding.input.advance_setting.element_card.ElementCard;
 import com.limelight.binding.input.advance_setting.element_card.GStickCard;

@@ -98,7 +98,6 @@ public class DigitalButton extends Element {
                          TouchController touchController,
                          PageDeviceController pageDeviceController, Context context) {
         super((Long) attributesMap.get(Element.COLUMN_LONG_ELEMENT_ID),(Long)attributesMap.get(Element.COLUMN_LONG_CONFIG_ID),((Long) attributesMap.get(Element.COLUMN_INT_ELEMENT_TYPE)).intValue(),controller,context);
-        System.out.println("System.currentTimeMillis()2 = " + System.currentTimeMillis());
         this.touchController = touchController;
         this.superConfigDatabaseHelper = controller.getSuperConfigDatabaseHelper();
         this.pageDeviceController = pageDeviceController;
@@ -144,7 +143,6 @@ public class DigitalButton extends Element {
                 sendHandler.sendEvent(false);
             }
         };
-        System.out.println("System.currentTimeMillis()6 = " + System.currentTimeMillis());
     }
 
     @Override
@@ -454,7 +452,6 @@ public class DigitalButton extends Element {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 String modeString = group.findViewById(checkedId).getTag().toString();
                 mode = Integer.parseInt(modeString);
-                System.out.println("mode = " + mode);
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_INT_ELEMENT_MODE,mode);
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);

@@ -48,7 +48,6 @@ public class ConfigListPreference {
         editor.apply();
 
         //wg_debug
-        System.out.println("wg_debug configurationsMap:" + preference.getAll());
         //新增布局成功
         return 0;
     }
@@ -58,7 +57,6 @@ public class ConfigListPreference {
         editor.apply();
 
         //wg_debug
-        System.out.println("wg_debug configurationsMap:" + preference.getAll());
         return 0;
     }
 
@@ -68,7 +66,6 @@ public class ConfigListPreference {
         //重命名成功
 
         //wg_debug
-        System.out.println("wg_debug configurationsMap:" + preference.getAll());
         return 0;
     }
 

@@ -628,7 +628,6 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         }
         if (controllerManager != null) {
             // Refresh layout of OSC for possible new screen size
-            System.out.println("wangguan test game");
             controllerManager.refreshLayout();
         }
 
