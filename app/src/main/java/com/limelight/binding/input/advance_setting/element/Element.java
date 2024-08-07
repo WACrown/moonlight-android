@@ -20,6 +20,10 @@ public abstract class Element extends View {
     public static final String COLUMN_LONG_ELEMENT_ID = "element_id";
     public static final String COLUMN_INT_ELEMENT_TYPE = "element_type";
     public static final String COLUMN_STRING_ELEMENT_VALUE = "element_value";
+    public static final String COLUMN_STRING_ELEMENT_UP_VALUE = "element_up_value";
+    public static final String COLUMN_STRING_ELEMENT_DOWN_VALUE = "element_down_value";
+    public static final String COLUMN_STRING_ELEMENT_LEFT_VALUE = "element_left_value";
+    public static final String COLUMN_STRING_ELEMENT_RIGHT_VALUE = "element_right_value";
     public static final String COLUMN_STRING_ELEMENT_TEXT = "element_text";
     public static final String COLUMN_INT_ELEMENT_WIDTH = "element_width";
     public static final String COLUMN_INT_ELEMENT_HEIGHT = "element_height";
@@ -36,7 +40,7 @@ public abstract class Element extends View {
     public static final String COLUMN_INT_ELEMENT_BACKGROUND_COLOR = "element_background_color";
 
     public static final int ELEMENT_TYPE_DIGITAL_BUTTON = 0;
-    public static final int ELEMENT_TYPE_DIGITAL_DIGITAL_PAD = 1;
+    public static final int ELEMENT_TYPE_DIGITAL_PAD = 1;
     public static final int ELEMENT_TYPE_ANALOG_STICK = 2;
 
 
@@ -233,7 +237,7 @@ public abstract class Element extends View {
                 if (isClick){
                     elementController.toggleInfoPage(getInfoPage());
                 } else {
-                    updatePositionDataBase();
+                    updateDataBase();
                 }
                 return true;
             }
@@ -246,7 +250,7 @@ public abstract class Element extends View {
 
     abstract protected void updatePageInfo();
 
-    abstract protected void updatePositionDataBase();
+    abstract protected void updateDataBase();
     abstract protected void onElementDraw(Canvas canvas);
 
     abstract public boolean onElementTouchEvent(MotionEvent event);

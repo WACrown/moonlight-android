@@ -59,6 +59,7 @@ public class DigitalButton extends Element {
     private DigitalButton digitalButton;
 
     private DigitalButtonListener buttonListener;
+    private ElementController.SendEventHandler sendHandler;
     private String elementText;
     private String elementValue;
     private int radius;
@@ -73,9 +74,7 @@ public class DigitalButton extends Element {
     private SuperPageLayout digitalButtonPage;
     private NumberSeekbar centralXNumberSeekbar;
     private NumberSeekbar centralYNumberSeekbar;
-    private NumberSeekbar widthNumberSeekbar;
-    private NumberSeekbar heightNumberSeekbar;
-    private NumberSeekbar buttonRadiusNumberSeekbar;
+
 
     private float lastX;
     private float lastY;
@@ -126,7 +125,7 @@ public class DigitalButton extends Element {
         pressedColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_PRESSED_COLOR)).intValue();
         backgroundColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_BACKGROUND_COLOR)).intValue();
         elementValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_VALUE);
-        ElementController.SendEventHandler sendHandler = controller.getSendEventHandler(elementValue);
+        sendHandler = controller.getSendEventHandler(elementValue);
         buttonListener = new DigitalButton.DigitalButtonListener() {
             @Override
             public void onClick() {
@@ -242,7 +241,7 @@ public class DigitalButton extends Element {
     }
 
     @Override
-    public void updatePositionDataBase() {
+    public void updateDataBase() {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,getParamCentralX());
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,getParamCentralY());
@@ -265,10 +264,12 @@ public class DigitalButton extends Element {
             digitalButtonPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_digital_button,null);
             centralXNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_central_x);
             centralYNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_central_y);
-            widthNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_width);
-            heightNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_height);
-            buttonRadiusNumberSeekbar = digitalButtonPage.findViewById(R.id.button_radius);
+
         }
+
+        NumberSeekbar widthNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_width);
+        NumberSeekbar heightNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_height);
+        NumberSeekbar buttonRadiusNumberSeekbar = digitalButtonPage.findViewById(R.id.button_radius);
 
         ElementEditText buttonTextEditText = digitalButtonPage.findViewById(R.id.button_text);
         buttonTextEditText.setTextWithNoTextChangedCallBack(elementText);
@@ -293,66 +294,20 @@ public class DigitalButton extends Element {
                 PageDeviceController.DeviceCallBack deviceCallBack = new PageDeviceController.DeviceCallBack() {
                     @Override
                     public void OnKeyClick(TextView key) {
-                        String innerValue = key.getTag().toString();
+                        elementValue = key.getTag().toString();
                         // page页设置值文本
                         ((TextView) v).setText(key.getText());
                         // 保存值
                         ContentValues contentValues = new ContentValues();
-                        contentValues.put(COLUMN_STRING_ELEMENT_VALUE,innerValue);
+                        contentValues.put(COLUMN_STRING_ELEMENT_VALUE,elementValue);
                         superConfigDatabaseHelper.updateElement(elementId,contentValues);
                         // 设置onClickListener
-                        ElementController.SendEventHandler sendHandler = elementController.getSendEventHandler(innerValue);
-                        buttonListener = new DigitalButtonListener() {
-                            @Override
-                            public void onClick() {
-                                sendHandler.sendEvent(true);
-                            }
-
-                            @Override
-                            public void onLongClick() {
-
-                            }
-
-                            @Override
-                            public void onRelease() {
-                                sendHandler.sendEvent(false);
-                            }
-                        };
-                    }
-
-                    @Override
-                    public void OnResetKeyClick() {
-                        String innerValue = "k29";
-                        // page页设置值文本
-                        ((TextView) v).setText("A");
-                        // 保存值
-                        ContentValues contentValues = new ContentValues();
-                        contentValues.put(COLUMN_STRING_ELEMENT_VALUE,innerValue);
-                        superConfigDatabaseHelper.updateElement(elementId,contentValues);
-                        // 设置onClickListener
-                        ElementController.SendEventHandler sendHandler = elementController.getSendEventHandler(innerValue);
-                        buttonListener = new DigitalButtonListener() {
-                            @Override
-                            public void onClick() {
-                                sendHandler.sendEvent(true);
-                            }
-
-                            @Override
-                            public void onLongClick() {
-
-                            }
-
-                            @Override
-                            public void onRelease() {
-                                sendHandler.sendEvent(false);
-                            }
-                        };
+                        sendHandler = elementController.getSendEventHandler(elementValue);
                     }
                 };
                 pageDeviceController.open(deviceCallBack,View.VISIBLE,View.VISIBLE,View.VISIBLE);
             }
         });
-        //TODO:这里可能是因为位置信息小数变整数的原因，位置会有轻微的位移
         centralXNumberSeekbar.setProgressMin(centralXMin);
         centralXNumberSeekbar.setProgressMax(centralXMax);
         centralXNumberSeekbar.setValueWithNoCallBack(getParamCentralX());

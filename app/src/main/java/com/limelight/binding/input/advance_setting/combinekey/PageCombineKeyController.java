@@ -52,12 +52,6 @@ public class PageCombineKeyController {
                             ((TextView) v).setText(key.getText());
                             v.setTag(key.getTag());
                         }
-
-                        @Override
-                        public void OnResetKeyClick() {
-                            ((TextView) v).setText("");
-                            v.setTag("k-1");
-                        }
                     };
                     controllerManager.getPageDeviceController().open(deviceCallBack,View.VISIBLE,View.GONE,View.GONE);
                 }

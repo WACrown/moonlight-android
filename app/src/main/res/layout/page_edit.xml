@@ -67,6 +67,7 @@
                 android:layout_height="40dp"
                 android:layout_marginVertical="5dp">
                 <LinearLayout
+                    android:id="@+id/page_edit_add_pad"
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">

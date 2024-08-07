@@ -15,7 +15,6 @@ public class PageDeviceController {
 
     public interface DeviceCallBack{
         void OnKeyClick(TextView key);
-        void OnResetKeyClick();
     }
 
     private Context context;
@@ -43,13 +42,6 @@ public class PageDeviceController {
         };
         setListenersForDevice(devicePage,onClickListener);
 
-        devicePage.findViewById(R.id.device_reset).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deviceCallBack.OnResetKeyClick();
-                controllerManager.getSuperPagesController().close();
-            }
-        });
         devicePage.findViewById(R.id.device_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

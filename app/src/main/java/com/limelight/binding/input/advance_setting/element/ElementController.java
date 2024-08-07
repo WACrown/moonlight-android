@@ -95,7 +95,27 @@ public class ElementController {
         pageEdit.findViewById(R.id.page_edit_add_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                controllerManager.getElementController().addElement(Element.ELEMENT_TYPE_DIGITAL_BUTTON);
+                Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
+                // save a new element to sqlite
+                ContentValues contentValues = DigitalButton.getInitialInfo();
+                //ContentValues contentValues = new ContentValues();
+                contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
+                controllerManager.getSuperConfigDatabaseHelper().insertElement(contentValues);
+                // add the element to screen
+                loadAllElement(configId);
+            }
+        });
+        pageEdit.findViewById(R.id.page_edit_add_pad).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
+                // save a new element to sqlite
+                ContentValues contentValues = DigitalPad.getInitialInfo();
+                //ContentValues contentValues = new ContentValues();
+                contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
+                controllerManager.getSuperConfigDatabaseHelper().insertElement(contentValues);
+                // add the element to screen
+                loadAllElement(configId);
             }
         });
     }
@@ -124,8 +144,11 @@ public class ElementController {
                             controllerManager.getPageDeviceController(),
                             context);
                     break;
-                case Element.ELEMENT_TYPE_DIGITAL_DIGITAL_PAD:
-
+                case Element.ELEMENT_TYPE_DIGITAL_PAD:
+                    element = new DigitalPad(attributesMap,
+                            this,
+                            controllerManager.getPageDeviceController(),
+                            context);
                     break;
                 case Element.ELEMENT_TYPE_ANALOG_STICK:
 
@@ -140,27 +163,6 @@ public class ElementController {
             layoutParams.leftMargin = elementCentralX - elementWidth / 2;
             layoutParams.topMargin = elementCentralY - elementHeight / 2;
             elementsLayout.addView(element,elementsLayout.getChildCount() - 1,layoutParams);
-        }
-    }
-
-    private void addElement(int elementType){
-        switch (elementType){
-            case Element.ELEMENT_TYPE_DIGITAL_BUTTON:
-                Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
-                // save a new element to sqlite
-                ContentValues contentValues = DigitalButton.getInitialInfo();
-                //ContentValues contentValues = new ContentValues();
-                contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
-                controllerManager.getSuperConfigDatabaseHelper().insertElement(contentValues);
-                // add the element to screen
-                loadAllElement(configId);
-                break;
-            case Element.ELEMENT_TYPE_DIGITAL_DIGITAL_PAD:
-
-                break;
-            case Element.ELEMENT_TYPE_ANALOG_STICK:
-
-                break;
         }
     }
 
@@ -333,6 +335,17 @@ public class ElementController {
                         gamepadInputContext.rightTrigger = (byte) 0;
                     }
                     sendGamepadEvent();
+                }
+
+                @Override
+                public void sendEvent(int analog1, int analog2) {
+
+                }
+            };
+        } else if (key.equals("null")){
+            return new SendEventHandler() {
+                @Override
+                public void sendEvent(boolean down) {
                 }
 
                 @Override
