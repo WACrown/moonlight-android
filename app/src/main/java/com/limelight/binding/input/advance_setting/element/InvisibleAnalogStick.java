@@ -3,7 +3,6 @@ package com.limelight.binding.input.advance_setting.element;
 import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.RectF;
@@ -19,7 +18,6 @@ import android.widget.TextView;
 
 import com.limelight.R;
 import com.limelight.binding.input.advance_setting.PageDeviceController;
-import com.limelight.binding.input.advance_setting.TouchController;
 import com.limelight.binding.input.advance_setting.sqlite.SuperConfigDatabaseHelper;
 import com.limelight.binding.input.advance_setting.superpage.ElementEditText;
 import com.limelight.binding.input.advance_setting.superpage.NumberSeekbar;
@@ -140,10 +138,10 @@ public class InvisibleAnalogStick extends Element {
     private PageDeviceController pageDeviceController;
     private InvisibleAnalogStick invisibleAnalogStick;
 
-    private ElementController.SendEventHandler sendMiddleHandler;
-    private ElementController.SendEventHandler sendHandler;
-    private String elementMiddleValue;
-    private String elementValue;
+    private ElementController.SendEventHandler middleValueSendHandler;
+    private ElementController.SendEventHandler valueSendHandler;
+    private String middleValue;
+    private String value;
     private int radius;
     private int sense; //dead zone radius
     private int layer;
@@ -242,15 +240,15 @@ public class InvisibleAnalogStick extends Element {
         normalColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_NORMAL_COLOR)).intValue();
         pressedColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_PRESSED_COLOR)).intValue();
         backgroundColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_BACKGROUND_COLOR)).intValue();
-        elementValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_VALUE);
-        elementMiddleValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_MIDDLE_VALUE);
-        sendHandler = controller.getSendEventHandler(elementValue);
-        sendMiddleHandler = controller.getSendEventHandler(elementMiddleValue);
+        value = (String) attributesMap.get(COLUMN_STRING_ELEMENT_VALUE);
+        middleValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_MIDDLE_VALUE);
+        valueSendHandler = controller.getSendEventHandler(value);
+        middleValueSendHandler = controller.getSendEventHandler(middleValue);
 
         listener = new InvisibleAnalogStickListener() {
             @Override
             public void onMovement(float x, float y) {
-                sendHandler.sendEvent((int) (x * 0x7FFE),(int) (y * 0x7FFE));
+                valueSendHandler.sendEvent((int) (x * 0x7FFE),(int) (y * 0x7FFE));
             }
 
             @Override
@@ -259,12 +257,12 @@ public class InvisibleAnalogStick extends Element {
 
             @Override
             public void onDoubleClick() {
-                sendMiddleHandler.sendEvent(true);
+                middleValueSendHandler.sendEvent(true);
             }
 
             @Override
             public void onRevoke() {
-                sendMiddleHandler.sendEvent(false);
+                middleValueSendHandler.sendEvent(false);
             }
         };
 
@@ -305,47 +303,47 @@ public class InvisibleAnalogStick extends Element {
         NumberSeekbar widthNumberSeekbar = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_width);
         NumberSeekbar heightNumberSeekbar = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_height);
         NumberSeekbar radiusNumberSeekbar = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_radius);
-        RadioGroup modeRadioGroup = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_value);
-        TextView elementMiddleValueTextView = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_middle_value);
+        RadioGroup valueRadioGroup = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_value);
+        TextView middleValueTextView = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_middle_value);
         NumberSeekbar senseNumberSeekbar = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_sense);
         NumberSeekbar thickNumberSeekbar = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_thick);
-        ElementEditText normalColorEditText = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_normal_color);
-        ElementEditText pressedColorEditText = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_pressed_color);
-        ElementEditText backgroundColorEditText = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_background_color);
+        ElementEditText normalColorElementEditText = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_normal_color);
+        ElementEditText pressedColorElementEditText = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_pressed_color);
+        ElementEditText backgroundColorElementEditText = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_background_color);
         Button copyButton = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_copy);
         Button deleteButton = invisibleAnalogStickPage.findViewById(R.id.page_invisible_analog_stick_delete);
 
 
-        RadioButton radioButton = modeRadioGroup.findViewWithTag(elementValue);
+        RadioButton radioButton = valueRadioGroup.findViewWithTag(value);
         radioButton.setChecked(true);
-        modeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        valueRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                elementValue= group.findViewById(checkedId).getTag().toString();
+                value = group.findViewById(checkedId).getTag().toString();
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(COLUMN_STRING_ELEMENT_VALUE,elementValue);
+                contentValues.put(COLUMN_STRING_ELEMENT_VALUE, value);
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
 
-                sendHandler = elementController.getSendEventHandler(elementValue);
+                valueSendHandler = elementController.getSendEventHandler(value);
             }
         });
 
-        elementMiddleValueTextView.setText(pageDeviceController.getKeyNameByValue(elementMiddleValue));
-        elementMiddleValueTextView.setOnClickListener(new OnClickListener() {
+        middleValueTextView.setText(pageDeviceController.getKeyNameByValue(middleValue));
+        middleValueTextView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 PageDeviceController.DeviceCallBack deviceCallBack = new PageDeviceController.DeviceCallBack() {
                     @Override
                     public void OnKeyClick(TextView key) {
-                        elementMiddleValue = key.getTag().toString();
+                        middleValue = key.getTag().toString();
                         // page页设置值文本
                         ((TextView) v).setText(key.getText());
                         // 保存值
                         ContentValues contentValues = new ContentValues();
-                        contentValues.put(COLUMN_STRING_ELEMENT_MIDDLE_VALUE,elementMiddleValue);
+                        contentValues.put(COLUMN_STRING_ELEMENT_MIDDLE_VALUE, middleValue);
                         superConfigDatabaseHelper.updateElement(elementId,contentValues);
                         // 设置onClickListener
-                        sendMiddleHandler = elementController.getSendEventHandler(elementMiddleValue);
+                        middleValueSendHandler = elementController.getSendEventHandler(middleValue);
                     }
                 };
                 pageDeviceController.open(deviceCallBack,View.VISIBLE,View.VISIBLE,View.VISIBLE);
@@ -485,9 +483,9 @@ public class InvisibleAnalogStick extends Element {
         });
 
 
-        normalColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",normalColor));
-        normalColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
-        normalColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+        normalColorElementEditText.setTextWithNoTextChangedCallBack(String.format("%08X",normalColor));
+        normalColorElementEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
+        normalColorElementEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
                 if (text.matches("^[A-F0-9]{8}$")){
@@ -501,9 +499,9 @@ public class InvisibleAnalogStick extends Element {
         });
 
 
-        pressedColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",pressedColor));
-        pressedColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
-        pressedColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+        pressedColorElementEditText.setTextWithNoTextChangedCallBack(String.format("%08X",pressedColor));
+        pressedColorElementEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
+        pressedColorElementEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
                 if (text.matches("^[A-F0-9]{8}$")){
@@ -517,9 +515,9 @@ public class InvisibleAnalogStick extends Element {
         });
 
 
-        backgroundColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",backgroundColor));
-        backgroundColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
-        backgroundColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+        backgroundColorElementEditText.setTextWithNoTextChangedCallBack(String.format("%08X",backgroundColor));
+        backgroundColorElementEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
+        backgroundColorElementEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
                 if (text.matches("^[A-F0-9]{8}$")){
@@ -539,8 +537,8 @@ public class InvisibleAnalogStick extends Element {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_LONG_ELEMENT_ID,System.currentTimeMillis());
                 contentValues.put(COLUMN_INT_ELEMENT_TYPE,ELEMENT_TYPE_INVISIBLE_ANALOG_STICK);
-                contentValues.put(COLUMN_STRING_ELEMENT_VALUE,elementValue);
-                contentValues.put(COLUMN_STRING_ELEMENT_MIDDLE_VALUE,elementMiddleValue);
+                contentValues.put(COLUMN_STRING_ELEMENT_VALUE, value);
+                contentValues.put(COLUMN_STRING_ELEMENT_MIDDLE_VALUE, middleValue);
                 contentValues.put(COLUMN_INT_ELEMENT_SENSE,sense);
                 contentValues.put(COLUMN_INT_ELEMENT_WIDTH,getParamWidth());
                 contentValues.put(COLUMN_INT_ELEMENT_HEIGHT,getParamHeight());

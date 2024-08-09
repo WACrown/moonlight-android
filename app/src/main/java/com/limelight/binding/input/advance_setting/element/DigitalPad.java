@@ -33,21 +33,21 @@ public class DigitalPad extends Element {
     public final static int DIGITAL_PAD_DIRECTION_UP = 2;
     public final static int DIGITAL_PAD_DIRECTION_RIGHT = 4;
     public final static int DIGITAL_PAD_DIRECTION_DOWN = 8;
-    private DigitalPadListener digitalPadListener;
+    private DigitalPadListener listener;
     private static final int DPAD_MARGIN = 5;
 
     private SuperConfigDatabaseHelper superConfigDatabaseHelper;
     private PageDeviceController pageDeviceController;
     private DigitalPad digitalPad;
 
-    private ElementController.SendEventHandler upSenderHandler;
-    private ElementController.SendEventHandler downSenderHandler;
-    private ElementController.SendEventHandler leftSenderHandler;
-    private ElementController.SendEventHandler rightSenderHandler;
-    private String elementUpValue;
-    private String elementDownValue;
-    private String elementLeftValue;
-    private String elementRightValue;
+    private ElementController.SendEventHandler upValueSenderHandler;
+    private ElementController.SendEventHandler downValueSenderHandler;
+    private ElementController.SendEventHandler leftValueSenderHandler;
+    private ElementController.SendEventHandler rightValueSenderHandler;
+    private String upValue;
+    private String downValue;
+    private String leftValue;
+    private String rightValue;
     private int layer;
     private int thick;
     private int normalColor;
@@ -97,49 +97,49 @@ public class DigitalPad extends Element {
         normalColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_NORMAL_COLOR)).intValue();
         pressedColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_PRESSED_COLOR)).intValue();
         backgroundColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_BACKGROUND_COLOR)).intValue();
-        elementUpValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_UP_VALUE);
-        elementDownValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_DOWN_VALUE);
-        elementLeftValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_LEFT_VALUE);
-        elementRightValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_RIGHT_VALUE);
+        upValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_UP_VALUE);
+        downValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_DOWN_VALUE);
+        leftValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_LEFT_VALUE);
+        rightValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_RIGHT_VALUE);
 
-        upSenderHandler = controller.getSendEventHandler(elementUpValue);
-        downSenderHandler = controller.getSendEventHandler(elementDownValue);
-        leftSenderHandler = controller.getSendEventHandler(elementLeftValue);
-        rightSenderHandler = controller.getSendEventHandler(elementRightValue);
-        digitalPadListener = new DigitalPad.DigitalPadListener() {
+        upValueSenderHandler = controller.getSendEventHandler(upValue);
+        downValueSenderHandler = controller.getSendEventHandler(downValue);
+        leftValueSenderHandler = controller.getSendEventHandler(leftValue);
+        rightValueSenderHandler = controller.getSendEventHandler(rightValue);
+        listener = new DigitalPad.DigitalPadListener() {
             @Override
             public void onDirectionChange(int direction) {
                 int directionChange = lastDirection ^ direction;
                 if ((directionChange & DIGITAL_PAD_DIRECTION_LEFT) != 0 ){
                     if ((direction & DIGITAL_PAD_DIRECTION_LEFT) != 0) {
-                        leftSenderHandler.sendEvent(true);
+                        leftValueSenderHandler.sendEvent(true);
                     }
                     else {
-                        leftSenderHandler.sendEvent(false);
+                        leftValueSenderHandler.sendEvent(false);
                     }
                 }
                 if ((directionChange & DIGITAL_PAD_DIRECTION_RIGHT) != 0 ){
                     if ((direction & DIGITAL_PAD_DIRECTION_RIGHT) != 0) {
-                        rightSenderHandler.sendEvent(true);
+                        rightValueSenderHandler.sendEvent(true);
                     }
                     else {
-                        rightSenderHandler.sendEvent(false);
+                        rightValueSenderHandler.sendEvent(false);
                     }
                 }
                 if ((directionChange & DIGITAL_PAD_DIRECTION_UP) != 0 ){
                     if ((direction & DIGITAL_PAD_DIRECTION_UP) != 0) {
-                        upSenderHandler.sendEvent(true);
+                        upValueSenderHandler.sendEvent(true);
                     }
                     else {
-                        upSenderHandler.sendEvent(false);
+                        upValueSenderHandler.sendEvent(false);
                     }
                 }
                 if ((directionChange & DIGITAL_PAD_DIRECTION_DOWN) != 0 ){
                     if ((direction & DIGITAL_PAD_DIRECTION_DOWN) != 0) {
-                        downSenderHandler.sendEvent(true);
+                        downValueSenderHandler.sendEvent(true);
                     }
                     else {
-                        downSenderHandler.sendEvent(false);
+                        downValueSenderHandler.sendEvent(false);
                     }
                 }
                 lastDirection = direction;
@@ -291,7 +291,7 @@ public class DigitalPad extends Element {
     private void newDirectionCallback(int direction) {
 
         // notify listeners
-        digitalPadListener.onDirectionChange(direction);
+        listener.onDirectionChange(direction);
     }
 
     @Override
@@ -360,88 +360,88 @@ public class DigitalPad extends Element {
         Button deleteButton = digitalPadPage.findViewById(R.id.page_digital_pad_delete);
 
 
-        upValueTextView.setText(pageDeviceController.getKeyNameByValue(elementUpValue));
+        upValueTextView.setText(pageDeviceController.getKeyNameByValue(upValue));
         upValueTextView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 PageDeviceController.DeviceCallBack deviceCallBack = new PageDeviceController.DeviceCallBack() {
                     @Override
                     public void OnKeyClick(TextView key) {
-                        elementUpValue = key.getTag().toString();
+                        upValue = key.getTag().toString();
                         // page页设置值文本
                         ((TextView) v).setText(key.getText());
                         // 保存值
                         ContentValues contentValues = new ContentValues();
-                        contentValues.put(COLUMN_STRING_ELEMENT_UP_VALUE,elementUpValue);
+                        contentValues.put(COLUMN_STRING_ELEMENT_UP_VALUE, upValue);
                         superConfigDatabaseHelper.updateElement(elementId,contentValues);
                         // 设置onClickListener
-                        upSenderHandler = elementController.getSendEventHandler(elementUpValue);
+                        upValueSenderHandler = elementController.getSendEventHandler(upValue);
                     }
                 };
                 pageDeviceController.open(deviceCallBack,View.VISIBLE,View.VISIBLE,View.VISIBLE);
             }
         });
 
-        downValueTextView.setText(pageDeviceController.getKeyNameByValue(elementDownValue));
+        downValueTextView.setText(pageDeviceController.getKeyNameByValue(downValue));
         downValueTextView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 PageDeviceController.DeviceCallBack deviceCallBack = new PageDeviceController.DeviceCallBack() {
                     @Override
                     public void OnKeyClick(TextView key) {
-                        elementDownValue = key.getTag().toString();
+                        downValue = key.getTag().toString();
                         // page页设置值文本
                         ((TextView) v).setText(key.getText());
                         // 保存值
                         ContentValues contentValues = new ContentValues();
-                        contentValues.put(COLUMN_STRING_ELEMENT_DOWN_VALUE,elementDownValue);
+                        contentValues.put(COLUMN_STRING_ELEMENT_DOWN_VALUE, downValue);
                         superConfigDatabaseHelper.updateElement(elementId,contentValues);
                         // 设置onClickListener
-                        downSenderHandler = elementController.getSendEventHandler(elementDownValue);
+                        downValueSenderHandler = elementController.getSendEventHandler(downValue);
                     }
                 };
                 pageDeviceController.open(deviceCallBack,View.VISIBLE,View.VISIBLE,View.VISIBLE);
             }
         });
 
-        leftValueTextView.setText(pageDeviceController.getKeyNameByValue(elementLeftValue));
+        leftValueTextView.setText(pageDeviceController.getKeyNameByValue(leftValue));
         leftValueTextView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 PageDeviceController.DeviceCallBack deviceCallBack = new PageDeviceController.DeviceCallBack() {
                     @Override
                     public void OnKeyClick(TextView key) {
-                        elementLeftValue = key.getTag().toString();
+                        leftValue = key.getTag().toString();
                         // page页设置值文本
                         ((TextView) v).setText(key.getText());
                         // 保存值
                         ContentValues contentValues = new ContentValues();
-                        contentValues.put(COLUMN_STRING_ELEMENT_LEFT_VALUE,elementLeftValue);
+                        contentValues.put(COLUMN_STRING_ELEMENT_LEFT_VALUE, leftValue);
                         superConfigDatabaseHelper.updateElement(elementId,contentValues);
                         // 设置onClickListener
-                        leftSenderHandler = elementController.getSendEventHandler(elementLeftValue);
+                        leftValueSenderHandler = elementController.getSendEventHandler(leftValue);
                     }
                 };
                 pageDeviceController.open(deviceCallBack,View.VISIBLE,View.VISIBLE,View.VISIBLE);
             }
         });
 
-        rightValueTextView.setText(pageDeviceController.getKeyNameByValue(elementRightValue));
+        rightValueTextView.setText(pageDeviceController.getKeyNameByValue(rightValue));
         rightValueTextView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 PageDeviceController.DeviceCallBack deviceCallBack = new PageDeviceController.DeviceCallBack() {
                     @Override
                     public void OnKeyClick(TextView key) {
-                        elementRightValue = key.getTag().toString();
+                        rightValue = key.getTag().toString();
                         // page页设置值文本
                         ((TextView) v).setText(key.getText());
                         // 保存值
                         ContentValues contentValues = new ContentValues();
-                        contentValues.put(COLUMN_STRING_ELEMENT_RIGHT_VALUE,elementRightValue);
+                        contentValues.put(COLUMN_STRING_ELEMENT_RIGHT_VALUE, rightValue);
                         superConfigDatabaseHelper.updateElement(elementId,contentValues);
                         // 设置onClickListener
-                        rightSenderHandler = elementController.getSendEventHandler(elementRightValue);
+                        rightValueSenderHandler = elementController.getSendEventHandler(rightValue);
                     }
                 };
                 pageDeviceController.open(deviceCallBack,View.VISIBLE,View.VISIBLE,View.VISIBLE);
@@ -588,10 +588,10 @@ public class DigitalPad extends Element {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_LONG_ELEMENT_ID,System.currentTimeMillis());
                 contentValues.put(COLUMN_INT_ELEMENT_TYPE, ELEMENT_TYPE_DIGITAL_PAD);
-                contentValues.put(COLUMN_STRING_ELEMENT_UP_VALUE,elementUpValue);
-                contentValues.put(COLUMN_STRING_ELEMENT_DOWN_VALUE,elementDownValue);
-                contentValues.put(COLUMN_STRING_ELEMENT_LEFT_VALUE,elementLeftValue);
-                contentValues.put(COLUMN_STRING_ELEMENT_RIGHT_VALUE,elementRightValue);
+                contentValues.put(COLUMN_STRING_ELEMENT_UP_VALUE, upValue);
+                contentValues.put(COLUMN_STRING_ELEMENT_DOWN_VALUE, downValue);
+                contentValues.put(COLUMN_STRING_ELEMENT_LEFT_VALUE, leftValue);
+                contentValues.put(COLUMN_STRING_ELEMENT_RIGHT_VALUE, rightValue);
                 contentValues.put(COLUMN_INT_ELEMENT_WIDTH,getParamWidth());
                 contentValues.put(COLUMN_INT_ELEMENT_HEIGHT,getParamHeight());
                 contentValues.put(COLUMN_INT_ELEMENT_LAYER,layer);

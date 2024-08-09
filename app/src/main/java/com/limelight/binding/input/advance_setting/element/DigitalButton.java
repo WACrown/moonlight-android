@@ -61,10 +61,10 @@ public class DigitalButton extends Element {
     private PageDeviceController pageDeviceController;
     private DigitalButton digitalButton;
 
-    private DigitalButtonListener buttonListener;
-    private ElementController.SendEventHandler sendHandler;
-    private String elementText;
-    private String elementValue;
+    private DigitalButtonListener listener;
+    private ElementController.SendEventHandler valueSendHandler;
+    private String text;
+    private String value;
     private int radius;
     private int mode;
     private int sense;
@@ -124,7 +124,7 @@ public class DigitalButton extends Element {
         paintBackground.setStyle(Paint.Style.FILL);
 
 
-        elementText = (String) attributesMap.get(COLUMN_STRING_ELEMENT_TEXT);
+        text = (String) attributesMap.get(COLUMN_STRING_ELEMENT_TEXT);
         radius = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_RADIUS)).intValue();
         mode = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_MODE)).intValue();
         sense = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_SENSE)).intValue();
@@ -133,12 +133,12 @@ public class DigitalButton extends Element {
         normalColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_NORMAL_COLOR)).intValue();
         pressedColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_PRESSED_COLOR)).intValue();
         backgroundColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_BACKGROUND_COLOR)).intValue();
-        elementValue = (String) attributesMap.get(COLUMN_STRING_ELEMENT_VALUE);
-        sendHandler = controller.getSendEventHandler(elementValue);
-        buttonListener = new DigitalButton.DigitalButtonListener() {
+        value = (String) attributesMap.get(COLUMN_STRING_ELEMENT_VALUE);
+        valueSendHandler = controller.getSendEventHandler(value);
+        listener = new DigitalButton.DigitalButtonListener() {
             @Override
             public void onClick() {
-                sendHandler.sendEvent(true);
+                valueSendHandler.sendEvent(true);
             }
 
             @Override
@@ -148,7 +148,7 @@ public class DigitalButton extends Element {
 
             @Override
             public void onRelease() {
-                sendHandler.sendEvent(false);
+                valueSendHandler.sendEvent(false);
             }
         };
     }
@@ -182,14 +182,14 @@ public class DigitalButton extends Element {
         // 绘制边框
         canvas.drawRoundRect(rect, radius, radius, paintBorder);
         // 绘制文字
-        canvas.drawText(elementText, getPercent(getParamWidth(), 50), getPercent(getParamHeight(), 63), paintText);
+        canvas.drawText(text, getPercent(getParamWidth(), 50), getPercent(getParamHeight(), 63), paintText);
 
     }
 
     private void onClickCallback() {
         // notify listenersbuttonListener.onClick();
         System.out.println("onClickCallback");
-        buttonListener.onClick();
+        listener.onClick();
         elementController.getHandler().removeCallbacks(longClickRunnable);
         elementController.getHandler().postDelayed(longClickRunnable, timerLongClickTimeout);
 
@@ -197,13 +197,13 @@ public class DigitalButton extends Element {
 
     private void onLongClickCallback() {
         // notify listeners
-        buttonListener.onLongClick();
+        listener.onLongClick();
     }
 
     private void onReleaseCallback() {
         // notify listeners
         System.out.println("onReleaseCallback");
-        buttonListener.onRelease();
+        listener.onRelease();
 
         // We may be called for a release without a prior click
         elementController.getHandler().removeCallbacks(longClickRunnable);
@@ -294,17 +294,17 @@ public class DigitalButton extends Element {
         NumberSeekbar senseNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_sense);
         RadioGroup modeRadioGroup = digitalButtonPage.findViewById(R.id.page_digital_button_mode);
         NumberSeekbar thickNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_thick);
-        ElementEditText normalColorEditText = digitalButtonPage.findViewById(R.id.page_digital_button_normal_color);
-        ElementEditText pressedColorEditText = digitalButtonPage.findViewById(R.id.page_digital_button_pressed_color);
-        ElementEditText backgroundColorEditText = digitalButtonPage.findViewById(R.id.page_digital_button_background_color);
+        ElementEditText normalColorElementEditText = digitalButtonPage.findViewById(R.id.page_digital_button_normal_color);
+        ElementEditText pressedColorElementEditText = digitalButtonPage.findViewById(R.id.page_digital_button_pressed_color);
+        ElementEditText backgroundColorElementEditText = digitalButtonPage.findViewById(R.id.page_digital_button_background_color);
         Button copyButton = digitalButtonPage.findViewById(R.id.page_digital_button_copy);
         Button deleteButton = digitalButtonPage.findViewById(R.id.page_digital_button_delete);
 
-        textElementEditText.setTextWithNoTextChangedCallBack(elementText);
+        textElementEditText.setTextWithNoTextChangedCallBack(text);
         textElementEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
-                digitalButton.elementText = text;
+                digitalButton.text = text;
                 digitalButton.invalidate();
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_STRING_ELEMENT_TEXT,text);
@@ -315,22 +315,22 @@ public class DigitalButton extends Element {
 
 
 
-        valueTextView.setText(pageDeviceController.getKeyNameByValue(elementValue));
+        valueTextView.setText(pageDeviceController.getKeyNameByValue(value));
         valueTextView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 PageDeviceController.DeviceCallBack deviceCallBack = new PageDeviceController.DeviceCallBack() {
                     @Override
                     public void OnKeyClick(TextView key) {
-                        elementValue = key.getTag().toString();
+                        value = key.getTag().toString();
                         // page页设置值文本
                         ((TextView) v).setText(key.getText());
                         // 保存值
                         ContentValues contentValues = new ContentValues();
-                        contentValues.put(COLUMN_STRING_ELEMENT_VALUE,elementValue);
+                        contentValues.put(COLUMN_STRING_ELEMENT_VALUE, value);
                         superConfigDatabaseHelper.updateElement(elementId,contentValues);
                         // 设置onClickListener
-                        sendHandler = elementController.getSendEventHandler(elementValue);
+                        valueSendHandler = elementController.getSendEventHandler(value);
                     }
                 };
                 pageDeviceController.open(deviceCallBack,View.VISIBLE,View.VISIBLE,View.VISIBLE);
@@ -484,9 +484,9 @@ public class DigitalButton extends Element {
         });
 
 
-        normalColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",normalColor));
-        normalColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
-        normalColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+        normalColorElementEditText.setTextWithNoTextChangedCallBack(String.format("%08X",normalColor));
+        normalColorElementEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
+        normalColorElementEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
                 if (text.matches("^[A-F0-9]{8}$")){
@@ -500,9 +500,9 @@ public class DigitalButton extends Element {
         });
 
 
-        pressedColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",pressedColor));
-        pressedColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
-        pressedColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+        pressedColorElementEditText.setTextWithNoTextChangedCallBack(String.format("%08X",pressedColor));
+        pressedColorElementEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
+        pressedColorElementEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
                 if (text.matches("^[A-F0-9]{8}$")){
@@ -516,9 +516,9 @@ public class DigitalButton extends Element {
         });
 
 
-        backgroundColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",backgroundColor));
-        backgroundColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
-        backgroundColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+        backgroundColorElementEditText.setTextWithNoTextChangedCallBack(String.format("%08X",backgroundColor));
+        backgroundColorElementEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
+        backgroundColorElementEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
                 if (text.matches("^[A-F0-9]{8}$")){
@@ -537,8 +537,8 @@ public class DigitalButton extends Element {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_LONG_ELEMENT_ID,System.currentTimeMillis());
                 contentValues.put(COLUMN_INT_ELEMENT_TYPE,ELEMENT_TYPE_DIGITAL_BUTTON);
-                contentValues.put(COLUMN_STRING_ELEMENT_TEXT,elementText);
-                contentValues.put(COLUMN_STRING_ELEMENT_VALUE,elementValue);
+                contentValues.put(COLUMN_STRING_ELEMENT_TEXT, text);
+                contentValues.put(COLUMN_STRING_ELEMENT_VALUE, value);
                 contentValues.put(COLUMN_INT_ELEMENT_MODE,mode);
                 contentValues.put(COLUMN_INT_ELEMENT_SENSE,sense);
                 contentValues.put(COLUMN_INT_ELEMENT_WIDTH,getParamWidth());
