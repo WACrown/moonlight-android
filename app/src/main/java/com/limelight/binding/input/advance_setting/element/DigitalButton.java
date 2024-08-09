@@ -3,12 +3,15 @@ package com.limelight.binding.input.advance_setting.element;
 import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.text.InputFilter;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -88,6 +91,7 @@ public class DigitalButton extends Element {
     private final Paint paintBorder = new Paint();
     private final Paint paintBackground = new Paint();
     private final Paint paintText = new Paint();
+    private final Paint paintEdit = new Paint();
     private final RectF rect = new RectF();
 
 
@@ -101,15 +105,20 @@ public class DigitalButton extends Element {
         this.superConfigDatabaseHelper = controller.getSuperConfigDatabaseHelper();
         this.pageDeviceController = pageDeviceController;
         this.digitalButton = this;
-        super.centralXMax  = controller.getElementsParentWidth();
+
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        super.centralXMax  = displayMetrics.widthPixels;
         super.centralXMin  = 0;
-        super.centralYMax  = controller.getElementsParentHeight();
+        super.centralYMax  = displayMetrics.heightPixels;
         super.centralYMin  = 0;
-        super.widthMax  = controller.getElementsParentWidth() / 2;
+        super.widthMax  = displayMetrics.widthPixels / 2;
         super.widthMin  = 50;
-        super.heightMax  = controller.getElementsParentHeight() / 2;
+        super.heightMax  = displayMetrics.heightPixels / 2;
         super.heightMin  = 50;
 
+        paintEdit.setStyle(Paint.Style.STROKE);
+        paintEdit.setStrokeWidth(4);
+        paintEdit.setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
         paintText.setTextAlign(Paint.Align.CENTER);
         paintBorder.setStyle(Paint.Style.STROKE);
         paintBackground.setStyle(Paint.Style.FILL);
@@ -146,6 +155,16 @@ public class DigitalButton extends Element {
 
     @Override
     protected void onElementDraw(Canvas canvas) {
+        if (elementController.getMode() == ElementController.Mode.Edit){
+            // 绘画范围
+            rect.left = rect.top = 2;
+            rect.right = getWidth() - 2;
+            rect.bottom = getHeight() - 2;
+            // 边框
+            paintEdit.setColor(editColor);
+            canvas.drawRect(rect,paintEdit);
+
+        }
         // 文字
         paintText.setTextSize(getPercent(getParamWidth(), 25));
         paintText.setColor(isPressed() ? pressedColor : normalColor);
@@ -269,11 +288,20 @@ public class DigitalButton extends Element {
 
         NumberSeekbar widthNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_width);
         NumberSeekbar heightNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_height);
-        NumberSeekbar buttonRadiusNumberSeekbar = digitalButtonPage.findViewById(R.id.button_radius);
+        NumberSeekbar radiusNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_radius);
+        ElementEditText textElementEditText = digitalButtonPage.findViewById(R.id.page_digital_button_text);
+        TextView valueTextView = digitalButtonPage.findViewById(R.id.page_digital_button_value);
+        NumberSeekbar senseNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_sense);
+        RadioGroup modeRadioGroup = digitalButtonPage.findViewById(R.id.page_digital_button_mode);
+        NumberSeekbar thickNumberSeekbar = digitalButtonPage.findViewById(R.id.page_digital_button_thick);
+        ElementEditText normalColorEditText = digitalButtonPage.findViewById(R.id.page_digital_button_normal_color);
+        ElementEditText pressedColorEditText = digitalButtonPage.findViewById(R.id.page_digital_button_pressed_color);
+        ElementEditText backgroundColorEditText = digitalButtonPage.findViewById(R.id.page_digital_button_background_color);
+        Button copyButton = digitalButtonPage.findViewById(R.id.page_digital_button_copy);
+        Button deleteButton = digitalButtonPage.findViewById(R.id.page_digital_button_delete);
 
-        ElementEditText buttonTextEditText = digitalButtonPage.findViewById(R.id.button_text);
-        buttonTextEditText.setTextWithNoTextChangedCallBack(elementText);
-        buttonTextEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+        textElementEditText.setTextWithNoTextChangedCallBack(elementText);
+        textElementEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
                 digitalButton.elementText = text;
@@ -286,9 +314,9 @@ public class DigitalButton extends Element {
 
 
 
-        TextView buttonValue = digitalButtonPage.findViewById(R.id.button_value);
-        buttonValue.setText(pageDeviceController.getKeyNameByValue(elementValue));
-        buttonValue.setOnClickListener(new OnClickListener() {
+
+        valueTextView.setText(pageDeviceController.getKeyNameByValue(elementValue));
+        valueTextView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 PageDeviceController.DeviceCallBack deviceCallBack = new PageDeviceController.DeviceCallBack() {
@@ -353,7 +381,7 @@ public class DigitalButton extends Element {
 
             @Override
             public void onProgressRelease(int lastProgress) {
-                buttonRadiusNumberSeekbar.setProgressMax(Math.min(getParamWidth(),getParamHeight()) / 2);
+                radiusNumberSeekbar.setProgressMax(Math.min(getParamWidth(),getParamHeight()) / 2);
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_INT_ELEMENT_WIDTH,getParamWidth());
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
@@ -371,16 +399,16 @@ public class DigitalButton extends Element {
 
             @Override
             public void onProgressRelease(int lastProgress) {
-                buttonRadiusNumberSeekbar.setProgressMax(Math.min(getParamWidth(),getParamHeight()) / 2);
+                radiusNumberSeekbar.setProgressMax(Math.min(getParamWidth(),getParamHeight()) / 2);
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(COLUMN_INT_ELEMENT_HEIGHT,getParamHeight());
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
             }
         });
 
-        NumberSeekbar buttonSenseNumberSeekbar = digitalButtonPage.findViewById(R.id.button_sense);
-        buttonSenseNumberSeekbar.setValueWithNoCallBack(sense);
-        buttonSenseNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
+
+        senseNumberSeekbar.setValueWithNoCallBack(sense);
+        senseNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
             public void onProgressChanged(int progress) {
                 sense = progress;
@@ -394,12 +422,12 @@ public class DigitalButton extends Element {
             }
         });
 
-        RadioGroup modeRadioGroup = digitalButtonPage.findViewById(R.id.button_mode);
-        RadioButton radioButton = (RadioButton) modeRadioGroup.getChildAt(mode);
+
+        RadioButton radioButton = modeRadioGroup.findViewWithTag(String.valueOf(mode));
         if (mode == DIGITAL_BUTTON_MODE_MOUSE){
-            buttonSenseNumberSeekbar.setVisibility(VISIBLE);
+            senseNumberSeekbar.setVisibility(VISIBLE);
         } else {
-            buttonSenseNumberSeekbar.setVisibility(GONE);
+            senseNumberSeekbar.setVisibility(GONE);
         }
         radioButton.setChecked(true);
         modeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -411,9 +439,9 @@ public class DigitalButton extends Element {
                 contentValues.put(COLUMN_INT_ELEMENT_MODE,mode);
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
                 if (checkedId == DIGITAL_BUTTON_MODE_MOUSE){
-                    buttonSenseNumberSeekbar.setVisibility(VISIBLE);
+                    senseNumberSeekbar.setVisibility(VISIBLE);
                 } else {
-                    buttonSenseNumberSeekbar.setVisibility(GONE);
+                    senseNumberSeekbar.setVisibility(GONE);
                 }
             }
         });
@@ -421,9 +449,9 @@ public class DigitalButton extends Element {
 
 
 
-        buttonRadiusNumberSeekbar.setProgressMax(Math.min(getParamWidth(),getParamHeight()) / 2);
-        buttonRadiusNumberSeekbar.setValueWithNoCallBack(radius);
-        buttonRadiusNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
+        radiusNumberSeekbar.setProgressMax(Math.min(getParamWidth(),getParamHeight()) / 2);
+        radiusNumberSeekbar.setValueWithNoCallBack(radius);
+        radiusNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
             public void onProgressChanged(int progress) {
                 radius = progress;
@@ -438,9 +466,9 @@ public class DigitalButton extends Element {
             }
         });
 
-        NumberSeekbar buttonThickNumberSeekbar = digitalButtonPage.findViewById(R.id.button_thick);
-        buttonThickNumberSeekbar.setValueWithNoCallBack(thick);
-        buttonThickNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
+
+        thickNumberSeekbar.setValueWithNoCallBack(thick);
+        thickNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
             public void onProgressChanged(int progress) {
                 thick = progress;
@@ -455,10 +483,10 @@ public class DigitalButton extends Element {
             }
         });
 
-        ElementEditText buttonNormalColorEditText = digitalButtonPage.findViewById(R.id.button_normal_color);
-        buttonNormalColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",normalColor));
-        buttonNormalColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
-        buttonNormalColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+
+        normalColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",normalColor));
+        normalColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
+        normalColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
                 if (text.matches("^[A-F0-9]{8}$")){
@@ -471,10 +499,10 @@ public class DigitalButton extends Element {
             }
         });
 
-        ElementEditText buttonPressedColorEditText = digitalButtonPage.findViewById(R.id.button_pressed_color);
-        buttonPressedColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",pressedColor));
-        buttonPressedColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
-        buttonPressedColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+
+        pressedColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",pressedColor));
+        pressedColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
+        pressedColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
                 if (text.matches("^[A-F0-9]{8}$")){
@@ -487,10 +515,10 @@ public class DigitalButton extends Element {
             }
         });
 
-        ElementEditText buttonBackgroundColorEditText = digitalButtonPage.findViewById(R.id.button_background_color);
-        buttonBackgroundColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",backgroundColor));
-        buttonBackgroundColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
-        buttonBackgroundColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+
+        backgroundColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",backgroundColor));
+        backgroundColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
+        backgroundColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
                 if (text.matches("^[A-F0-9]{8}$")){
@@ -503,7 +531,7 @@ public class DigitalButton extends Element {
             }
         });
 
-        digitalButtonPage.findViewById(R.id.page_digital_copy).setOnClickListener(new OnClickListener() {
+        copyButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 ContentValues contentValues = new ContentValues();
@@ -527,7 +555,7 @@ public class DigitalButton extends Element {
             }
         });
 
-        digitalButtonPage.findViewById(R.id.page_digital_delete).setOnClickListener(new OnClickListener() {
+        deleteButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 elementController.toggleInfoPage(digitalButtonPage);

@@ -29,7 +29,7 @@
                     android:gravity="center_vertical"
                     android:text="显示文本" />
                 <com.limelight.binding.input.advance_setting.superpage.ElementEditText
-                    android:id="@+id/button_text"
+                    android:id="@+id/page_digital_button_text"
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -49,7 +49,7 @@
                     android:gravity="center_vertical"
                     android:text="键值" />
                 <TextView
-                    android:id="@+id/button_value"
+                    android:id="@+id/page_digital_button_value"
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -109,7 +109,7 @@
                         android:text="按键模式"/>
                 </FrameLayout>
                 <RadioGroup
-                    android:id="@+id/button_mode"
+                    android:id="@+id/page_digital_button_mode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp">
@@ -132,7 +132,7 @@
                 </RadioGroup>
             </LinearLayout>
             <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
-                android:id="@+id/button_sense"
+                android:id="@+id/page_digital_button_sense"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginVertical="5dp"
@@ -142,7 +142,7 @@
                 android:progress="100"
                 android:visibility="gone"/>
             <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
-                android:id="@+id/button_radius"
+                android:id="@+id/page_digital_button_radius"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginVertical="5dp"
@@ -151,7 +151,7 @@
                 app:min="0"
                 android:progress="0"/>
             <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
-                android:id="@+id/button_thick"
+                android:id="@+id/page_digital_button_thick"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginVertical="5dp"
@@ -171,7 +171,7 @@
                     android:gravity="center_vertical"
                     android:text="边框颜色" />
                 <com.limelight.binding.input.advance_setting.superpage.ElementEditText
-                    android:id="@+id/button_normal_color"
+                    android:id="@+id/page_digital_button_normal_color"
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -191,7 +191,7 @@
                     android:gravity="center_vertical"
                     android:text="边框按下颜色" />
                 <com.limelight.binding.input.advance_setting.superpage.ElementEditText
-                    android:id="@+id/button_pressed_color"
+                    android:id="@+id/page_digital_button_pressed_color"
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -211,7 +211,7 @@
                     android:gravity="center_vertical"
                     android:text="背景颜色" />
                 <com.limelight.binding.input.advance_setting.superpage.ElementEditText
-                    android:id="@+id/button_background_color"
+                    android:id="@+id/page_digital_button_background_color"
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -225,13 +225,13 @@
                 android:layout_height="50dp"
                 android:layout_marginVertical="5dp">
                 <Button
-                    android:id="@+id/page_digital_copy"
+                    android:id="@+id/page_digital_button_copy"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="复制"/>
                 <Button
-                    android:id="@+id/page_digital_delete"
+                    android:id="@+id/page_digital_button_delete"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
