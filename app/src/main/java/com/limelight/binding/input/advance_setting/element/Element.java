@@ -20,6 +20,7 @@ public abstract class Element extends View {
     public static final String COLUMN_LONG_ELEMENT_ID = "element_id";
     public static final String COLUMN_INT_ELEMENT_TYPE = "element_type";
     public static final String COLUMN_STRING_ELEMENT_VALUE = "element_value";
+    public static final String COLUMN_STRING_ELEMENT_MIDDLE_VALUE = "element_middle_value";
     public static final String COLUMN_STRING_ELEMENT_UP_VALUE = "element_up_value";
     public static final String COLUMN_STRING_ELEMENT_DOWN_VALUE = "element_down_value";
     public static final String COLUMN_STRING_ELEMENT_LEFT_VALUE = "element_left_value";
@@ -39,9 +40,17 @@ public abstract class Element extends View {
     public static final String COLUMN_INT_ELEMENT_PRESSED_COLOR = "element_pressed_color";
     public static final String COLUMN_INT_ELEMENT_BACKGROUND_COLOR = "element_background_color";
 
+    public static final int ELEMENT_TYPE_DIGITAL_COMMON_BUTTON = 0;
+    public static final int ELEMENT_TYPE_DIGITAL_SWITCH_BUTTON = 0;
+    public static final int ELEMENT_TYPE_DIGITAL_MOVABLE_BUTTON = 0;
     public static final int ELEMENT_TYPE_DIGITAL_BUTTON = 0;
-    public static final int ELEMENT_TYPE_DIGITAL_PAD = 1;
-    public static final int ELEMENT_TYPE_ANALOG_STICK = 2;
+    public static final int ELEMENT_TYPE_DIGITAL_PAD = 20;
+    public static final int ELEMENT_TYPE_ANALOG_STICK = 30;
+    public static final int ELEMENT_TYPE_DIGITAL_STICK = 31;
+    public static final int ELEMENT_TYPE_INVISIBLE_ANALOG_STICK = 32;
+    public static final int ELEMENT_TYPE_INVISIBLE_DIGITAL_STICK = 33;
+
+
 
 
 
@@ -76,7 +85,7 @@ public abstract class Element extends View {
     private float lastX;
     private float lastY;
     private boolean isClick = true;
-    private int editColor = 0xf0dc143c;
+    protected int editColor = 0xf0dc143c;
 
 
     public Element(Long elementId, Long configId, int elementType, ElementController elementController,Context context) {
@@ -86,9 +95,6 @@ public abstract class Element extends View {
         this.configId = configId;
         this.elementType = elementType;
         this.elementController = elementController;
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(4);
-        paint.setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
 
     }
 
@@ -112,6 +118,7 @@ public abstract class Element extends View {
 
 
     protected void setParamCentralX(int centralX){
+        System.out.println("centralXMax = " + centralXMax);
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (centralX > centralXMax){
             layoutParams.leftMargin = centralXMax - layoutParams.width/2;
@@ -127,6 +134,7 @@ public abstract class Element extends View {
     }
 
     protected void setParamCentralY(int centralY){
+        System.out.println("centralYMax = " + centralYMax);
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (centralY > centralYMax){
             layoutParams.topMargin = centralYMax - layoutParams.height/2;
@@ -139,6 +147,7 @@ public abstract class Element extends View {
     }
 
     protected void setParamWidth(int width){
+        System.out.println("widthMax = " + widthMax);
         int centralPosX = getParamCentralX();
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (width > widthMax){
@@ -152,6 +161,7 @@ public abstract class Element extends View {
     }
 
     protected void setParamHeight(int height){
+        System.out.println("heightMax = " + heightMax);
         int centralPosY = getParamCentralY();
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (height > heightMax){
@@ -179,16 +189,6 @@ public abstract class Element extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         onElementDraw(canvas);
-        if (elementController.getMode() == ElementController.Mode.Edit){
-            // 绘画范围
-            rect.left = rect.top = 2;
-            rect.right = getWidth() - rect.left;
-            rect.bottom = getHeight() - rect.top;
-            // 边框
-            paint.setColor(editColor);
-            canvas.drawRoundRect(rect, 0, 0, paint);
-        }
-
         super.onDraw(canvas);
     }
 

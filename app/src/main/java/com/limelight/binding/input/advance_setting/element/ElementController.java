@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -118,6 +119,19 @@ public class ElementController {
                 loadAllElement(configId);
             }
         });
+        pageEdit.findViewById(R.id.page_edit_add_invisible_analog_stick).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
+                // save a new element to sqlite
+                ContentValues contentValues = InvisibleAnalogStick.getInitialInfo();
+                //ContentValues contentValues = new ContentValues();
+                contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
+                controllerManager.getSuperConfigDatabaseHelper().insertElement(contentValues);
+                // add the element to screen
+                loadAllElement(configId);
+            }
+        });
     }
 
 
@@ -153,6 +167,12 @@ public class ElementController {
                 case Element.ELEMENT_TYPE_ANALOG_STICK:
 
                     break;
+                case Element.ELEMENT_TYPE_INVISIBLE_ANALOG_STICK:
+                    element = new InvisibleAnalogStick(attributesMap,
+                            this,
+                            controllerManager.getPageDeviceController(),
+                            context);
+                    break;
             }
             elements.add(element);
             int elementWidth = ((Long) attributesMap.get(Element.COLUMN_INT_ELEMENT_WIDTH)).intValue();
@@ -162,7 +182,7 @@ public class ElementController {
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(elementWidth, elementHeight);
             layoutParams.leftMargin = elementCentralX - elementWidth / 2;
             layoutParams.topMargin = elementCentralY - elementHeight / 2;
-            elementsLayout.addView(element,elementsLayout.getChildCount() - 1,layoutParams);
+            elementsLayout.addView(element,layoutParams);
         }
     }
 
