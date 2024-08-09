@@ -132,6 +132,19 @@ public class ElementController {
                 loadAllElement(configId);
             }
         });
+        pageEdit.findViewById(R.id.page_edit_add_digital_stick).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
+                // save a new element to sqlite
+                ContentValues contentValues = DigitalStick.getInitialInfo();
+                //ContentValues contentValues = new ContentValues();
+                contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
+                controllerManager.getSuperConfigDatabaseHelper().insertElement(contentValues);
+                // add the element to screen
+                loadAllElement(configId);
+            }
+        });
     }
 
 
@@ -166,6 +179,12 @@ public class ElementController {
                     break;
                 case Element.ELEMENT_TYPE_ANALOG_STICK:
 
+                    break;
+                case Element.ELEMENT_TYPE_DIGITAL_STICK:
+                    element = new DigitalStick(attributesMap,
+                            this,
+                            controllerManager.getPageDeviceController(),
+                            context);
                     break;
                 case Element.ELEMENT_TYPE_INVISIBLE_ANALOG_STICK:
                     element = new InvisibleAnalogStick(attributesMap,
@@ -243,13 +262,6 @@ public class ElementController {
         elements.clear();
     }
 
-    public int getElementsParentWidth(){
-        return elementsLayout.getWidth();
-    }
-
-    public int getElementsParentHeight(){
-        return elementsLayout.getHeight();
-    }
 
     public SendEventHandler getSendEventHandler(String key){
         if (key.matches("k\\d+")){
