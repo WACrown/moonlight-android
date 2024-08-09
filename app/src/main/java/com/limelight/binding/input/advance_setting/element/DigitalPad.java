@@ -3,12 +3,16 @@ package com.limelight.binding.input.advance_setting.element;
 import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RectF;
 import android.text.InputFilter;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.limelight.R;
@@ -60,6 +64,8 @@ public class DigitalPad extends Element {
     private final Paint paintBackground = new Paint();
     private final Path pathBackground = new Path();
     private final Paint paintText = new Paint();
+    private final Paint paintEdit = new Paint();
+    private final RectF rect = new RectF();
 
     public DigitalPad(Map<String,Object> attributesMap,
                       ElementController controller,
@@ -69,18 +75,22 @@ public class DigitalPad extends Element {
         this.pageDeviceController = pageDeviceController;
         this.digitalPad = this;
 
-        super.centralXMax  = controller.getElementsParentWidth();
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        super.centralXMax  = displayMetrics.widthPixels;
         super.centralXMin  = 0;
-        super.centralYMax  = controller.getElementsParentHeight();
+        super.centralYMax  = displayMetrics.heightPixels;
         super.centralYMin  = 0;
-        super.widthMax  = controller.getElementsParentWidth() / 2;
+        super.widthMax  = displayMetrics.widthPixels / 2;
         super.widthMin  = 150;
-        super.heightMax  = controller.getElementsParentWidth() / 2;
+        super.heightMax  = displayMetrics.heightPixels / 2;
         super.heightMin  = 150;
 
         paintText.setTextAlign(Paint.Align.CENTER);
         paintBorder.setStyle(Paint.Style.STROKE);
         paintBackground.setStyle(Paint.Style.FILL);
+        paintEdit.setStyle(Paint.Style.STROKE);
+        paintEdit.setStrokeWidth(4);
+        paintEdit.setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
 
         layer = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_LAYER)).intValue();
         thick = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_THICK)).intValue();
@@ -143,6 +153,17 @@ public class DigitalPad extends Element {
 
     @Override
     protected void onElementDraw(Canvas canvas) {
+        if (elementController.getMode() == ElementController.Mode.Edit){
+            // 绘画范围
+            rect.left = rect.top = 2;
+            rect.right = getWidth() - 2;
+            rect.bottom = getHeight() - 2;
+            // 边框
+            paintEdit.setColor(editColor);
+            canvas.drawRect(rect,paintEdit);
+
+        }
+
         paintBorder.setStrokeWidth(thick);
         int correctedBorderPosition = thick + DPAD_MARGIN;
         
@@ -327,9 +348,18 @@ public class DigitalPad extends Element {
 
         NumberSeekbar widthNumberSeekbar = digitalPadPage.findViewById(R.id.page_digital_pad_width);
         NumberSeekbar heightNumberSeekbar = digitalPadPage.findViewById(R.id.page_digital_pad_height);
-
-
         TextView upValueTextView = digitalPadPage.findViewById(R.id.page_digital_pad_up_value);
+        TextView downValueTextView = digitalPadPage.findViewById(R.id.page_digital_pad_down_value);
+        TextView leftValueTextView = digitalPadPage.findViewById(R.id.page_digital_pad_left_value);
+        TextView rightValueTextView = digitalPadPage.findViewById(R.id.page_digital_pad_right_value);
+        NumberSeekbar thickNumberSeekbar = digitalPadPage.findViewById(R.id.page_digital_pad_thick);
+        ElementEditText normalColorElementEditText = digitalPadPage.findViewById(R.id.page_digital_pad_normal_color);
+        ElementEditText pressedColorElementEditText = digitalPadPage.findViewById(R.id.page_digital_pad_pressed_color);
+        ElementEditText backgroundColorElementEditText = digitalPadPage.findViewById(R.id.page_digital_pad_background_color);
+        Button copyButton = digitalPadPage.findViewById(R.id.page_digital_pad_copy);
+        Button deleteButton = digitalPadPage.findViewById(R.id.page_digital_pad_delete);
+
+
         upValueTextView.setText(pageDeviceController.getKeyNameByValue(elementUpValue));
         upValueTextView.setOnClickListener(new OnClickListener() {
             @Override
@@ -351,7 +381,7 @@ public class DigitalPad extends Element {
                 pageDeviceController.open(deviceCallBack,View.VISIBLE,View.VISIBLE,View.VISIBLE);
             }
         });
-        TextView downValueTextView = digitalPadPage.findViewById(R.id.page_digital_pad_down_value);
+
         downValueTextView.setText(pageDeviceController.getKeyNameByValue(elementDownValue));
         downValueTextView.setOnClickListener(new OnClickListener() {
             @Override
@@ -373,7 +403,7 @@ public class DigitalPad extends Element {
                 pageDeviceController.open(deviceCallBack,View.VISIBLE,View.VISIBLE,View.VISIBLE);
             }
         });
-        TextView leftValueTextView = digitalPadPage.findViewById(R.id.page_digital_pad_left_value);
+
         leftValueTextView.setText(pageDeviceController.getKeyNameByValue(elementLeftValue));
         leftValueTextView.setOnClickListener(new OnClickListener() {
             @Override
@@ -395,7 +425,7 @@ public class DigitalPad extends Element {
                 pageDeviceController.open(deviceCallBack,View.VISIBLE,View.VISIBLE,View.VISIBLE);
             }
         });
-        TextView rightValueTextView = digitalPadPage.findViewById(R.id.page_digital_pad_right_value);
+
         rightValueTextView.setText(pageDeviceController.getKeyNameByValue(elementRightValue));
         rightValueTextView.setOnClickListener(new OnClickListener() {
             @Override
@@ -487,9 +517,9 @@ public class DigitalPad extends Element {
         });
 
 
-        NumberSeekbar buttonThickNumberSeekbar = digitalPadPage.findViewById(R.id.page_digital_pad_thick);
-        buttonThickNumberSeekbar.setValueWithNoCallBack(thick);
-        buttonThickNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
+
+        thickNumberSeekbar.setValueWithNoCallBack(thick);
+        thickNumberSeekbar.setOnNumberSeekbarChangeListener(new NumberSeekbar.OnNumberSeekbarChangeListener() {
             @Override
             public void onProgressChanged(int progress) {
                 thick = progress;
@@ -504,10 +534,10 @@ public class DigitalPad extends Element {
             }
         });
 
-        ElementEditText buttonNormalColorEditText = digitalPadPage.findViewById(R.id.page_digital_pad_normal_color);
-        buttonNormalColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",normalColor));
-        buttonNormalColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
-        buttonNormalColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+
+        normalColorElementEditText.setTextWithNoTextChangedCallBack(String.format("%08X",normalColor));
+        normalColorElementEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
+        normalColorElementEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
                 if (text.matches("^[A-F0-9]{8}$")){
@@ -520,10 +550,10 @@ public class DigitalPad extends Element {
             }
         });
 
-        ElementEditText buttonPressedColorEditText = digitalPadPage.findViewById(R.id.page_digital_pad_pressed_color);
-        buttonPressedColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",pressedColor));
-        buttonPressedColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
-        buttonPressedColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+
+        pressedColorElementEditText.setTextWithNoTextChangedCallBack(String.format("%08X",pressedColor));
+        pressedColorElementEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
+        pressedColorElementEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
                 if (text.matches("^[A-F0-9]{8}$")){
@@ -536,10 +566,10 @@ public class DigitalPad extends Element {
             }
         });
 
-        ElementEditText buttonBackgroundColorEditText = digitalPadPage.findViewById(R.id.page_digital_pad_background_color);
-        buttonBackgroundColorEditText.setTextWithNoTextChangedCallBack(String.format("%08X",backgroundColor));
-        buttonBackgroundColorEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
-        buttonBackgroundColorEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
+
+        backgroundColorElementEditText.setTextWithNoTextChangedCallBack(String.format("%08X",backgroundColor));
+        backgroundColorElementEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new Element.HexInputFilter()});
+        backgroundColorElementEditText.setOnTextChangedListener(new ElementEditText.OnTextChangedListener() {
             @Override
             public void textChanged(String text) {
                 if (text.matches("^[A-F0-9]{8}$")){
@@ -552,7 +582,7 @@ public class DigitalPad extends Element {
             }
         });
 
-        digitalPadPage.findViewById(R.id.page_digital_pad_copy).setOnClickListener(new OnClickListener() {
+        copyButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 ContentValues contentValues = new ContentValues();
@@ -575,7 +605,7 @@ public class DigitalPad extends Element {
             }
         });
 
-        digitalPadPage.findViewById(R.id.page_digital_pad_delete).setOnClickListener(new OnClickListener() {
+        deleteButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 elementController.toggleInfoPage(digitalPadPage);
