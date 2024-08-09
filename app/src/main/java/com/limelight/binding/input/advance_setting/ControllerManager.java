@@ -27,17 +27,16 @@ public class ControllerManager {
     private Context context;
 
     public ControllerManager(FrameLayout layout, Context context){
-        advanceSettingView = (FrameLayout) LayoutInflater.from(context).inflate(R.layout.advance_setting_view,null);
+        advanceSettingView = layout.findViewById(R.id.advance_setting_view);
         this.fatherLayout = layout;
         this.context = context;
-
-        pageConfigController = new PageConfigController(this,context);
-        pageConfigController.initConfig();
-
     }
 
 
     public PageConfigController getPageConfigController() {
+        if (pageConfigController == null){
+            pageConfigController = new PageConfigController(this,context);
+        }
         return pageConfigController;
     }
 
@@ -45,7 +44,7 @@ public class ControllerManager {
     public TouchController getTouchController() {
         if (touchController == null){
             FrameLayout layerElement = advanceSettingView.findViewById(R.id.layer_2_element);
-            touchController = new TouchController((Game) context,this,layerElement);
+            touchController = new TouchController((Game) context,this,layerElement.findViewById(R.id.element_touch_view));
         }
         return touchController;
     }
@@ -96,8 +95,7 @@ public class ControllerManager {
     }
 
     public void refreshLayout(){
-        fatherLayout.removeView(advanceSettingView);
-        fatherLayout.addView(advanceSettingView);
+        getPageConfigController().initConfig();
     }
 
 
