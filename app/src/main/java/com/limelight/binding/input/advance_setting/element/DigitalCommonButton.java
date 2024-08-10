@@ -143,16 +143,7 @@ public class DigitalCommonButton extends Element {
 
     @Override
     protected void onElementDraw(Canvas canvas) {
-        if (elementController.getMode() == ElementController.Mode.Edit){
-            // 绘画范围
-            rect.left = rect.top = 2;
-            rect.right = getWidth() - 2;
-            rect.bottom = getHeight() - 2;
-            // 边框
-            paintEdit.setColor(editColor);
-            canvas.drawRect(rect,paintEdit);
 
-        }
         // 文字
         paintText.setTextSize(getPercent(getParamWidth(), 25));
         paintText.setColor(isPressed() ? pressedColor : normalColor);
@@ -172,6 +163,16 @@ public class DigitalCommonButton extends Element {
         // 绘制文字
         canvas.drawText(text, getPercent(getParamWidth(), 50), getPercent(getParamHeight(), 63), paintText);
 
+        if (elementController.getMode() == ElementController.Mode.Edit){
+            // 绘画范围
+            rect.left = rect.top = 2;
+            rect.right = getWidth() - 2;
+            rect.bottom = getHeight() - 2;
+            // 边框
+            paintEdit.setColor(editColor);
+            canvas.drawRect(rect,paintEdit);
+
+        }
     }
 
     private void onClickCallback() {

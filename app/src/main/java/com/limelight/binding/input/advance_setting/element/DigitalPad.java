@@ -153,16 +153,7 @@ public class DigitalPad extends Element {
 
     @Override
     protected void onElementDraw(Canvas canvas) {
-        if (elementController.getMode() == ElementController.Mode.Edit){
-            // 绘画范围
-            rect.left = rect.top = 2;
-            rect.right = getWidth() - 2;
-            rect.bottom = getHeight() - 2;
-            // 边框
-            paintEdit.setColor(editColor);
-            canvas.drawRect(rect,paintEdit);
 
-        }
 
         paintBorder.setStrokeWidth(thick);
         int correctedBorderPosition = thick + DPAD_MARGIN;
@@ -286,6 +277,17 @@ public class DigitalPad extends Element {
                 correctedBorderPosition, getPercent(getHeight(), 66),
                 paintBorder
         );
+
+        if (elementController.getMode() == ElementController.Mode.Edit){
+            // 绘画范围
+            rect.left = rect.top = 2;
+            rect.right = getWidth() - 2;
+            rect.bottom = getHeight() - 2;
+            // 边框
+            paintEdit.setColor(editColor);
+            canvas.drawRect(rect,paintEdit);
+
+        }
     }
 
     private void newDirectionCallback(int direction) {
