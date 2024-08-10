@@ -29,7 +29,7 @@
                     android:gravity="center_vertical"
                     android:text="显示文本" />
                 <com.limelight.binding.input.advance_setting.superpage.ElementEditText
-                    android:id="@+id/page_digital_button_text"
+                    android:id="@+id/page_digital_switch_button_text"
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -49,7 +49,7 @@
                     android:gravity="center_vertical"
                     android:text="键值" />
                 <TextView
-                    android:id="@+id/page_digital_button_value"
+                    android:id="@+id/page_digital_switch_button_value"
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -57,7 +57,7 @@
                     android:background="@drawable/enabled_square" />
             </LinearLayout>
             <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
-                android:id="@+id/page_digital_button_central_x"
+                android:id="@+id/page_digital_switch_button_central_x"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginVertical="5dp"
@@ -66,7 +66,7 @@
                 app:min="0"
                 android:progress="100" />
             <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
-                android:id="@+id/page_digital_button_central_y"
+                android:id="@+id/page_digital_switch_button_central_y"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginVertical="5dp"
@@ -75,7 +75,7 @@
                 app:min="0"
                 android:progress="100" />
             <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
-                android:id="@+id/page_digital_button_width"
+                android:id="@+id/page_digital_switch_button_width"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginVertical="5dp"
@@ -84,7 +84,7 @@
                 app:min="0"
                 android:progress="100" />
             <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
-                android:id="@+id/page_digital_button_height"
+                android:id="@+id/page_digital_switch_button_height"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginVertical="5dp"
@@ -92,57 +92,8 @@
                 app:max="100"
                 app:min="0"
                 android:progress="100" />
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp">
-                <FrameLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:layout_marginBottom="5dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical"
-                        android:text="按键模式"/>
-                </FrameLayout>
-                <RadioGroup
-                    android:id="@+id/page_digital_button_mode"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp">
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:tag="0"
-                        android:text="普通模式" />
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:tag="1"
-                        android:text="开关模式"/>
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:tag="2"
-                        android:text="鼠标透传模式"/>
-
-                </RadioGroup>
-            </LinearLayout>
             <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
-                android:id="@+id/page_digital_button_sense"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginVertical="5dp"
-                app:text="鼠标透传灵敏度"
-                app:max="500"
-                app:min="0"
-                android:progress="100"
-                android:visibility="gone"/>
-            <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
-                android:id="@+id/page_digital_button_radius"
+                android:id="@+id/page_digital_switch_button_radius"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginVertical="5dp"
@@ -151,7 +102,7 @@
                 app:min="0"
                 android:progress="0"/>
             <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
-                android:id="@+id/page_digital_button_thick"
+                android:id="@+id/page_digital_switch_button_thick"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginVertical="5dp"
@@ -171,7 +122,7 @@
                     android:gravity="center_vertical"
                     android:text="边框颜色" />
                 <com.limelight.binding.input.advance_setting.superpage.ElementEditText
-                    android:id="@+id/page_digital_button_normal_color"
+                    android:id="@+id/page_digital_switch_button_normal_color"
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -191,7 +142,7 @@
                     android:gravity="center_vertical"
                     android:text="边框按下颜色" />
                 <com.limelight.binding.input.advance_setting.superpage.ElementEditText
-                    android:id="@+id/page_digital_button_pressed_color"
+                    android:id="@+id/page_digital_switch_button_pressed_color"
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -211,7 +162,7 @@
                     android:gravity="center_vertical"
                     android:text="背景颜色" />
                 <com.limelight.binding.input.advance_setting.superpage.ElementEditText
-                    android:id="@+id/page_digital_button_background_color"
+                    android:id="@+id/page_digital_switch_button_background_color"
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -225,13 +176,13 @@
                 android:layout_height="50dp"
                 android:layout_marginVertical="5dp">
                 <Button
-                    android:id="@+id/page_digital_button_copy"
+                    android:id="@+id/page_digital_switch_button_copy"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="复制"/>
                 <Button
-                    android:id="@+id/page_digital_button_delete"
+                    android:id="@+id/page_digital_switch_button_delete"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"

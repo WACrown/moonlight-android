@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -93,12 +92,38 @@ public class ElementController {
                 }
             }
         });
-        pageEdit.findViewById(R.id.page_edit_add_button).setOnClickListener(new View.OnClickListener() {
+        pageEdit.findViewById(R.id.page_edit_add_digital_common_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
                 // save a new element to sqlite
-                ContentValues contentValues = DigitalButton.getInitialInfo();
+                ContentValues contentValues = DigitalCommonButton.getInitialInfo();
+                //ContentValues contentValues = new ContentValues();
+                contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
+                controllerManager.getSuperConfigDatabaseHelper().insertElement(contentValues);
+                // add the element to screen
+                loadAllElement(configId);
+            }
+        });
+        pageEdit.findViewById(R.id.page_edit_add_digital_switch_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
+                // save a new element to sqlite
+                ContentValues contentValues = DigitalSwitchButton.getInitialInfo();
+                //ContentValues contentValues = new ContentValues();
+                contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
+                controllerManager.getSuperConfigDatabaseHelper().insertElement(contentValues);
+                // add the element to screen
+                loadAllElement(configId);
+            }
+        });
+        pageEdit.findViewById(R.id.page_edit_add_digital_movable_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
+                // save a new element to sqlite
+                ContentValues contentValues = DigitalMovableButton.getInitialInfo();
                 //ContentValues contentValues = new ContentValues();
                 contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
                 controllerManager.getSuperConfigDatabaseHelper().insertElement(contentValues);
@@ -191,8 +216,20 @@ public class ElementController {
             int type = ((Long) attributesMap.get(Element.COLUMN_INT_ELEMENT_TYPE)).intValue();
             Element element = null;
             switch (type){
-                case Element.ELEMENT_TYPE_DIGITAL_BUTTON:
-                    element = new DigitalButton(attributesMap,
+                case Element.ELEMENT_TYPE_DIGITAL_COMMON_BUTTON:
+                    element = new DigitalCommonButton(attributesMap,
+                            this,
+                            controllerManager.getPageDeviceController(),
+                            context);
+                    break;
+                case Element.ELEMENT_TYPE_DIGITAL_SWITCH_BUTTON:
+                    element = new DigitalSwitchButton(attributesMap,
+                            this,
+                            controllerManager.getPageDeviceController(),
+                            context);
+                    break;
+                case Element.ELEMENT_TYPE_DIGITAL_MOVABLE_BUTTON:
+                    element = new DigitalMovableButton(attributesMap,
                             this,
                             controllerManager.getTouchController(),
                             controllerManager.getPageDeviceController(),
