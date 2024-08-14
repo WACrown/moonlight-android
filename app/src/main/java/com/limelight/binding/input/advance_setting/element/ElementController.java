@@ -196,6 +196,19 @@ public class ElementController {
                 loadAllElement(configId);
             }
         });
+        pageEdit.findViewById(R.id.page_edit_add_simplify_performance).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
+                // save a new element to sqlite
+                ContentValues contentValues = SimplifyPerformance.getInitialInfo();
+                //ContentValues contentValues = new ContentValues();
+                contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
+                controllerManager.getSuperConfigDatabaseHelper().insertElement(contentValues);
+                // add the element to screen
+                loadAllElement(configId);
+            }
+        });
 
     }
 
@@ -261,6 +274,12 @@ public class ElementController {
                     break;
                 case Element.ELEMENT_TYPE_INVISIBLE_DIGITAL_STICK:
                     element = new InvisibleDigitalStick(attributesMap,
+                            this,
+                            controllerManager.getPageDeviceController(),
+                            context);
+                    break;
+                case Element.ELEMENT_TYPE_SIMPLIFY_PERFORMANCE:
+                    element = new SimplifyPerformance(attributesMap,
                             this,
                             controllerManager.getPageDeviceController(),
                             context);
@@ -532,5 +551,3 @@ public class ElementController {
 
     }
 }
-
-

@@ -48,7 +48,7 @@ public abstract class Element extends View {
     public static final int ELEMENT_TYPE_DIGITAL_STICK = 31;
     public static final int ELEMENT_TYPE_INVISIBLE_ANALOG_STICK = 32;
     public static final int ELEMENT_TYPE_INVISIBLE_DIGITAL_STICK = 33;
-
+    public static final int ELEMENT_TYPE_SIMPLIFY_PERFORMANCE = 50;
 
 
 
@@ -117,7 +117,6 @@ public abstract class Element extends View {
 
 
     protected void setParamCentralX(int centralX){
-        System.out.println("centralXMax = " + centralXMax);
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (centralX > centralXMax){
             layoutParams.leftMargin = centralXMax - layoutParams.width/2;
@@ -133,7 +132,6 @@ public abstract class Element extends View {
     }
 
     protected void setParamCentralY(int centralY){
-        System.out.println("centralYMax = " + centralYMax);
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (centralY > centralYMax){
             layoutParams.topMargin = centralYMax - layoutParams.height/2;
@@ -146,7 +144,6 @@ public abstract class Element extends View {
     }
 
     protected void setParamWidth(int width){
-        System.out.println("widthMax = " + widthMax);
         int centralPosX = getParamCentralX();
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (width > widthMax){
@@ -160,7 +157,6 @@ public abstract class Element extends View {
     }
 
     protected void setParamHeight(int height){
-        System.out.println("heightMax = " + heightMax);
         int centralPosY = getParamCentralY();
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (height > heightMax){

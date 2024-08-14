@@ -88,7 +88,11 @@ import java.lang.reflect.Method;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 
 public class Game extends Activity implements SurfaceHolder.Callback,
@@ -119,7 +123,12 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private KeyboardTranslator keyboardTranslator;
     private VirtualController virtualController;
 
+    public interface PerformanceInfoDisplay{
+        void display(Map<String,String> performanceAttrs);
+    }
     private ControllerManager controllerManager;
+    private List<PerformanceInfoDisplay> performanceInfoDisplays = new ArrayList<>();
+
 
     private PreferenceConfiguration prefConfig;
     private SharedPreferences tombstonePrefs;
@@ -2749,31 +2758,19 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 previousRxBytes = currentRxBytes;
 
 
-                if (prefConfig.enablePerfOverlay){
-                    Context context = performanceInfo.context;
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(context.getString(R.string.perf_overlay_streamdetails, performanceInfo.initialWidth + "x" + performanceInfo.initialHeight, performanceInfo.totalFps)).append('\n');
-                    sb.append(context.getString(R.string.perf_overlay_decoder, performanceInfo.decoder)).append('\n');
-                    sb.append(context.getString(R.string.perf_overlay_incomingfps, performanceInfo.receivedFps)).append('\n');
-                    sb.append(context.getString(R.string.perf_overlay_renderingfps, performanceInfo.renderedFps)).append('\n');
-                    sb.append(context.getString(R.string.perf_overlay_netdrops,
-                            performanceInfo.lostFrameRate)).append('\n');
-                    sb.append(context.getString(R.string.perf_overlay_netlatency,
-                            (int)(performanceInfo.rttInfo >> 32), (int)performanceInfo.rttInfo)).append('\n');
-                    if (performanceInfo.framesWithHostProcessingLatency > 0) {
-                        sb.append(context.getString(R.string.perf_overlay_hostprocessinglatency,
-                                performanceInfo.minHostProcessingLatency,
-                                performanceInfo.maxHostProcessingLatency,
-                                performanceInfo.aveHostProcessingLatency)).append('\n');
+                if (controllerManager != null && !performanceInfoDisplays.isEmpty()){
+                    Map<String, String> perfAttrs = new HashMap<>();
+                    perfAttrs.put("decoder", performanceInfo.decoder);
+                    perfAttrs.put("resolution", performanceInfo.initialWidth + "x" + performanceInfo.initialHeight);
+                    perfAttrs.put("fps", String.format("%.0f",performanceInfo.totalFps));
+                    perfAttrs.put("lost_frame", String.format("%.0f",performanceInfo.lostFrameRate));
+                    perfAttrs.put("net_latency", String.format("%d",(int)(performanceInfo.rttInfo >> 32)));
+                    perfAttrs.put("host_latency", String.format("%.0f", performanceInfo.aveHostProcessingLatency));
+                    perfAttrs.put("decode_time", String.format("%.0f",performanceInfo.decodeTimeMs));
+                    perfAttrs.put("band_width", performanceInfo.bandWidth);
+                    for (PerformanceInfoDisplay performanceInfoDisplay : performanceInfoDisplays){
+                        performanceInfoDisplay.display(perfAttrs);
                     }
-                    sb.append(context.getString(R.string.perf_overlay_dectime, performanceInfo.decodeTimeMs)).append('\n');
-                    sb.append("带宽:").append(performanceInfo.bandWidth).append('\n');
-
-                    performanceOverlayView.setText(sb.toString());
-                }
-
-                if (controllerManager != null && prefConfig.enableSimplifyPerfOverlay){
-
                 }
 
             }
@@ -2842,15 +2839,19 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
     public void togglePerformanceOverlay() {
         if (prefConfig.enablePerfOverlay) {
-                prefConfig.enablePerfOverlay = false;
-                performanceOverlayView.setVisibility(View.GONE);
-            } else {
-                prefConfig.enablePerfOverlay = true;
-                performanceOverlayView.setVisibility(View.VISIBLE);
-            }
+            prefConfig.enablePerfOverlay = false;
+            performanceOverlayView.setVisibility(View.GONE);
+        } else {
+            prefConfig.enablePerfOverlay = true;
+            performanceOverlayView.setVisibility(View.VISIBLE);
+        }
     }
 
     public PreferenceConfiguration getPrefConfig() {
         return prefConfig;
+    }
+
+    public void addPerformanceInfoDisplay(PerformanceInfoDisplay performanceInfoDisplay){
+        performanceInfoDisplays.add(performanceInfoDisplay);
     }
 }
