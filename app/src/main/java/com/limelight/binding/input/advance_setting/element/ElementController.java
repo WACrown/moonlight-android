@@ -281,7 +281,6 @@ public class ElementController {
                 case Element.ELEMENT_TYPE_SIMPLIFY_PERFORMANCE:
                     element = new SimplifyPerformance(attributesMap,
                             this,
-                            controllerManager.getPageDeviceController(),
                             context);
                     break;
             }

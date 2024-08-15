@@ -5,18 +5,15 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.text.InputFilter;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.limelight.Game;
 import com.limelight.R;
@@ -33,12 +30,11 @@ import java.util.regex.Pattern;
 public class SimplifyPerformance extends Element {
 
     private static final String SIMPLIFY_PERFORMANCE_TEXT_DEFAULT = "帧率:##fps##  带宽:##band_width##";
-    private static final String COLUMN_INT_ELEMENT_TEXT_SIZE = COLUMN_INT_ELEMENT_THICK;
-    private static final String COLUMN_INT_ELEMENT_TEXT_COLOR = COLUMN_INT_ELEMENT_NORMAL_COLOR;
-    private static final String COLUMN_INT_ELEMENT_PRE_PARSE_TEXT = COLUMN_STRING_ELEMENT_TEXT;
+    private static final String COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_SIZE = COLUMN_INT_ELEMENT_THICK;
+    private static final String COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_COLOR = COLUMN_INT_ELEMENT_NORMAL_COLOR;
+    private static final String COLUMN_INT_SIMPLIFY_PERFORMANCE_PRE_PARSE_TEXT = COLUMN_STRING_ELEMENT_TEXT;
 
     private SuperConfigDatabaseHelper superConfigDatabaseHelper;
-    private PageDeviceController pageDeviceController;
     private SimplifyPerformance simplifyPerformance;
     private Pattern pattern = Pattern.compile("##(.*?)##");
     private DisplayMetrics displayMetrics;
@@ -65,10 +61,9 @@ public class SimplifyPerformance extends Element {
 
     public SimplifyPerformance(Map<String,Object> attributesMap,
                                ElementController controller,
-                               PageDeviceController pageDeviceController, Context context) {
+                               Context context) {
         super((Long) attributesMap.get(Element.COLUMN_LONG_ELEMENT_ID),(Long)attributesMap.get(Element.COLUMN_LONG_CONFIG_ID),((Long) attributesMap.get(Element.COLUMN_INT_ELEMENT_TYPE)).intValue(),controller,context);
         this.superConfigDatabaseHelper = controller.getSuperConfigDatabaseHelper();
-        this.pageDeviceController = pageDeviceController;
         this.simplifyPerformance = this;
 
         displayMetrics = context.getResources().getDisplayMetrics();
@@ -88,11 +83,11 @@ public class SimplifyPerformance extends Element {
         paintBackground.setStyle(Paint.Style.FILL);
 
 
-        preParseText = (String) attributesMap.get(COLUMN_INT_ELEMENT_PRE_PARSE_TEXT);
+        preParseText = (String) attributesMap.get(COLUMN_INT_SIMPLIFY_PERFORMANCE_PRE_PARSE_TEXT);
         radius = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_RADIUS)).intValue();
         layer = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_LAYER)).intValue();
-        textSize = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_TEXT_SIZE)).intValue();
-        textColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_TEXT_COLOR)).intValue();
+        textSize = ((Long) attributesMap.get(COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_SIZE)).intValue();
+        textColor = ((Long) attributesMap.get(COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_COLOR)).intValue();
         backgroundColor = ((Long) attributesMap.get(COLUMN_INT_ELEMENT_BACKGROUND_COLOR)).intValue();
 
         ((Game)context).addPerformanceInfoDisplay(new Game.PerformanceInfoDisplay() {
@@ -129,10 +124,6 @@ public class SimplifyPerformance extends Element {
             radiusNumberSeekbar.setProgressMax(Math.min(getParamWidth(),getParamHeight()) / 2);
         }
 
-        centralXMax = displayMetrics.widthPixels - width / 2;
-        centralXMin = width / 2;
-        centralYMax = displayMetrics.heightPixels - height / 2;
-        centralYMin = height / 2;
 
     }
 
@@ -181,7 +172,8 @@ public class SimplifyPerformance extends Element {
         NumberSeekbar textSizeNumberSeekbar = simplifyPerformancePage.findViewById(R.id.page_simplify_performance_text_size);
         ElementEditText textColorElementEditText = simplifyPerformancePage.findViewById(R.id.page_simplify_performance_text_color);
         ElementEditText backgroundColorElementEditText = simplifyPerformancePage.findViewById(R.id.page_simplify_performance_background_color);
-
+        Button copyButton = simplifyPerformancePage.findViewById(R.id.page_simplify_performance_copy);
+        Button deleteButton = simplifyPerformancePage.findViewById(R.id.page_simplify_performance_delete);
 
         centralXNumberSeekbar.setProgressMin(centralXMin);
         centralXNumberSeekbar.setProgressMax(centralXMax);
@@ -251,7 +243,7 @@ public class SimplifyPerformance extends Element {
                     }
                 });
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(COLUMN_INT_ELEMENT_PRE_PARSE_TEXT, preParseText);
+                contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_PRE_PARSE_TEXT, preParseText);
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
             }
         });
@@ -260,7 +252,7 @@ public class SimplifyPerformance extends Element {
             @Override
             public void onClick(View v) {
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(COLUMN_INT_ELEMENT_PRE_PARSE_TEXT, preParseText);
+                contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_PRE_PARSE_TEXT, preParseText);
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
             }
         });
@@ -278,7 +270,7 @@ public class SimplifyPerformance extends Element {
             @Override
             public void onProgressRelease(int lastProgress) {
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(COLUMN_INT_ELEMENT_TEXT_SIZE, lastProgress);
+                contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_SIZE, lastProgress);
                 superConfigDatabaseHelper.updateElement(elementId,contentValues);
             }
         });
@@ -291,7 +283,7 @@ public class SimplifyPerformance extends Element {
                 if (text.matches("^[A-F0-9]{8}$")){
                     textColor = (int) Long.parseLong(text, 16);
                     ContentValues contentValues = new ContentValues();
-                    contentValues.put(COLUMN_INT_ELEMENT_TEXT_COLOR, textColor);
+                    contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_COLOR, textColor);
                     superConfigDatabaseHelper.updateElement(elementId,contentValues);
                 }
             }
@@ -310,6 +302,35 @@ public class SimplifyPerformance extends Element {
                 }
             }
         });
+
+        copyButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(COLUMN_LONG_ELEMENT_ID,System.currentTimeMillis());
+                contentValues.put(COLUMN_INT_ELEMENT_TYPE, ELEMENT_TYPE_SIMPLIFY_PERFORMANCE);
+                contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_PRE_PARSE_TEXT, preParseText);
+                contentValues.put(COLUMN_INT_ELEMENT_WIDTH,getParamWidth());
+                contentValues.put(COLUMN_INT_ELEMENT_HEIGHT,getParamHeight());
+                contentValues.put(COLUMN_INT_ELEMENT_LAYER,layer);
+                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,Math.max(Math.min(getParamCentralX() + getParamWidth(),centralXMax),centralXMin));
+                contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,getParamCentralY());
+                contentValues.put(COLUMN_INT_ELEMENT_RADIUS,radius);
+                contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_SIZE,textSize);
+                contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_COLOR,textColor);
+                contentValues.put(COLUMN_INT_ELEMENT_BACKGROUND_COLOR,backgroundColor);
+                elementController.copyElement(contentValues);
+            }
+        });
+
+        deleteButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                elementController.toggleInfoPage(simplifyPerformancePage);
+                elementController.deleteElement(simplifyPerformance);
+            }
+        });
+
         return simplifyPerformancePage;
     }
 
@@ -339,16 +360,16 @@ public class SimplifyPerformance extends Element {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_LONG_ELEMENT_ID,System.currentTimeMillis());
         contentValues.put(COLUMN_INT_ELEMENT_TYPE,ELEMENT_TYPE_SIMPLIFY_PERFORMANCE);
-        contentValues.put(COLUMN_INT_ELEMENT_PRE_PARSE_TEXT,SIMPLIFY_PERFORMANCE_TEXT_DEFAULT);
+        contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_PRE_PARSE_TEXT,SIMPLIFY_PERFORMANCE_TEXT_DEFAULT);
         contentValues.put(COLUMN_INT_ELEMENT_WIDTH, 100);
         contentValues.put(COLUMN_INT_ELEMENT_HEIGHT,20);
         contentValues.put(COLUMN_INT_ELEMENT_LAYER,0);
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,100);
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,100);
         contentValues.put(COLUMN_INT_ELEMENT_RADIUS,0);
-        contentValues.put(COLUMN_INT_ELEMENT_TEXT_SIZE,20);
-        contentValues.put(COLUMN_INT_ELEMENT_TEXT_COLOR,0xF0888888);
-        contentValues.put(COLUMN_INT_ELEMENT_BACKGROUND_COLOR,0x00FFFFFF);
+        contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_SIZE,20);
+        contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_COLOR,0xF0888888);
+        contentValues.put(COLUMN_INT_ELEMENT_BACKGROUND_COLOR,0xF0FFFFFF);
         return contentValues;
 
 
