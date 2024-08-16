@@ -49,12 +49,6 @@ public class PageSuperMenuController {
                 ((Game)context).disconnect();
             }
         });
-        addItem(new ItemPageSuperMenu("ceshi", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                System.out.println("ceshi");
-            }
-        },context));
 
     }
 
