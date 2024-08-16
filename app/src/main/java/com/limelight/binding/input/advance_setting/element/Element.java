@@ -49,6 +49,7 @@ public abstract class Element extends View {
     public static final int ELEMENT_TYPE_INVISIBLE_ANALOG_STICK = 32;
     public static final int ELEMENT_TYPE_INVISIBLE_DIGITAL_STICK = 33;
     public static final int ELEMENT_TYPE_SIMPLIFY_PERFORMANCE = 50;
+    public static final int ELEMENT_TYPE_DIGITAL_COMBINE_BUTTON = 51;
 
 
 

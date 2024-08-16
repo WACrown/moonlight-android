@@ -12,6 +12,7 @@ import com.limelight.Game;
 import com.limelight.R;
 import com.limelight.binding.input.ControllerHandler;
 import com.limelight.binding.input.advance_setting.ControllerManager;
+import com.limelight.binding.input.advance_setting.PageDeviceController;
 import com.limelight.binding.input.advance_setting.sqlite.SuperConfigDatabaseHelper;
 import com.limelight.binding.input.advance_setting.superpage.SuperPageLayout;
 
@@ -53,6 +54,7 @@ public class ElementController {
 
     private final ControllerManager controllerManager;
     private final ControllerHandler controllerHandler;
+    private final PageDeviceController pageDeviceController;
 
     private GamepadInputContext gamepadInputContext = new GamepadInputContext();
 
@@ -74,6 +76,7 @@ public class ElementController {
         this.game = (Game) context;
         this.controllerManager = controllerManager;
         this.controllerHandler = game.getControllerHandler();
+        this.pageDeviceController = controllerManager.getPageDeviceController();
         this.handler = new Handler(Looper.getMainLooper());
         this.pageEdit = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_edit,null);
 
@@ -209,7 +212,19 @@ public class ElementController {
                 loadAllElement(configId);
             }
         });
-
+        pageEdit.findViewById(R.id.page_edit_add_digital_combine_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
+                // save a new element to sqlite
+                ContentValues contentValues = DigitalCombineButton.getInitialInfo();
+                //ContentValues contentValues = new ContentValues();
+                contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
+                controllerManager.getSuperConfigDatabaseHelper().insertElement(contentValues);
+                // add the element to screen
+                loadAllElement(configId);
+            }
+        });
     }
 
 
@@ -232,55 +247,61 @@ public class ElementController {
                 case Element.ELEMENT_TYPE_DIGITAL_COMMON_BUTTON:
                     element = new DigitalCommonButton(attributesMap,
                             this,
-                            controllerManager.getPageDeviceController(),
+                            pageDeviceController,
                             context);
                     break;
                 case Element.ELEMENT_TYPE_DIGITAL_SWITCH_BUTTON:
                     element = new DigitalSwitchButton(attributesMap,
                             this,
-                            controllerManager.getPageDeviceController(),
+                            pageDeviceController,
                             context);
                     break;
                 case Element.ELEMENT_TYPE_DIGITAL_MOVABLE_BUTTON:
                     element = new DigitalMovableButton(attributesMap,
                             this,
                             controllerManager.getTouchController(),
-                            controllerManager.getPageDeviceController(),
+                            pageDeviceController,
                             context);
                     break;
                 case Element.ELEMENT_TYPE_DIGITAL_PAD:
                     element = new DigitalPad(attributesMap,
                             this,
-                            controllerManager.getPageDeviceController(),
+                            pageDeviceController,
                             context);
                     break;
                 case Element.ELEMENT_TYPE_ANALOG_STICK:
                     element = new AnalogStick(attributesMap,
                             this,
-                            controllerManager.getPageDeviceController(),
+                            pageDeviceController,
                             context);
                     break;
                 case Element.ELEMENT_TYPE_DIGITAL_STICK:
                     element = new DigitalStick(attributesMap,
                             this,
-                            controllerManager.getPageDeviceController(),
+                            pageDeviceController,
                             context);
                     break;
                 case Element.ELEMENT_TYPE_INVISIBLE_ANALOG_STICK:
                     element = new InvisibleAnalogStick(attributesMap,
                             this,
-                            controllerManager.getPageDeviceController(),
+                            pageDeviceController,
                             context);
                     break;
                 case Element.ELEMENT_TYPE_INVISIBLE_DIGITAL_STICK:
                     element = new InvisibleDigitalStick(attributesMap,
                             this,
-                            controllerManager.getPageDeviceController(),
+                            pageDeviceController,
                             context);
                     break;
                 case Element.ELEMENT_TYPE_SIMPLIFY_PERFORMANCE:
                     element = new SimplifyPerformance(attributesMap,
                             this,
+                            context);
+                    break;
+                case Element.ELEMENT_TYPE_DIGITAL_COMBINE_BUTTON:
+                    element = new DigitalCombineButton(attributesMap,
+                            this,
+                            pageDeviceController,
                             context);
                     break;
             }
