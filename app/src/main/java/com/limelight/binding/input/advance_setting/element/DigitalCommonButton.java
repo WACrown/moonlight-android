@@ -500,7 +500,7 @@ public class DigitalCommonButton extends Element {
         contentValues.put(COLUMN_STRING_ELEMENT_VALUE,"k29");
         contentValues.put(COLUMN_INT_ELEMENT_WIDTH,100);
         contentValues.put(COLUMN_INT_ELEMENT_HEIGHT,100);
-        contentValues.put(COLUMN_INT_ELEMENT_LAYER,0);
+        contentValues.put(COLUMN_INT_ELEMENT_LAYER,50);
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,100);
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,100);
         contentValues.put(COLUMN_INT_ELEMENT_RADIUS,0);

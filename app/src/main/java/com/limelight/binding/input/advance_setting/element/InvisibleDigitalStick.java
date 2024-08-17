@@ -889,7 +889,7 @@ public class InvisibleDigitalStick extends Element {
         contentValues.put(COLUMN_INT_ELEMENT_SENSE,30);
         contentValues.put(COLUMN_INT_ELEMENT_WIDTH,400);
         contentValues.put(COLUMN_INT_ELEMENT_HEIGHT,400);
-        contentValues.put(COLUMN_INT_ELEMENT_LAYER,0);
+        contentValues.put(COLUMN_INT_ELEMENT_LAYER,45);
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,400);
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,400);
         contentValues.put(COLUMN_INT_ELEMENT_RADIUS,100);
