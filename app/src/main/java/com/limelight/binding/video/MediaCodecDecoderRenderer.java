@@ -1424,48 +1424,46 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
 
         // Flip stats windows roughly every second
         if (SystemClock.uptimeMillis() >= activeWindowVideoStats.measurementStartTimestamp + 1000) {
-            if (prefs.enablePerfOverlay || prefs.enableSimplifyPerfOverlay) {
-                VideoStats lastTwo = new VideoStats();
-                lastTwo.add(lastWindowVideoStats);
-                lastTwo.add(activeWindowVideoStats);
-                VideoStatsFps fps = lastTwo.getFps();
-                String decoder;
+            VideoStats lastTwo = new VideoStats();
+            lastTwo.add(lastWindowVideoStats);
+            lastTwo.add(activeWindowVideoStats);
+            VideoStatsFps fps = lastTwo.getFps();
+            String decoder;
 
-                if ((videoFormat & MoonBridge.VIDEO_FORMAT_MASK_H264) != 0) {
-                    decoder = avcDecoder.getName();
-                } else if ((videoFormat & MoonBridge.VIDEO_FORMAT_MASK_H265) != 0) {
-                    decoder = hevcDecoder.getName();
-                } else if ((videoFormat & MoonBridge.VIDEO_FORMAT_MASK_AV1) != 0) {
-                    decoder = av1Decoder.getName();
-                } else {
-                    decoder = "(unknown)";
-                }
-                float decodeTimeMs = (float)lastTwo.decoderTimeMs / lastTwo.totalFramesReceived;
-                long rttInfo = MoonBridge.getEstimatedRttInfo();
-                float lostFrameRate = (float)lastTwo.framesLost / lastTwo.totalFrames * 100;
-                float minHostProcessingLatency = (float)lastTwo.minHostProcessingLatency / 10;
-                float maxHostProcessingLatency = (float)lastTwo.minHostProcessingLatency / 10;
-                float aveHostProcessingLatency = (float)lastTwo.totalHostProcessingLatency / 10 / lastTwo.framesWithHostProcessingLatency;
-
-                PerformanceInfo performanceInfo = new PerformanceInfo();
-                performanceInfo.context = context;
-                performanceInfo.initialWidth = initialWidth;
-                performanceInfo.initialHeight = initialHeight;
-                performanceInfo.decoder = decoder;
-                performanceInfo.totalFps = fps.totalFps;
-                performanceInfo.receivedFps = fps.receivedFps;
-                performanceInfo.renderedFps = fps.renderedFps;
-                performanceInfo.lostFrameRate = lostFrameRate;
-                performanceInfo.rttInfo = rttInfo;
-                performanceInfo.framesWithHostProcessingLatency = frameHostProcessingLatency;
-                performanceInfo.minHostProcessingLatency = minHostProcessingLatency;
-                performanceInfo.maxHostProcessingLatency = maxHostProcessingLatency;
-                performanceInfo.aveHostProcessingLatency = aveHostProcessingLatency;
-                performanceInfo.decodeTimeMs = decodeTimeMs;
-
-
-                perfListener.onPerfUpdate(performanceInfo);
+            if ((videoFormat & MoonBridge.VIDEO_FORMAT_MASK_H264) != 0) {
+                decoder = avcDecoder.getName();
+            } else if ((videoFormat & MoonBridge.VIDEO_FORMAT_MASK_H265) != 0) {
+                decoder = hevcDecoder.getName();
+            } else if ((videoFormat & MoonBridge.VIDEO_FORMAT_MASK_AV1) != 0) {
+                decoder = av1Decoder.getName();
+            } else {
+                decoder = "(unknown)";
             }
+            float decodeTimeMs = (float)lastTwo.decoderTimeMs / lastTwo.totalFramesReceived;
+            long rttInfo = MoonBridge.getEstimatedRttInfo();
+            float lostFrameRate = (float)lastTwo.framesLost / lastTwo.totalFrames * 100;
+            float minHostProcessingLatency = (float)lastTwo.minHostProcessingLatency / 10;
+            float maxHostProcessingLatency = (float)lastTwo.minHostProcessingLatency / 10;
+            float aveHostProcessingLatency = (float)lastTwo.totalHostProcessingLatency / 10 / lastTwo.framesWithHostProcessingLatency;
+
+            PerformanceInfo performanceInfo = new PerformanceInfo();
+            performanceInfo.context = context;
+            performanceInfo.initialWidth = initialWidth;
+            performanceInfo.initialHeight = initialHeight;
+            performanceInfo.decoder = decoder;
+            performanceInfo.totalFps = fps.totalFps;
+            performanceInfo.receivedFps = fps.receivedFps;
+            performanceInfo.renderedFps = fps.renderedFps;
+            performanceInfo.lostFrameRate = lostFrameRate;
+            performanceInfo.rttInfo = rttInfo;
+            performanceInfo.framesWithHostProcessingLatency = frameHostProcessingLatency;
+            performanceInfo.minHostProcessingLatency = minHostProcessingLatency;
+            performanceInfo.maxHostProcessingLatency = maxHostProcessingLatency;
+            performanceInfo.aveHostProcessingLatency = aveHostProcessingLatency;
+            performanceInfo.decodeTimeMs = decodeTimeMs;
+
+
+            perfListener.onPerfUpdate(performanceInfo);
 
             globalVideoStats.add(activeWindowVideoStats);
             lastWindowVideoStats.copy(activeWindowVideoStats);
