@@ -141,7 +141,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="解码器:      ##decoder## \n分辨率:      ##resolution## \n丢帧率:      ##lost_frame##\n网络延时:  ##net_latency##\n解码时间:  ##decode_time##\n带宽:          ##band_width## \n帧率:          ##fps## \n" />
+                        android:text="解码器:      ##decoder## \n分辨率:      ##resolution## \n丢帧率:      ##lost_frame##\n主机延时:  ##host_latency##\n网络延时:  ##net_latency##\n解码时间:  ##decode_time##\n带宽:         ##band_width## \n帧率:         ##fps## \n" />
                 </LinearLayout>
                 <LinearLayout
                     android:orientation="horizontal"
