@@ -15,7 +15,6 @@ public class KeyboardUIController {
     private ControllerManager controllerManager;
     private SeekBar opacitySeekbar;
     private LinearLayout keyboard;
-    private int visibility = View.GONE;
 
     public KeyboardUIController(FrameLayout keyboardLayout, ControllerManager controllerManager, Context context){
         this.keyboardLayout = keyboardLayout;
@@ -50,10 +49,12 @@ public class KeyboardUIController {
                     case MotionEvent.ACTION_DOWN:
                         // 处理按下事件
                         v.setBackgroundResource(R.drawable.confirm_square_border);
+                        controllerManager.getElementController().sendKeyEvent(true,(short) keyCode);
                         return true;
                     case MotionEvent.ACTION_UP:
                         // 处理释放事件
                         v.setBackgroundResource(R.drawable.square_border);
+                        controllerManager.getElementController().sendKeyEvent(false,(short) keyCode);
                         return true;
                 }
                 return false;
@@ -67,12 +68,14 @@ public class KeyboardUIController {
         }
     }
 
-    public void open() {
-        visibility = View.VISIBLE;
-        keyboardLayout.setVisibility(visibility);
+    public void toggle() {
+        if (keyboardLayout.getVisibility() == View.VISIBLE){
+            keyboardLayout.setVisibility(View.INVISIBLE);
+        } else {
+            keyboardLayout.setVisibility(View.VISIBLE);
+        }
+
+
     }
-    public void close() {
-        visibility = View.GONE;
-        keyboardLayout.setVisibility(visibility);
-    }
+
 }

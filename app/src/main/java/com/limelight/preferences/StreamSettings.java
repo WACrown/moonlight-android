@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.media.MediaCodecInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
@@ -27,23 +26,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
-import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.limelight.LimeLog;
 import com.limelight.PcView;
 import com.limelight.R;
-import com.limelight.binding.input.advance_setting.ConfigListPreference;
 import com.limelight.binding.video.MediaCodecHelper;
 import com.limelight.utils.Dialog;
-import com.limelight.utils.MathUtils;
 import com.limelight.utils.UiHelper;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
@@ -811,102 +801,7 @@ public class StreamSettings extends Activity {
 
         }
 
-        @Override
-        public void onActivityResult(int requestCode, int resultCode, Intent data) {
-            super.onActivityResult(requestCode, resultCode, data);
-            //导出配置文件
-            if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-                Uri uri = data.getData();
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                    try {
-                        // 将字符串写入文件
-                        OutputStream outputStream = getContext().getContentResolver().openOutputStream(uri);
-                        if (outputStream != null) {
-                            outputStream.write(exportConfigString.getBytes());
-                            outputStream.close();
-                            Toast.makeText(getContext(),"导出配置文件成功",Toast.LENGTH_SHORT).show();
-                        }
-                        } catch (IOException e) {
-                        }
-                }
-
-            }
-            //导入配置文件
-            if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
-                Uri importUri = data.getData();
-
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                    try (InputStream inputStream = getContext().getContentResolver().openInputStream(importUri);
-                         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-                        StringBuilder stringBuilder = new StringBuilder();
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            stringBuilder.append(line).append("\n");
-                        }
-                        String fileContent = stringBuilder.toString();
-                        String[] strings = fileContent.toString().split("###");
-                        if (strings.length != 4){
-                            Toast.makeText(getContext(),"读取配置文件失败",Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        if (!strings[2].equals(MathUtils.computeMD5(strings[1]))){
-                            Toast.makeText(getContext(),"读取配置文件失败",Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        Gson gson = new Gson();
-                        ConfigObject configObject = null;
-                        try {
-                            configObject = gson.fromJson(strings[1],ConfigObject.class);
-                        } catch (Exception e) {
-                            Toast.makeText(getContext(),"读取配置文件失败",Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        if (configObject.majorVersion != CONFIG_MAJOR_VERSION){
-                            Toast.makeText(getContext(),"配置文件版本不匹配",Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        ConfigListPreference configListPreference = new ConfigListPreference(getContext());
-                        if (configListPreference.isContainedName(configObject.configName)){
-                            configObject.configName = configObject.configName + "-1";
-                            configObject.configName = recursionRenameConfig(configListPreference,configObject.configName);
-                        }
-                        String configId = String.valueOf(System.currentTimeMillis());
-                        configListPreference.addConfiguration(configId,configObject.configName);
-
-//                        SettingPreference settingPreference = new SettingPreference(configId,getContext());
-//                        ElementPreference elementPreference = new ElementPreference(configId,getContext());
-//
-//                        settingPreference.importPreference(configObject.settingMap);
-//                        elementPreference.importPreference(configObject.elementMap);
-//                        Toast.makeText(getContext(),"导入配置文件成功",Toast.LENGTH_SHORT).show();
-
-                        //更新导出配置文件列表
-                        ListPreference exportPreference = (ListPreference) findPreference(PreferenceConfiguration.EXPORT_CONFIG_STRING);
-                        Map<String, String> configs = configListPreference.getSortedConfigurationMap();
-                        CharSequence[] nameEntries = configs.values().toArray(new String[0]);
-                        CharSequence[] nameEntryValues = configs.keySet().toArray(new String[0]);
-                        exportPreference.setEntries(nameEntries);
-                        exportPreference.setEntryValues(nameEntryValues);
-                    } catch (IOException e) {
-                    }
-                }
-            }
-        }
-
-        private String recursionRenameConfig(ConfigListPreference configListPreference, String name){
-            if (configListPreference.isContainedName(name)){
-                String[] parts = name.split("-");
-                int i = Integer.parseInt(parts[1]) + 1;
-                return recursionRenameConfig(configListPreference,parts[0] + "-" + i);
-            } else {
-                return name;
-            }
-
-        }
 
     }
 }

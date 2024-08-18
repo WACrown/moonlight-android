@@ -24,6 +24,7 @@ public class ControllerManager {
     private SuperConfigDatabaseHelper superConfigDatabaseHelper;
     private ElementController elementController;
     private PageSuperMenuController pageSuperMenuController;
+    private KeyboardUIController keyboardUIController;
     private Context context;
 
     public ControllerManager(FrameLayout layout, Context context){
@@ -92,6 +93,14 @@ public class ControllerManager {
             pageSuperMenuController = new PageSuperMenuController(context,this);
         }
         return pageSuperMenuController;
+    }
+
+    public KeyboardUIController getKeyboardUIController(){
+        if (keyboardUIController == null){
+            FrameLayout layoutKeyboard = advanceSettingView.findViewById(R.id.layer_6_keyboard);
+            keyboardUIController = new KeyboardUIController(layoutKeyboard,this,context);
+        }
+        return keyboardUIController;
     }
 
     public void refreshLayout(){
