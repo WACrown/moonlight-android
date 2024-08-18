@@ -729,16 +729,16 @@ public class StreamSettings extends Activity {
                     return true;
                 }
             });
-            findPreference(PreferenceConfiguration.IMPORT_CONFIG_STRING).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-                    intent.setType("*/*");
-                    startActivityForResult(intent, 2);
-                    return false;
-                }
-            });
+//            findPreference(PreferenceConfiguration.IMPORT_CONFIG_STRING).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//                @Override
+//                public boolean onPreferenceClick(Preference preference) {
+//                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+//                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                    intent.setType("*/*");
+//                    startActivityForResult(intent, 2);
+//                    return false;
+//                }
+//            });
 
 
 
