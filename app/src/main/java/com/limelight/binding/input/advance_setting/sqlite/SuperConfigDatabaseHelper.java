@@ -21,44 +21,6 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         writableDataBase = getWritableDatabase();
         readableDataBase = getReadableDatabase();
-        SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DROP TABLE IF EXISTS element");
-        // 创建表格的SQL语句
-        String createElementTable = "CREATE TABLE IF NOT EXISTS element (" +
-                "_id INTEGER PRIMARY KEY, " +
-                "element_id INTEGER," +
-                "config_id INTEGER," +
-                "element_type INTEGER," +
-                "element_value TEXT," +
-                "element_middle_value TEXT," +
-                "element_up_value TEXT," +
-                "element_down_value TEXT," +
-                "element_left_value TEXT," +
-                "element_right_value TEXT," +
-                "element_layer INTEGER," +
-                "element_mode INTEGER," +
-                "element_sense INTEGER," +
-                "element_central_x INTEGER," +
-                "element_central_y INTEGER," +
-                "element_width INTEGER," +
-                "element_height INTEGER," +
-                "element_area_width INTEGER," +
-                "element_area_height INTEGER," +
-                "element_text TEXT," +
-                "element_click_text TEXT," +
-                "element_background_icon TEXT," +
-                "element_click_background_icon TEXT," +
-                "element_radius INTEGER," +
-                "element_opacity INTEGER," +
-                "element_thick INTEGER," +
-                "element_background_color INTEGER," +
-                "element_color INTEGER," +
-                "element_pressed_color INTEGER," +
-                "element_create_time INTEGER" +
-                ")";
-
-        // 执行SQL语句
-        db.execSQL(createElementTable);
     }
 
     @Override
