@@ -217,7 +217,7 @@ public abstract class Element extends View {
                 float deltaX = x - lastX;
                 float deltaY = y - lastY;
                  //小位移算作点击
-                if (deltaX + deltaY < 0.2){
+                if (Math.abs(deltaX) + Math.abs(deltaY) < 0.2){
                     return true;
                 }
                 isClick = false;
