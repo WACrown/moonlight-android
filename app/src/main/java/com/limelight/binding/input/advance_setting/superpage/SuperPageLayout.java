@@ -1,11 +1,15 @@
 package com.limelight.binding.input.advance_setting.superpage;
 
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 
 public class SuperPageLayout extends FrameLayout {
@@ -25,6 +29,8 @@ public class SuperPageLayout extends FrameLayout {
     private boolean isSwipeActionDone = false;
     private DoubleFingerSwipeListener doubleFingerSwipeListener;
     private PageCloseListener pageCloseListener;
+    private boolean disableTouch = false;
+    private ObjectAnimator animator;
 
 
     public SuperPageLayout(Context context) {
@@ -48,6 +54,9 @@ public class SuperPageLayout extends FrameLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (disableTouch){
+            return true;
+        }
         switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 startX = ev.getX();
@@ -122,4 +131,25 @@ public class SuperPageLayout extends FrameLayout {
         this.pageCloseListener = pageCloseListener;
     }
 
+    public void startAnimator(float startX, float endX, AnimatorListenerAdapter animatorListenerAdapter){
+        animator = ObjectAnimator.ofFloat(this, "translationX", startX, endX);
+        animator.setDuration(300); // 设置动画持续时间为1秒
+        animator.setInterpolator(new AccelerateDecelerateInterpolator()); // 设置动画插值器
+        animator.addListener(animatorListenerAdapter);
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                disableTouch = false;
+            }
+        });
+        disableTouch = true;
+        animator.start();
+    }
+
+    public void endAnimator(){
+        if (animator != null){
+            animator.end();
+        }
+        animator = null;
+    }
 }
