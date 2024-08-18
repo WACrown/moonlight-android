@@ -216,10 +216,10 @@ public abstract class Element extends View {
                 float y = event.getY();
                 float deltaX = x - lastX;
                 float deltaY = y - lastY;
-                // 小位移算作点击
-//                if (deltaX + deltaY < 2){
-//                    return true;
-//                }
+                 //小位移算作点击
+                if (deltaX + deltaY < 0.2){
+                    return true;
+                }
                 isClick = false;
                 setParamCentralX(getCentralX() + (int) deltaX);
                 setParamCentralY(getCentralY() + (int) deltaY);
