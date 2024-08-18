@@ -190,14 +190,14 @@
             android:key="checkbox_show_onscreen_keyboard"
             android:summary="串流中自定义按键和一些设置，并将这些保存到自定义可快速切换的配置中"
             android:title="超级功能" />
-        <ListPreference
-            android:key="export_advance_config"
-            android:title="导出配置文件"
-            android:summary="导出自定义按钮的和串流内设置的配置文件" />
-        <Preference
-            android:key="import_advance_config"
-            android:title="导入配置文件"
-            android:summary="导入自定义按钮的和串流内设置的配置文件" />
+<!--        <ListPreference-->
+<!--            android:key="export_advance_config"-->
+<!--            android:title="导出配置文件"-->
+<!--            android:summary="导出自定义按钮的和串流内设置的配置文件" />-->
+<!--        <Preference-->
+<!--            android:key="import_advance_config"-->
+<!--            android:title="导入配置文件"-->
+<!--            android:summary="导入自定义按钮的和串流内设置的配置文件" />-->
         <Preference
             android:key="about_author"
             android:title="关注作者，不断更新新功能！"
