@@ -292,8 +292,11 @@ public class DigitalSwitchButton extends Element {
                     @Override
                     public void OnKeyClick(TextView key) {
                         value = key.getTag().toString();
+                        CharSequence text = key.getText();
                         // page页设置值文本
-                        ((TextView) v).setText(key.getText());
+                        ((TextView) v).setText(text);
+                        // element text 设置文本
+                        textElementEditText.setText(text);
                         // 保存值
                         ContentValues contentValues = new ContentValues();
                         contentValues.put(COLUMN_STRING_ELEMENT_VALUE, value);
