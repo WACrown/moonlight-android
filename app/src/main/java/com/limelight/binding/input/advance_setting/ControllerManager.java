@@ -6,7 +6,6 @@ import android.widget.FrameLayout;
 
 import com.limelight.Game;
 import com.limelight.R;
-import com.limelight.binding.input.advance_setting.combinekey.PageCombineKeyController;
 import com.limelight.binding.input.advance_setting.config.PageConfigController;
 import com.limelight.binding.input.advance_setting.element.ElementController;
 import com.limelight.binding.input.advance_setting.sqlite.SuperConfigDatabaseHelper;
@@ -18,7 +17,6 @@ public class ControllerManager {
     private FrameLayout fatherLayout;
     private PageConfigController pageConfigController;
     private TouchController touchController;
-    private PageCombineKeyController combineKeyController;
     private SuperPagesController superPagesController;
     private PageDeviceController pageDeviceController;
     private SuperConfigDatabaseHelper superConfigDatabaseHelper;
@@ -48,13 +46,6 @@ public class ControllerManager {
             touchController = new TouchController((Game) context,this,layerElement.findViewById(R.id.element_touch_view));
         }
         return touchController;
-    }
-
-    public PageCombineKeyController getCombineKeyController() {
-        if (combineKeyController == null){
-            combineKeyController = new PageCombineKeyController(this,context);
-        }
-        return combineKeyController;
     }
 
 

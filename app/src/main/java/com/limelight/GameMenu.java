@@ -8,9 +8,6 @@ import android.widget.ArrayAdapter;
 import com.limelight.binding.input.GameInputDevice;
 import com.limelight.binding.input.KeyboardTranslator;
 import com.limelight.binding.input.advance_setting.ControllerManager;
-import com.limelight.binding.input.advance_setting.combinekey.CombineKeyBean;
-import com.limelight.binding.input.advance_setting.element.Element;
-import com.limelight.binding.input.advance_setting.superpage.SuperPageLayout;
 import com.limelight.nvstream.NvConnection;
 import com.limelight.nvstream.input.KeyboardPacket;
 
