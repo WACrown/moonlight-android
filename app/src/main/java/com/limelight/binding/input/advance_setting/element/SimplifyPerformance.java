@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 public class SimplifyPerformance extends Element {
 
-    private static final String SIMPLIFY_PERFORMANCE_TEXT_DEFAULT = "帧率:##fps##  带宽:##band_width##";
+    private static final String SIMPLIFY_PERFORMANCE_TEXT_DEFAULT = "  带宽: ##band_width##    主机/网络/解码: ##host_latency## / ##net_latency## / ##decode_time##    帧率: ##fps##    丢帧: ##lost_frame##  ";
     private static final String COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_SIZE = COLUMN_INT_ELEMENT_THICK;
     private static final String COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_COLOR = COLUMN_INT_ELEMENT_NORMAL_COLOR;
     private static final String COLUMN_INT_SIMPLIFY_PERFORMANCE_PRE_PARSE_TEXT = COLUMN_STRING_ELEMENT_TEXT;
@@ -366,10 +366,10 @@ public class SimplifyPerformance extends Element {
         contentValues.put(COLUMN_INT_ELEMENT_LAYER,50);
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_X,100);
         contentValues.put(COLUMN_INT_ELEMENT_CENTRAL_Y,100);
-        contentValues.put(COLUMN_INT_ELEMENT_RADIUS,0);
-        contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_SIZE,20);
-        contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_COLOR,0xF0888888);
-        contentValues.put(COLUMN_INT_ELEMENT_BACKGROUND_COLOR,0xF0FFFFFF);
+        contentValues.put(COLUMN_INT_ELEMENT_RADIUS,19);
+        contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_SIZE,30);
+        contentValues.put(COLUMN_INT_SIMPLIFY_PERFORMANCE_TEXT_COLOR,0xB3FFFFFF);
+        contentValues.put(COLUMN_INT_ELEMENT_BACKGROUND_COLOR,0xF0555555);
         return contentValues;
 
 

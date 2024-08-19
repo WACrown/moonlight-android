@@ -2763,10 +2763,10 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                     perfAttrs.put("decoder", performanceInfo.decoder);
                     perfAttrs.put("resolution", performanceInfo.initialWidth + "x" + performanceInfo.initialHeight);
                     perfAttrs.put("fps", String.format("%.0f",performanceInfo.totalFps));
-                    perfAttrs.put("lost_frame", String.format("%.0f",performanceInfo.lostFrameRate));
+                    perfAttrs.put("lost_frame", String.format("%.1f",performanceInfo.lostFrameRate));
                     perfAttrs.put("net_latency", String.format("%d",(int)(performanceInfo.rttInfo >> 32)));
-                    perfAttrs.put("host_latency", String.format("%.0f", performanceInfo.aveHostProcessingLatency));
-                    perfAttrs.put("decode_time", String.format("%.0f",performanceInfo.decodeTimeMs));
+                    perfAttrs.put("host_latency", String.format("%.1f", performanceInfo.aveHostProcessingLatency));
+                    perfAttrs.put("decode_time", String.format("%.1f",performanceInfo.decodeTimeMs));
                     perfAttrs.put("band_width", performanceInfo.bandWidth);
                     for (PerformanceInfoDisplay performanceInfoDisplay : performanceInfoDisplays){
                         performanceInfoDisplay.display(perfAttrs);

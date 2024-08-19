@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -203,9 +204,12 @@ public class ElementController {
             @Override
             public void onClick(View v) {
                 Long configId = controllerManager.getPageConfigController().getCurrentConfigId();
+
+                DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
                 // save a new element to sqlite
                 ContentValues contentValues = SimplifyPerformance.getInitialInfo();
-                //ContentValues contentValues = new ContentValues();
+                contentValues.put(Element.COLUMN_INT_ELEMENT_CENTRAL_X,displayMetrics.widthPixels / 2);
+                contentValues.put(Element.COLUMN_INT_ELEMENT_CENTRAL_Y,30);
                 contentValues.put(Element.COLUMN_LONG_CONFIG_ID,configId);
                 controllerManager.getSuperConfigDatabaseHelper().insertElement(contentValues);
                 // add the element to screen
