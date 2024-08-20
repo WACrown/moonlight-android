@@ -29,11 +29,11 @@ public class PageConfigController {
 
 
     private static final String CURRENT_CONFIG_KEY = "current_config_id";
-    private static final String COLUMN_STRING_CONFIG_NAME = "config_name";
+    public static final String COLUMN_STRING_CONFIG_NAME = "config_name";
     private static final String COLUMN_BOOLEAN_TOUCH_ENABLE = "touch_enable";
     private static final String COLUMN_BOOLEAN_TOUCH_MODE = "touch_mode";
     private static final String COLUMN_INT_TOUCH_SENSE = "touch_sense";
-    private static final String COLUMN_LONG_CONFIG_ID = "config_id";
+    public static final String COLUMN_LONG_CONFIG_ID = "config_id";
 
     private SuperPageLayout pageConfig;
     private Context context;

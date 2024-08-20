@@ -70,8 +70,8 @@ public class PreferenceConfiguration {
 
     //wg
     private static final String ONSCREEN_CONTROLLER_PREF_STRING = "checkbox_show_onscreen_controls";
-    static final String IMPORT_CONFIG_STRING = "import_advance_config";
-    static final String EXPORT_CONFIG_STRING = "export_advance_config";
+    static final String IMPORT_CONFIG_STRING = "import_super_config";
+    static final String EXPORT_CONFIG_STRING = "export_super_config";
     static final String ABOUT_AUTHOR = "about_author";
 
     static final String DEFAULT_RESOLUTION = "1280x720";

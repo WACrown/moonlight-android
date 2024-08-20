@@ -6,12 +6,129 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.reflect.TypeToken;
+import com.limelight.binding.input.advance_setting.config.PageConfigController;
+import com.limelight.binding.input.advance_setting.element.Element;
+import com.limelight.utils.MathUtils;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
+    private class ExportFile{
+        private int version;
+        private String settings;
+        private String elements;
+        private String md5;
+
+        public ExportFile(int version, String settings, String elements) {
+            this.version = version;
+            this.settings = settings;
+            this.elements = elements;
+            this.md5 = MathUtils.computeMD5(version + settings + elements);
+        }
+
+        public int getVersion() {
+            return version;
+        }
+
+        public void setVersion(int version) {
+            this.version = version;
+        }
+
+        public String getSettings() {
+            return settings;
+        }
+
+        public void setSettings(String settings) {
+            this.settings = settings;
+        }
+
+        public String getElements() {
+            return elements;
+        }
+
+        public void setElements(String elements) {
+            this.elements = elements;
+        }
+
+        public String getMd5() {
+            return md5;
+        }
+
+        public void setMd5(String md5) {
+            this.md5 = md5;
+        }
+    }
+
+    public class ContentValuesSerializer implements JsonSerializer<ContentValues>, JsonDeserializer<ContentValues> {
+
+        @Override
+        public JsonElement serialize(ContentValues src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject jsonObject = new JsonObject();
+            for (Map.Entry<String, Object> entry : src.valueSet()) {
+                Object value = entry.getValue();
+                if (value instanceof Integer) {
+                    jsonObject.addProperty(entry.getKey(), (Integer) value);
+                } else if (value instanceof Long) {
+                    jsonObject.addProperty(entry.getKey(), (Long) value);
+                } else if (value instanceof Double) {
+                    jsonObject.addProperty(entry.getKey(), (Double) value);
+                } else if (value instanceof String) {
+                    jsonObject.addProperty(entry.getKey(), (String) value);
+                } else if (value instanceof byte[]) {
+                    // Serialize Blob as Base64 encoded string
+                    String base64Blob = context.serialize(value).getAsString();
+                    jsonObject.addProperty(entry.getKey(), base64Blob);
+                }
+                // Handle other types as needed
+            }
+            return jsonObject;
+        }
+
+        @Override
+        public ContentValues deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            ContentValues contentValues = new ContentValues();
+            JsonObject jsonObject = json.getAsJsonObject();
+            for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+                JsonElement jsonElement = entry.getValue();
+                if (jsonElement.isJsonPrimitive()) {
+                    JsonPrimitive jsonPrimitive = jsonElement.getAsJsonPrimitive();
+                    if (jsonPrimitive.isNumber()) {
+                        // Determine if it's a Long or Double based on the value
+                        if (jsonPrimitive.getAsString().contains(".")) {
+                            contentValues.put(entry.getKey(), jsonPrimitive.getAsDouble());
+                        } else {
+                            contentValues.put(entry.getKey(), jsonPrimitive.getAsLong());
+                        }
+                    } else if (jsonPrimitive.isString()) {
+                        contentValues.put(entry.getKey(), jsonPrimitive.getAsString());
+                    }
+                } else if (jsonElement.isJsonArray()) {
+                    // Deserialize Blob from Base64 encoded string
+                    byte[] blob = context.deserialize(jsonElement, byte[].class);
+                    contentValues.put(entry.getKey(), blob);
+                }
+                // Handle other types as needed
+            }
+            return contentValues;
+        }
+    }
+
+
     private static final String DATABASE_NAME = "super_config.db";
     private static final int DATABASE_VERSION = 1;
     private SQLiteDatabase writableDataBase;
@@ -175,12 +292,13 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 int columnIndex = cursor.getColumnIndexOrThrow(elementAttribute);
+                System.out.println("file type = " + cursor.getType(columnIndex));
                 switch (cursor.getType(columnIndex)) {
                     case Cursor.FIELD_TYPE_INTEGER:
                         o = cursor.getLong(columnIndex);
                         break;
                     case Cursor.FIELD_TYPE_FLOAT:
-                        o = cursor.getFloat(columnIndex);
+                        o = cursor.getDouble(columnIndex);
                         break;
                     case Cursor.FIELD_TYPE_STRING:
                         o = cursor.getString(columnIndex);
@@ -189,7 +307,6 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
                         o = cursor.getBlob(columnIndex);
                         break;
                     case Cursor.FIELD_TYPE_NULL:
-                        o = null;
                         break;
                 }
 
@@ -231,13 +348,12 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
                         resultMap.put(columnName, cursor.getString(i));
                         break;
                     case Cursor.FIELD_TYPE_FLOAT:
-                        resultMap.put(columnName, cursor.getFloat(i));
+                        resultMap.put(columnName, cursor.getDouble(i));
                         break;
                     case Cursor.FIELD_TYPE_BLOB:
                         resultMap.put(columnName, cursor.getBlob(i));
                         break;
                     case Cursor.FIELD_TYPE_NULL:
-                        resultMap.put(columnName, null);
                         break;
                 }
             }
@@ -345,7 +461,7 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
                         o = cursor.getLong(columnIndex);
                         break;
                     case Cursor.FIELD_TYPE_FLOAT:
-                        o = cursor.getFloat(columnIndex);
+                        o = cursor.getDouble(columnIndex);
                         break;
                     case Cursor.FIELD_TYPE_STRING:
                         o = cursor.getString(columnIndex);
@@ -354,7 +470,6 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
                         o = cursor.getBlob(columnIndex);
                         break;
                     case Cursor.FIELD_TYPE_NULL:
-                        o = null;
                         break;
                 }
 
@@ -364,5 +479,164 @@ public class SuperConfigDatabaseHelper extends SQLiteOpenHelper {
         
         return o;
     }
+
+    public String exportConfig(Long configId){
+        List<ContentValues> elementsValueList = new ArrayList<>();
+        ContentValues settingValues = new ContentValues();
+
+        // 定义 WHERE 子句
+        String selection = "config_id = ?";
+
+        // 定义 WHERE 子句中的参数
+        String[] selectionArgs = { String.valueOf(configId) };
+
+        Cursor cursor = readableDataBase.query(
+                "element",   // 表名
+                null, // 要查询的列
+                selection,  // WHERE 子句
+                selectionArgs, // WHERE 子句中的参数
+                null, // 不分组
+                null, // 不过滤
+                null  // 不排序
+        );
+
+        // 遍历查询结果
+        if (cursor.moveToFirst()) {
+            do {
+                ContentValues contentValues = new ContentValues();
+
+                // 将当前行的所有数据存入 ContentValues
+                for (int i = 0; i < cursor.getColumnCount(); i++) {
+                    String columnName = cursor.getColumnName(i);
+                    if (columnName.equals("_id")){
+                        continue;
+                    }
+                    int type = cursor.getType(i);
+
+                    // 根据列的数据类型将其添加到 ContentValues
+                    switch (type) {
+                        case Cursor.FIELD_TYPE_INTEGER:
+                            contentValues.put(columnName, cursor.getLong(i));
+                            break;
+                        case Cursor.FIELD_TYPE_FLOAT:
+                            contentValues.put(columnName, cursor.getDouble(i));
+                            break;
+                        case Cursor.FIELD_TYPE_STRING:
+                            contentValues.put(columnName, cursor.getString(i));
+                            break;
+                        case Cursor.FIELD_TYPE_BLOB:
+                            contentValues.put(columnName, cursor.getBlob(i));
+                            break;
+                        case Cursor.FIELD_TYPE_NULL:
+                            break;
+                    }
+                }
+
+                // 将 ContentValues 对象添加到结果列表中
+                elementsValueList.add(contentValues);
+
+            } while (cursor.moveToNext());
+        }
+
+
+
+        cursor = readableDataBase.query(
+                "config",   // 表名
+                null, // 要查询的列
+                selection,  // WHERE 子句
+                selectionArgs, // WHERE 子句中的参数
+                null, // 不分组
+                null, // 不过滤
+                null  // 不排序
+        );
+
+        if (cursor.moveToFirst()) {
+            // 将当前行的所有数据存入 ContentValues
+            for (int i = 0; i < cursor.getColumnCount(); i++) {
+                String columnName = cursor.getColumnName(i);
+                if (columnName.equals("_id")){
+                    continue;
+                }
+                int type = cursor.getType(i);
+
+                // 根据列的数据类型将其添加到 ContentValues
+                switch (type) {
+                    case Cursor.FIELD_TYPE_INTEGER:
+                        settingValues.put(columnName, cursor.getLong(i));
+                        break;
+                    case Cursor.FIELD_TYPE_FLOAT:
+                        settingValues.put(columnName, cursor.getDouble(i));
+                        break;
+                    case Cursor.FIELD_TYPE_STRING:
+                        settingValues.put(columnName, cursor.getString(i));
+                        break;
+                    case Cursor.FIELD_TYPE_BLOB:
+                        settingValues.put(columnName, cursor.getBlob(i));
+                        break;
+                    case Cursor.FIELD_TYPE_NULL:
+                        break;
+                }
+            }
+        }
+
+        // 关闭 Cursor
+        cursor.close();
+
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(ContentValues.class, new ContentValuesSerializer());
+        Gson gson = gsonBuilder.create();
+        ContentValues[] elementsValues = elementsValueList.toArray(new ContentValues[0]);
+
+
+        String settingString = gson.toJson(settingValues);
+        String elementsString = gson.toJson(elementsValues);
+
+
+        return gson.toJson(new ExportFile(DATABASE_VERSION,settingString,elementsString));
+
+
+
+    }
+
+    public int importConfig(String configString){
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(ContentValues.class, new ContentValuesSerializer());
+        Gson gson = gsonBuilder.create();
+        ExportFile exportFile;
+        int version;
+        String settingString;
+        String elementsString;
+        String md5;
+        try {
+            exportFile = gson.fromJson(configString, ExportFile.class);
+            version = exportFile.getVersion();
+            settingString = exportFile.getSettings();
+            elementsString = exportFile.getElements();
+            md5 = exportFile.getMd5();
+        } catch (Exception e){
+            return -1;
+        }
+
+
+
+        if (!md5.equals(MathUtils.computeMD5(version + settingString + elementsString))){
+            return -2;
+        }
+        if (version != DATABASE_VERSION){
+            return -3;
+        }
+        ContentValues settingValues = gson.fromJson(settingString, ContentValues.class);
+        ContentValues[] elements = gson.fromJson(elementsString, ContentValues[].class);
+
+        Long newConfigId = System.currentTimeMillis();
+        settingValues.put(PageConfigController.COLUMN_LONG_CONFIG_ID,newConfigId);
+        insertConfig(settingValues);
+        for (ContentValues contentValues : elements){
+            contentValues.put(Element.COLUMN_LONG_CONFIG_ID,newConfigId);
+            insertElement(contentValues);
+        }
+        return 0;
+    }
+
 }
 
