@@ -218,8 +218,9 @@ public class DigitalMovableButton extends Element {
                 return true;
             }
             case MotionEvent.ACTION_MOVE: {
-                touchController.mouseMove((event.getX() - lastX) * 0.01f * sense,
-                        (event.getY() - lastY)* 0.01f * sense);
+                float deltaX = event.getX() - lastX;
+                float deltaY = event.getY() - lastY;
+                touchController.mouseMove(deltaX,deltaY,0.01*sense);
                 lastX = event.getX();
                 lastY = event.getY();
                 return true;

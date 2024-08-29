@@ -108,8 +108,8 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private final TouchContext[] relativeTouchContextMap = new TouchContext[TOUCH_CONTEXT_LENGTH];
     private long threeFingerDownTime = 0;
 
-    private static final int REFERENCE_HORIZ_RES = 1280;
-    private static final int REFERENCE_VERT_RES = 720;
+    public static final int REFERENCE_HORIZ_RES = 1280;
+    public static final int REFERENCE_VERT_RES = 720;
 
     private static final int STYLUS_DOWN_DEAD_ZONE_DELAY = 100;
     private static final int STYLUS_DOWN_DEAD_ZONE_RADIUS = 20;
@@ -518,7 +518,6 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         for (int i = 0; i < TOUCH_CONTEXT_LENGTH; i++) {
             absoluteTouchContextMap[i] = new AbsoluteTouchContext(conn, i, streamView);
             relativeTouchContextMap[i] = new RelativeTouchContext(conn, i,
-                    REFERENCE_HORIZ_RES, REFERENCE_VERT_RES,
                     streamView, prefConfig);
         }
         if (!prefConfig.touchscreenTrackpad) {
