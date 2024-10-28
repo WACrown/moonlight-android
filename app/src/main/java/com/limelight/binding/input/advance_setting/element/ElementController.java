@@ -24,6 +24,22 @@ import java.util.Map;
 
 public class ElementController {
 
+    // 空按键
+    public static final String SPECIAL_KEY_NULL = "null";
+    // 手柄左摇杆
+    public static final String SPECIAL_KEY_GAMEPAD_LEFT_STICK = "LS";
+    // 手柄右摇杆
+    public static final String SPECIAL_KEY_GAMEPAD_RIGHT_STICK = "RS";
+    // 手柄左触发器
+    public static final String SPECIAL_KEY_GAMEPAD_LEFT_TRIGGER = "lt";
+    // 手柄右触发器
+    public static final String SPECIAL_KEY_GAMEPAD_RIGHT_TRIGGER = "rt";
+    // 滚轮上滚
+    public static final String SPECIAL_KEY_MOUSE_SCROLL_UP = "SU";
+    // 滚轮下滚
+    public static final String SPECIAL_KEY_MOUSE_SCROLL_DOWN = "SD";
+
+
 
 
 
@@ -417,7 +433,7 @@ public class ElementController {
                 }
             };
 
-        } else if (key.equals("LS")){
+        } else if (key.equals(SPECIAL_KEY_GAMEPAD_LEFT_STICK)){
             return new SendEventHandler() {
                 @Override
                 public void sendEvent(boolean down) {
@@ -431,7 +447,7 @@ public class ElementController {
                     sendGamepadEvent();
                 }
             };
-        } else if (key.equals("RS")){
+        } else if (key.equals(SPECIAL_KEY_GAMEPAD_RIGHT_STICK)){
             return new SendEventHandler() {
                 @Override
                 public void sendEvent(boolean down) {
@@ -445,7 +461,7 @@ public class ElementController {
                     sendGamepadEvent();
                 }
             };
-        } else if (key.equals("lt")){
+        } else if (key.equals(SPECIAL_KEY_GAMEPAD_LEFT_TRIGGER)){
             return new SendEventHandler() {
                 @Override
                 public void sendEvent(boolean down) {
@@ -462,7 +478,7 @@ public class ElementController {
 
                 }
             };
-        } else if (key.equals("rt")){
+        } else if (key.equals(SPECIAL_KEY_GAMEPAD_RIGHT_TRIGGER)){
             return new SendEventHandler() {
                 @Override
                 public void sendEvent(boolean down) {
@@ -479,7 +495,35 @@ public class ElementController {
 
                 }
             };
-        } else if (key.equals("null")){
+        } else if (key.equals(SPECIAL_KEY_MOUSE_SCROLL_UP)){
+            return new SendEventHandler() {
+                @Override
+                public void sendEvent(boolean down) {
+                    if (down){
+                        sendMouseScroll(1);
+                    }
+                }
+
+                @Override
+                public void sendEvent(int analog1, int analog2) {
+
+                }
+            };
+        } else if (key.equals(SPECIAL_KEY_MOUSE_SCROLL_DOWN)){
+            return new SendEventHandler() {
+                @Override
+                public void sendEvent(boolean down) {
+                    if (down){
+                        sendMouseScroll(-1);
+                    }
+                }
+
+                @Override
+                public void sendEvent(int analog1, int analog2) {
+
+                }
+            };
+        } else if (key.equals(SPECIAL_KEY_NULL)){
             return new SendEventHandler() {
                 @Override
                 public void sendEvent(boolean down) {
@@ -529,6 +573,18 @@ public class ElementController {
         //把这个按键的runnable放到map中，以便这个按键重新发送的时候，重置runnable。
         mouseEventRunnableMap.put(mouseId,runnable);
 
+        handler.postDelayed(runnable, 50);
+        handler.postDelayed(runnable, 75);
+    }
+
+    public void sendMouseScroll(int scrollDirection){
+        game.mouseVScroll((byte) scrollDirection);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                game.mouseVScroll((byte) scrollDirection);
+            }
+        };
         handler.postDelayed(runnable, 50);
         handler.postDelayed(runnable, 75);
     }
