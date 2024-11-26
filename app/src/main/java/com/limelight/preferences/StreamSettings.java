@@ -738,7 +738,7 @@ public class StreamSettings extends Activity {
                 List<Long> configIdList = superConfigDatabaseHelper.queryAllConfigIds();
                 Map<String, String> configMap = new HashMap<>();
                 for (Long configId : configIdList){
-                    String configName = (String) superConfigDatabaseHelper.queryConfigAttribute(configId, PageConfigController.COLUMN_STRING_CONFIG_NAME);
+                    String configName = (String) superConfigDatabaseHelper.queryConfigAttribute(configId, PageConfigController.COLUMN_STRING_CONFIG_NAME,"default");
                     String configIdString = String.valueOf(configId);
                     configMap.put(configIdString,configName);
                 }
@@ -769,7 +769,7 @@ public class StreamSettings extends Activity {
                 List<Long> configIdList = superConfigDatabaseHelper.queryAllConfigIds();
                 Map<String, String> configMap = new HashMap<>();
                 for (Long configId : configIdList){
-                    String configName = (String) superConfigDatabaseHelper.queryConfigAttribute(configId, PageConfigController.COLUMN_STRING_CONFIG_NAME);
+                    String configName = (String) superConfigDatabaseHelper.queryConfigAttribute(configId, PageConfigController.COLUMN_STRING_CONFIG_NAME,"default");
                     String configIdString = String.valueOf(configId);
                     configMap.put(configIdString,configName);
                 }
@@ -848,7 +848,7 @@ public class StreamSettings extends Activity {
                                 List<Long> configIdList = superConfigDatabaseHelper.queryAllConfigIds();
                                 Map<String, String> configMap = new HashMap<>();
                                 for (Long configId : configIdList){
-                                    String configName = (String) superConfigDatabaseHelper.queryConfigAttribute(configId, PageConfigController.COLUMN_STRING_CONFIG_NAME);
+                                    String configName = (String) superConfigDatabaseHelper.queryConfigAttribute(configId, PageConfigController.COLUMN_STRING_CONFIG_NAME,"default");
                                     String configIdString = String.valueOf(configId);
                                     configMap.put(configIdString,configName);
                                 }
